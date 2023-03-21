@@ -1,0 +1,36 @@
+{
+
+  "manifest_version": 2,
+  "name": "Genie Multiplexer for Firefox",
+  "version": "0.1.0",
+
+  "description": "Records and transcribes your voice, pasting it to the clipboard",
+
+  "browser_action": {
+    "default_icon": {
+      "16": "icons/border-16.png",
+      "32": "icons/border-32.png",
+      "48": "icons/border-48.png"
+    },
+    "default_title": "Genie Multiplexer",
+    "default_popup": "http://127.0.0.1/genie-plugin-firefox/recorder.html"
+  },
+  "icons": {
+    "48": "icons/border-48.png"
+  },
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+T",
+        "mac": "Ctrl+Shift+T"
+      }
+    }
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"]
+    }
+  ]
+
+}
