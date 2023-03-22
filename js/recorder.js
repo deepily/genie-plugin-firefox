@@ -1,8 +1,5 @@
 console.log( "recorder.js loading..." );
 
-// alert( "borderify.js loaded" );
-// document.body.style.border = "5px solid yellow";
-
 function colorizer() {
   document.body.style.backgroundColor = '#ee2222';
 }
@@ -127,6 +124,7 @@ saveButton.addEventListener('click', async () => {
                 let text = res.text().then( respText => {
                 console.log( "respText [" + respText + "]" )
                 pushToClipboard( respText );
+                // pushToCurrentTab( respText );
             });
             console.log( "text [" + text + "]" );
             // alert(text);
@@ -135,7 +133,17 @@ saveButton.addEventListener('click', async () => {
         });
     };
 });
+
+// pushToCurrentTab = ( msg ) => {
+//
+//     browser.tabs.sendMessage( tabs[0].id, {
+//         command: "insert-text",
+//         transcribedText: msg
+//     });
+// }
+
 pushToClipboard = (msg ) => {
+
   console.log("Pushing to clipboard [" + msg + "]...");
   navigator.clipboard.writeText(msg).then(() => {
     console.log("Success!");
@@ -164,6 +172,17 @@ pushToClipboard = (msg ) => {
 //     const [start, end] = [el.selectionStart, el.selectionEnd];
 //     el.setRangeText(newText, start, end, 'select');
 // }
+
+
+/**
+ * When the popup loads, inject a content script into the active tab,
+ * and add a click handler.
+ * If we couldn't inject the script, handle the error.
+ */
+// console.log( "JS injector script loading... " )
+// browser.tabs.executeScript({ file: "/js/js-injector.js"})
+//   .then( console.log( "JS injector script loading... done!" ) )
+//   .catch( console.log( "Unable to load JS injector script." ) );
 
 console.log( "recorder.js loaded" );
 // document.body.style.border = "5px solid green";
