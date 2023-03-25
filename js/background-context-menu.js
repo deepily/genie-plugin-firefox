@@ -2,8 +2,11 @@ console.log( "background-context-menu.js loading..." );
 
 // ¡OJO! TODO: These constants should be declared globally and ultimately in a runtime configurable configuration service provided by the browser.
 // ¡OJO! TODO: background-context-menu.js and recorder.js both make duplicate declarations of these constants.
-const sttServerAndPort = "http://127.0.0.1:5000";
-const ttsServerAndPort = "http://127.0.0.1:5000";
+
+// port 5000 used when running flask locally within PyCharm
+// const genieInTheBoxServer = "http://127.0.0.1:5000";
+const genieInTheBoxServer = "http://127.0.0.1:7999";
+const ttsServer = "http://127.0.0.1:5002";
 
 // browser.contextMenus.create({
 //         id: "insert-modal",
@@ -16,7 +19,7 @@ const ttsServerAndPort = "http://127.0.0.1:5000";
 // );
 browser.contextMenus.create({
         id: "whats-this-mean",
-        title: "What's this mean?",
+        title: "What's this?",
         contexts: ["selection"]
     },
     // See https://extensionworkshop.com/documentation/develop/manifest-v3-migration-guide/#event-pages-and-backward-compatibility
@@ -107,7 +110,7 @@ fetchWhatsThisMean = async (info) => {
 
     console.log("fetchWhatsThisMean() called...")
 
-    let url = sttServerAndPort + "/api/ask-ai-text?question=" + info.selectionText
+    let url = genieInTheBoxServer + "/api/ask-ai-text?question=" + info.selectionText
     const encodedUrl = encodeURI(url);
     console.log("encoded: " + encodedUrl);
 
@@ -131,7 +134,7 @@ doTextToSpeech = async (text) => {
 
     console.log("doTextToSpeech() called...")
 
-    let url = ttsServerAndPort + "/api/text2vox?text=" + text
+    let url = ttsServer + "/api/tts?text=" + text
     const encodedUrl = encodeURI(url);
     console.log("encoded: " + encodedUrl);
 
