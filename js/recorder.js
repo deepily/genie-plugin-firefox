@@ -2,10 +2,11 @@ console.log( "recorder.js loading..." );
 
 // ¡OJO! TODO: These constants should be declared globally and ultimately in a runtime configurable configuration service provided by the browser.
 // ¡OJO! TODO: background-context-menu.js and recorder.js both make duplicate declarations of these constants.
-const sttServerAndPort = "http://127.0.0.1:5000";
+// const sttServerAndPort = "http://127.0.0.1:5000";
+const genieInTheBoxServer = "http://127.0.0.1:7999";
 
 function colorizer() {
-  document.body.style.backgroundColor = '#ee2222';
+  document.body.style.backgroundColor = "#ee2222";
 }
 
 document.getElementById("record").addEventListener("click", colorizer );
@@ -108,6 +109,9 @@ playButton.addEventListener('click', () => {
 
 saveButton.addEventListener('click', async () => {
 
+    const url = genieInTheBoxServer + "/api/upload-and-transcribe"
+    console.log( "Attempting to upload and transcribe to url [" + url + "]")
+
     const reader = new FileReader();
     reader.readAsDataURL(audio.audioBlob);
     reader.onload = () => {
@@ -115,7 +119,7 @@ saveButton.addEventListener('click', async () => {
         const audioMessage = reader.result.split(',')[1];
         const mimeType = reader.result.split(',')[0];
 
-        fetch(sttServerAndPort + '/api/upload-and-transcribe', {
+        fetch( url, {
             method: 'POST',
             headers: { 'Content-Type': mimeType },
             body: audioMessage
