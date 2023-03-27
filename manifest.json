@@ -13,7 +13,7 @@
       "48": "icons/border-48.png"
     },
     "default_title": "Genie Multiplexer",
-    "default_popup": "http://127.0.0.1/genie-plugin-firefox/html/recorder.html"
+    "default_popup": "http://127.0.0.1:8080/genie-plugin-firefox/html/recorder.html"
   },
   "icons": {
     "48": "icons/border-48.png"
