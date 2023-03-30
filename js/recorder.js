@@ -109,7 +109,7 @@ playButton.addEventListener('click', () => {
 
 saveButton.addEventListener('click', async () => {
 
-    const url = genieInTheBoxServer + "/api/upload-and-transcribe"
+    const url = genieInTheBoxServer + "/api/upload-and-transcribe-mp3"
     console.log( "Attempting to upload and transcribe to url [" + url + "]")
 
     const reader = new FileReader();
