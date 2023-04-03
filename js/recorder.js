@@ -16,28 +16,38 @@ document.getElementById("record").addEventListener("click", colorizer );
 
 // let stream = "";
 window.addEventListener("DOMContentLoaded", (event) => {
-  console.log("DOM fully loaded and parsed, starting recording...");
-  document.getElementById('record').click()
-});
-window.addEventListener( "keydown", function (event) {
 
-    // console.log( "event [" + event + "]" );
-    // console.log( "event.key [" + event.key + "]" );
-    if ( event.ctrlKey && event.key == "r" ) {
-      console.log( "'Ctrl r' pressed" );
-      document.getElementById('record').click();
-    } else if ( event.ctrlKey && event.key == "s" ) {
-      console.log( "'Ctrl s' pressed" );
-      document.getElementById('stop').click();
-      console.log( "Key pressed [" + event.key + "]" );
-    } else if ( event.ctrlKey && event.key == "p" ) {
-      console.log( "Ctrl 'p' pressed" );
-      document.getElementById('play').click();
-    } else if ( event.ctrlKey && event.key == "t" ) {
-      console.log( "'Ctrl t' pressed" );
-      document.getElementById('save').click();
-    }
+    console.log( "DOM fully loaded and parsed, Checking permissions...." );
+    document.getElementById('record').click()
+
+    navigator.mediaDevices.getUserMedia( { audio: true, video: false } )
+    .then( ( stream ) => {
+        console.log( "Microphone available" )
+    },
+    e => {
+        console.log( "Microphone NOT available" )
+    } );
+    console.log( "DOM fully loaded and parsed, Checking permissions.... Done!" );
 });
+// window.addEventListener( "keydown", function (event) {
+//
+//     // console.log( "event [" + event + "]" );
+//     // console.log( "event.key [" + event.key + "]" );
+//     if ( event.ctrlKey && event.key == "r" ) {
+//       console.log( "'Ctrl r' pressed" );
+//       document.getElementById('record').click();
+//     } else if ( event.ctrlKey && event.key == "s" ) {
+//       console.log( "'Ctrl s' pressed" );
+//       document.getElementById('stop').click();
+//       console.log( "Key pressed [" + event.key + "]" );
+//     } else if ( event.ctrlKey && event.key == "p" ) {
+//       console.log( "Ctrl 'p' pressed" );
+//       document.getElementById('play').click();
+//     } else if ( event.ctrlKey && event.key == "t" ) {
+//       console.log( "'Ctrl t' pressed" );
+//       document.getElementById('save').click();
+//     }
+// });
 
 const recordAudio = () =>
     new Promise(async resolve => {
@@ -52,7 +62,8 @@ const recordAudio = () =>
       const start = () => {
         audioChunks = [];
         mediaRecorder.start();
-        document.getElementById('record').hidden = true;
+        // document.getElementById('record').hidden = true;
+        document.getElementById('stop').focus();
       };
 
       const stop = () =>

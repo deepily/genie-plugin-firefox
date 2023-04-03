@@ -33,7 +33,7 @@
   ],
   "background": {
         "scripts": [
-            "/js/background-context-menu.js"
+            "js/background-context-menu.js"
         ],
         "type": "classic",
         "persistent": false
