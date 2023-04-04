@@ -21,9 +21,16 @@
   "commands": {
     "_execute_browser_action": {
       "suggested_key": {
-        "default": "Ctrl+Shift+T",
-        "mac": "Ctrl+Shift+T"
+        "default": "Ctrl+Shift+P",
+        "mac": "MacCtrl+Shift+P"
       }
+    },
+    "popup-vox-to-text": {
+      "suggested_key": {
+        "default": "Alt+Shift+T",
+        "mac": "MacCtrl+T"
+      },
+      "description": "Pops up voice to text recorder"
     }
   },
   "permissions": [
