@@ -33,16 +33,25 @@
       "description": "Pops up voice to text recorder"
     }
   },
-  "permissions": [
-    "activeTab",
-    "contextMenus",
-    "clipboardWrite"
-  ],
   "background": {
         "scripts": [
             "js/background-context-menu.js"
         ],
         "type": "classic",
         "persistent": false
-    }
+  },
+  "permissions": [
+    "activeTab",
+    "contextMenus",
+    "clipboardWrite"
+  ],
+  "content_scripts": [ {
+      "js": [
+        "js/background.js"
+      ],
+      "matches": [
+        "https://*/*",
+        "http://*/*"
+      ]
+    } ]
 }

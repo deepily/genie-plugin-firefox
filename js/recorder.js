@@ -5,14 +5,13 @@ console.log( "recorder.js loading..." );
 // const sttServerAndPort = "http://127.0.0.1:5000";
 const genieInTheBoxServer = "http://127.0.0.1:7999";
 
-function colorizer() {
-  document.body.style.backgroundColor = "#ee2222";
+function formatter() {
+  document.body.style.backgroundColor = "pink";
+  document.body.style.border = "2px dotted red";
+  document.body.style.padding = "8px";
 }
 
-document.getElementById("record").addEventListener("click", colorizer );
-// document.getElementById("record").addEventListener("click", function() {
-//   document.body.style.backgroundColor = '#ee0000';
-// } );
+document.getElementById("record").addEventListener("click", formatter );
 
 // let stream = "";
 window.addEventListener("DOMContentLoaded", (event) => {
@@ -94,6 +93,9 @@ let audio;
 
 recordButton.addEventListener('click', async () => {
 
+    document.body.style.backgroundColor = "pink";
+    document.body.style.border = "2px dotted red";
+    ``
     recordButton.setAttribute('disabled', true);
     stopButton.removeAttribute('disabled');
     stopButton.focus();
@@ -106,6 +108,10 @@ recordButton.addEventListener('click', async () => {
 });
 
 stopButton.addEventListener('click', async () => {
+
+    document.body.style.backgroundColor = "white";
+    document.body.style.border = "2px solid white";
+
     recordButton.removeAttribute('disabled');
     stopButton.setAttribute('disabled', true);
     playButton.removeAttribute('disabled');

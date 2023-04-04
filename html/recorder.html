@@ -3,13 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <title>Recorder</title>
+  <style >
+    .elementToFadeInAndOut {
+      /*width:200px;*/
+      /*height: 200px;*/
+      border: red 2px dotted;
+      -webkit-animation: fadeinout 4s linear forwards;
+      animation: fadeinout 4s linear forwards;
+      opacity: 0;
+    }
+
+    @-webkit-keyframes fadeinout {
+      50% { opacity: 1; }
+    }
+
+    @keyframes fadeinout {
+      50% { opacity: 1; }
+    }
+  </style>
 </head>
-<body>
-  <button id="record">Record</button>
+<body style="width: 230px; margin: 22px auto;">
+
+  <button id="record" style="margin-left: 0px">Record</button>
   <button id="stop" disabled>Stop</button>
   <button id="play" disabled>Play</button>
   <button id="save" disabled>Transcribe</button>
 
   <script src="../js/recorder.js"></script>
+
 </body>
 </html>

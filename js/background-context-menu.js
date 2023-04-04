@@ -10,7 +10,7 @@ function onCreated() {
   if (browser.runtime.lastError) {
     console.log("error creating item:" + browser.runtime.lastError);
   } else {
-    console.log("item created successfully");
+    // console.log("item created successfully");
   }
 }
 function onError() {
@@ -30,12 +30,12 @@ function onError() {
 //   contexts: ["all"],
 //   checked: false
 // }, onCreated);
-browser.contextMenus.create({
-  id: "radio-popup",
-  title: "Popup",
-  contexts: ["all"],
-  checked: false
-}, onCreated);
+// browser.contextMenus.create({
+//   id: "radio-popup",
+//   title: "Popup",
+//   contexts: ["all"],
+//   checked: false
+// }, onCreated);
 
 var makeItBlue = 'document.body.style.border = "5px solid blue"';
 var makeItGreen = 'document.body.style.border = "5px solid green"';
@@ -61,30 +61,73 @@ var makeItGreen = 'document.body.style.border = "5px solid green"';
 //     // do something
 //     console.log( "Key pressed [" + event.key + "]" );
 // });
-function showPopup ( info ){
+// console.log( "background-context-menu.js loading input event listeners..." );
+// document.querySelector("input").addEventListener( "focus", (event) => {
+//
+//     console.log( "Focus event [" + event + "]" );
+// } );
+// document.querySelector("input").addEventListener( "blur", (event) => {
+//
+//     console.log( "Blur event [" + event + "]" );
+// } );
+// console.log( "background-context-menu.js loading input event listeners... Done!" );
 
-    // // var popup = 'alert("Hello world!")';
-    // var widgetWithFocus = document.activeElement;
-    // console.log( "widgetWithFocus [" + widgetWithFocus + "]" );
-    // console.log( "info.target [" + info.target + "]" );
-    // document.activeElement.style.border = "5px solid blue";
-    // console.log( document.getSelection().toString() );
-    //
-    // console.log( "info.selectionText [" + info.selectionText + "]" );
-    //
-    // // foo = window.getSelection().toString();
-    // // console.log( "foo [" + foo + "]" );
-    //
-    // // document.getSelection().empty()
-    // // info.selectionText = "";
-    // // info.selectionText.deleteFromDocument()
-    // if ( window.getSelection ) {
-    //     console.log( "window.getSelection() [" + window.getSelection() + "]" );
-    //     window.getSelection().removeAllRanges()
-    // } else if ( document.selection ) {
-    //     document.selection.empty();
-    //     console.log( "document.selection [" + document.selection + "]" );
-    // }
+// const form = document.getElementById("form");
+//
+// form.addEventListener(
+//   "focus",
+//   (event) => {
+//     event.target.style.background = "pink";
+//   },
+//   true
+// );
+//
+// form.addEventListener(
+//   "blur",
+//   (event) => {
+//     event.target.style.background = "";
+//   },
+//   true
+// );
+
+// This always fails returns know for any queried known objects
+// window.addEventListener("DOMContentLoaded", (event) => {
+//
+//     console.log( "DOM fully loaded and parsed, Setting up form event listeners..." );
+//
+//     console.log( "window [" + window + "]" );
+//     console.log( "document [" + document + "]" );
+//     console.log( "window.document [" + window.document + "]" );
+//     console.log( "window.document.getElementsByClassName( 'form' ) [" + window.document.getElementsByClassName("form" ) + "]" );
+//
+//     let forms = window.document.getElementsByClassName("form")
+//     console.log( "forms.length [" + forms.length + "]" );
+//     for ( let i = 0; i < forms.length; i++ ) {
+//         console.log( "form [" + forms[ i ] + "]" );
+//     }
+//
+//     const form = window.document.getElementsByClassName("form");
+//
+//     form.addEventListener(
+//       "focus",
+//       (event) => {
+//         event.target.style.background = "yellow";
+//       },
+//       true
+//     );
+//
+//     form.addEventListener(
+//       "blur",
+//       (event) => {
+//         event.target.style.background = "";
+//       },
+//       true
+//     );
+//
+//     console.log( "DOM fully loaded and parsed, Setting up event listeners... Done!" );
+// });
+
+function showPopup ( info ){
 
     var popupURL = browser.runtime.getURL( "../html/recorder.html" );
 
@@ -92,7 +135,7 @@ function showPopup ( info ){
         url: popupURL,
         type: "popup",
         height: 15, // Browser will force this to be a certain Minimum height
-        width: 250
+        width: 280
     });
     creating.then(onCreated, onError);
 };
@@ -121,10 +164,10 @@ browser.contextMenus.onClicked.addListener(function(info, tab) {
 console.log( "browser.commands.onCommand.addListener ..." )
 browser.commands.onCommand.addListener((command) => {
 
-    console.log( "command [" + command + "]" )
+    // console.log( "command [" + command + "]" )
 
     if (command === "popup-vox-to-text") {
-        console.log("Popping up recorder.html..." );
+        // console.log( "Popping up recorder.html..." );
         showPopup( null )
     }
 });
@@ -139,15 +182,15 @@ console.log( "browser.commands.onCommand.addListener ... Done?" )
 //     // for information on the purpose of this error capture.
 //     () => void browser.runtime.lastError,
 // );
-// browser.contextMenus.create({
-//         id: "whats-this-mean",
-//         title: "What's this?",
-//         contexts: ["selection"]
-//     },
-//     // See https://extensionworkshop.com/documentation/develop/manifest-v3-migration-guide/#event-pages-and-backward-compatibility
-//     // for information on the purpose of this error capture.
-//     () => void browser.runtime.lastError,
-// );
+browser.contextMenus.create({
+        id: "whats-this-mean",
+        title: "What's this?",
+        contexts: ["selection"]
+    },
+    // See https://extensionworkshop.com/documentation/develop/manifest-v3-migration-guide/#event-pages-and-backward-compatibility
+    // for information on the purpose of this error capture.
+    () => void browser.runtime.lastError,
+);
 // browser.contextMenus.create({
 //         id: "read-to-me",
 //         title: "Read to me",
@@ -179,7 +222,7 @@ console.log( "browser.commands.onCommand.addListener ... Done?" )
 //         console.log( "background-context-menu.js inserting CSS... Done!");
 //     }, console.error )
 // }
-// browser.contextMenus.onClicked.addListener(async (info, tab) => {
+browser.contextMenus.onClicked.addListener(async (info, tab) => {
 //
 //     if (info.menuItemId === "insert-modal") {
 //
@@ -189,39 +232,40 @@ console.log( "browser.commands.onCommand.addListener ... Done?" )
 //         insertModal(info);
 //
 //     } else if (info.menuItemId === "whats-this-mean") {
-//
-//         console.log("whats-this-mean clicked [" + info.selectionText + "]");
-//         console.log("info: " + JSON.stringify(info));
-//
-//         console.log("calling fetchWhatsThisMean()...")
-//         new Promise(function (resolve, reject) {
-//
-//             fetchWhatsThisMean(info).then((explanation) => {
-//                 console.log("calling fetchWhatsThisMean()... done!")
-//                 // console.log("explanation: " + explanation);
-//                 // console.log( "calling doTextToSpeech()..." )
-//                 // doTextToSpeech( explanation ).then( ( audio ) => {
-//                 //     console.log( "calling doTextToSpeech()... done!" )
-//                 // } );
-//             });
-//             // .then( ( response ) => {
-//             //     response.text().then(respText => {
-//             //         console.log("respText: " + respText );
-//             //     });
-//             // });
-//
-//             // doTextToSpeech( explanation )
-//             // } else if ( info.menuItemId === "read-to-me" ) {
-//             //
-//             //     console.log( "read-to-me clicked [" + info.selectionText + "]" );
-//             //     console.log( "info: " + JSON.stringify( info ) );
-//             //
-//             //     doTextToSpeech( info );
-//             //
-//             // }
-//         });
-//     }
-// });
+    if (info.menuItemId === "whats-this-mean") {
+
+        console.log("whats-this-mean clicked [" + info.selectionText + "]");
+        console.log("info: " + JSON.stringify(info));
+
+        console.log("calling fetchWhatsThisMean()...")
+        new Promise(function (resolve, reject) {
+
+            fetchWhatsThisMean(info).then((explanation) => {
+                console.log("calling fetchWhatsThisMean()... done!")
+                // console.log("explanation: " + explanation);
+                // console.log( "calling doTextToSpeech()..." )
+                // doTextToSpeech( explanation ).then( ( audio ) => {
+                //     console.log( "calling doTextToSpeech()... done!" )
+                // } );
+            });
+            // .then( ( response ) => {
+            //     response.text().then(respText => {
+            //         console.log("respText: " + respText );
+            //     });
+            // });
+
+            // doTextToSpeech( explanation )
+            // } else if ( info.menuItemId === "read-to-me" ) {
+            //
+            //     console.log( "read-to-me clicked [" + info.selectionText + "]" );
+            //     console.log( "info: " + JSON.stringify( info ) );
+            //
+            //     doTextToSpeech( info );
+            //
+            // }
+        });
+    }
+});
 // insertModal = ( info ) => {
 //
 //     console.log( "insertModal() called..." )
@@ -264,7 +308,6 @@ doTextToSpeech = async (text) => {
     await audio.play();
 
     // You know, this actually works, but I'm not going to use it because I can do it in two lines instead.
-
     // await fetch(url, {
     //     method: 'GET',
     //     headers: {'Access-Control-Allow-Origin': '*'}
