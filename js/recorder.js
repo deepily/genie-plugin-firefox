@@ -147,8 +147,13 @@ saveButton.addEventListener('click', async () => {
             if (res.ok == true) {
                 console.log('Successfully transcribed audio message');
                 let text = res.json().then( response => {
-                console.log( "response [" + response + "]" )
-                pushToClipboard( response );
+                transcription = response[ "transcription" ]
+                if ( transcription == "multimodal editor proof" ) {
+                    console.log( "TODO: Implement voice command handling for [" + transcription + "]" );
+                    proofreadFromClipboard();
+                } else {
+                    pushToClipboard( response );
+                }
                 // pushToCurrentTab( respText );
             });
             console.log( "text [" + text + "]" );
@@ -159,6 +164,18 @@ saveButton.addEventListener('click', async () => {
     };
 });
 
+function proofreadFromClipboard() {
+
+    console.log( "TODO: Proofread from clipboard" )
+    document.body.innerText = "Proofreading...";
+    document.body.style.backgroundColor = "pin";
+    document.body.style.border = "2px dotted red";
+
+    // this is async :-(
+    rawText = getFromClipboard();
+    console.log( "rawText to be proofed [" + rawText + "]" );
+}
+
 // pushToCurrentTab = ( msg ) => {
 //
 //     browser.tabs.sendMessage( tabs[0].id, {
@@ -167,6 +184,17 @@ saveButton.addEventListener('click', async () => {
 //     });
 // }
 
+getFromClipboard = () => {
+
+    console.log( "Getting from clipboard..." );
+    navigator.clipboard.readText().then((clipText) => {
+        console.log("Success! [" + clipText + "]");
+        return clipText;
+    }, () => {
+        console.log("Failed to read from clipboard!");
+        return "";
+    });
+}
 pushToClipboard = ( response ) => {
 
   console.log("Pushing 'transcription' part of this response object to clipboard [" + JSON.stringify( response ) + "]...");

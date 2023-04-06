@@ -43,7 +43,8 @@
   "permissions": [
     "activeTab",
     "contextMenus",
-    "clipboardWrite"
+    "clipboardWrite",
+    "clipboardRead"
   ],
   "content_scripts": [ {
       "js": [
