@@ -146,9 +146,9 @@ saveButton.addEventListener('click', async () => {
             console.log( res.status  );
             if (res.ok == true) {
                 console.log('Successfully transcribed audio message');
-                let text = res.text().then( respText => {
-                console.log( "respText [" + respText + "]" )
-                pushToClipboard( respText );
+                let text = res.json().then( response => {
+                console.log( "response [" + response + "]" )
+                pushToClipboard( response );
                 // pushToCurrentTab( respText );
             });
             console.log( "text [" + text + "]" );
@@ -167,10 +167,12 @@ saveButton.addEventListener('click', async () => {
 //     });
 // }
 
-pushToClipboard = (msg ) => {
+pushToClipboard = ( response ) => {
 
-  console.log("Pushing to clipboard [" + msg + "]...");
-  navigator.clipboard.writeText(msg).then(() => {
+  console.log("Pushing 'transcription' part of this response object to clipboard [" + JSON.stringify( response ) + "]...");
+  console.log( "transcription [" + response[ "transcription" ] + "]" );
+
+  navigator.clipboard.writeText( response[ "transcription" ] ).then(() => {
     console.log("Success!");
   }, () => {
     console.log("Failed to write to clipboard!");
