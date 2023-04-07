@@ -11,10 +11,10 @@ function formatter() {
   document.body.style.padding = "8px";
 }
 
-document.getElementById("record").addEventListener("click", formatter );
+document.getElementById( "record" ).addEventListener( "click", formatter );
 
 // let stream = "";
-window.addEventListener("DOMContentLoaded", (event) => {
+window.addEventListener( "DOMContentLoaded", (event) => {
 
     console.log( "DOM fully loaded and parsed, Checking permissions...." );
     document.getElementById('record').click()
@@ -127,7 +127,7 @@ playButton.addEventListener('click', () => {
 saveButton.addEventListener('click', async () => {
 
     const url = genieInTheBoxServer + "/api/upload-and-transcribe-mp3"
-    console.log( "Attempting to upload and transcribe to url [" + url + "]")
+    console.log( "Attempting to upload and transcribe to url [" + url + "]" )
 
     const reader = new FileReader();
     reader.readAsDataURL(audio.audioBlob);
@@ -152,7 +152,9 @@ saveButton.addEventListener('click', async () => {
                     console.log( "TODO: Implement voice command handling for [" + transcription + "]" );
                     proofreadFromClipboard();
                 } else {
-                    pushToClipboard( response );
+                    console.log( "Pushing 'transcription' part of this response object to clipboard [" + JSON.stringify( response ) + "]..." );
+                    console.log( "transcription [" + response[ "transcription" ] + "]" );
+                    pushToClipboardAndClose( response[ "transcription" ] );
                 }
                 // pushToCurrentTab( respText );
             });
@@ -164,16 +166,41 @@ saveButton.addEventListener('click', async () => {
     };
 });
 
-function proofreadFromClipboard() {
+async function proofreadFromClipboard() {
 
-    console.log( "TODO: Proofread from clipboard" )
+    console.log( "proofreadFromClipboard()..." )
     document.body.innerText = "Proofreading...";
     document.body.style.backgroundColor = "pin";
     document.body.style.border = "2px dotted red";
 
-    // this is async :-(
-    rawText = getFromClipboard();
-    console.log( "rawText to be proofed [" + rawText + "]" );
+    navigator.clipboard.readText().then( ( clipText) => {
+        console.log( "clipText [" + clipText + "]" );
+        proofreadOnServer( clipText );//.then( ( proofedText ) => {
+            // console.log( "proofedText [" + proofedText + "]" );
+            // pushToClipboard( proofedText );
+            // document.body.innerText = "Proofreading... Done!";
+            // window.setTimeout( () => {
+            //     window.close();
+            // }, 250 );
+        // });
+    });
+    // const rawText = await getFromClipboard().then(
+    //     (clipText) => {
+    //         console.log( "Success? [" + clipText + "]" );
+    //         return clipText;
+    //     }
+    // );
+    // console.log( "rawText From clipboard [" + rawText + "]" );
+    //
+    // const proofedText = await proofreadOnServer( rawText );
+    // console.log( "proofedText [" + proofedText + "]" );
+    //
+    // pushToClipboard( proofedText );
+    // document.body.innerText = "Proofreading... Done!";
+    //
+    // window.setTimeout( () => {
+    //     window.close();
+    // }, 250 );
 }
 
 // pushToCurrentTab = ( msg ) => {
@@ -184,29 +211,60 @@ function proofreadFromClipboard() {
 //     });
 // }
 
-getFromClipboard = () => {
+// async function getFromClipboard() {
+//
+//     console.log( "Getting from clipboard..." );
+//
+//     await navigator.clipboard.readText().then( ( clipText) => {
+//         console.log( "clipText [" + clipText + "]" );
+//         return clipText;
+//     }, () => {
+//         console.log( "Nothing read from clipboard!" );
+//         return "";
+//     });
+// }
+async function proofreadOnServer( rawText ) {
 
-    console.log( "Getting from clipboard..." );
-    navigator.clipboard.readText().then((clipText) => {
-        console.log("Success! [" + clipText + "]");
-        return clipText;
-    }, () => {
-        console.log("Failed to read from clipboard!");
-        return "";
-    });
+    console.log( "proofreadOnServer() called...")
+
+    let url = genieInTheBoxServer + "/api/proofread?question=" + rawText
+    const encodedUrl = encodeURI(url);
+    console.log("encoded: " + encodedUrl);
+
+    await fetch(url, {
+        method: 'GET',
+        headers: {'Access-Control-Allow-Origin': '*'}
+    }).then( async (response) => {
+        console.log("response.status: " + response.status);
+        if ( response.status !== 200) {
+            return Promise.reject("Server error: [" + response.status + "] [" + response.statusText + "]" );
+        } else {
+            await response.text().then( async proofreadText => {
+                console.log( "proofreadText [" + proofreadText + "]" );
+                pushToClipboardAndClose( proofreadText )
+                // return proofreadText;
+            })
+        }
+    })
 }
-pushToClipboard = ( response ) => {
+pushToClipboardAndClose = (text ) => {
 
-  console.log("Pushing 'transcription' part of this response object to clipboard [" + JSON.stringify( response ) + "]...");
-  console.log( "transcription [" + response[ "transcription" ] + "]" );
-
-  navigator.clipboard.writeText( response[ "transcription" ] ).then(() => {
-    console.log("Success!");
+  // console.log( "Pushing 'transcription' part of this response object to clipboard [" + JSON.stringify( response ) + "]..." );
+  // console.log( "transcription [" + response[ "transcription" ] + "]" );
+    console.log( "pushToClipboard( text ) [" + text + "]" );
+  // navigator.clipboard.writeText( response[ "transcription" ] ).then(() => {
+  navigator.clipboard.writeText( text ).then(() => {
+    console.log( "Success!" );
   }, () => {
-    console.log("Failed to write to clipboard!");
+    console.log( "Failed to write to clipboard!" );
+  }).then( () => {
+    document.body.innerText = "Proofreading... Done!";
+    window.setTimeout( () => {
+        window.close();
+    }, 250 );
   });
-  console.log("document.hasFocus() " + document.hasFocus());
-  console.log("document.activeElement " + document.activeElement.id);
+  // console.log( "document.hasFocus() " + document.hasFocus());
+  // console.log( "document.activeElement " + document.activeElement.id);
   // document.activeElement.value = msg;
   // typeInTextarea( msg );
 
@@ -219,9 +277,7 @@ pushToClipboard = ( response ) => {
   //     .then(results => {
   //       console.log(results[0])
   //     });
-
-
-  window.close()
+  // window.close()
 }
 // const typeInTextarea = ( newText, el = document.activeElement) => {
 //     const [start, end] = [el.selectionStart, el.selectionEnd];
