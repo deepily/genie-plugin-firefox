@@ -28,25 +28,33 @@ window.addEventListener( "DOMContentLoaded", (event) => {
     } );
     console.log( "DOM fully loaded and parsed, Checking permissions.... Done!" );
 });
-// window.addEventListener( "keydown", function (event) {
-//
-//     // console.log( "event [" + event + "]" );
-//     // console.log( "event.key [" + event.key + "]" );
-//     if ( event.ctrlKey && event.key == "r" ) {
-//       console.log( "'Ctrl r' pressed" );
-//       document.getElementById('record').click();
-//     } else if ( event.ctrlKey && event.key == "s" ) {
-//       console.log( "'Ctrl s' pressed" );
-//       document.getElementById('stop').click();
-//       console.log( "Key pressed [" + event.key + "]" );
-//     } else if ( event.ctrlKey && event.key == "p" ) {
-//       console.log( "Ctrl 'p' pressed" );
-//       document.getElementById('play').click();
-//     } else if ( event.ctrlKey && event.key == "t" ) {
-//       console.log( "'Ctrl t' pressed" );
-//       document.getElementById('save').click();
-//     }
-// });
+window.addEventListener( "keydown", function (event) {
+
+    console.log( "event [" + event + "]" );
+    console.log( "event.key [" + event.key + "]" );
+    if ( event.key == "Escape" ) {
+        console.log( "Escape pressed" );
+        document.body.style.backgroundColor = "white";
+        document.body.innerText = "Exiting...";
+        window.setTimeout( () => {
+            window.close();
+        }, 250 );
+    }
+    // if ( event.ctrlKey && event.key == "r" ) {
+    //   console.log( "'Ctrl r' pressed" );
+    //   document.getElementById('record').click();
+    // } else if ( event.ctrlKey && event.key == "s" ) {
+    //   console.log( "'Ctrl s' pressed" );
+    //   document.getElementById('stop').click();
+    //   console.log( "Key pressed [" + event.key + "]" );
+    // } else if ( event.ctrlKey && event.key == "p" ) {
+    //   console.log( "Ctrl 'p' pressed" );
+    //   document.getElementById('play').click();
+    // } else if ( event.ctrlKey && event.key == "t" ) {
+    //   console.log( "'Ctrl t' pressed" );
+    //   document.getElementById('save').click();
+    // }
+});
 
 const recordAudio = () =>
     new Promise(async resolve => {
@@ -129,78 +137,92 @@ saveButton.addEventListener('click', async () => {
     const url = genieInTheBoxServer + "/api/upload-and-transcribe-mp3"
     console.log( "Attempting to upload and transcribe to url [" + url + "]" )
 
-    const reader = new FileReader();
-    reader.readAsDataURL(audio.audioBlob);
-    reader.onload = () => {
+    try {
+        const reader = new FileReader();
+        reader.readAsDataURL( audio.audioBlob )
 
-        const audioMessage = reader.result.split(',')[1];
-        const mimeType = reader.result.split(',')[0];
+        // I'm not exactly certain what's going on with the return of a Promise from "readAsDataURL". I would like to
+        // await the results and handle them without having to nest another block, but for now, this is better than what
+        // I had before.
+        // TODO: Figure out how to await the results of "readAsDataURL" without having to nest another block.
+        const read = reader.onload = async function() {
 
-        fetch( url, {
-            method: 'POST',
-            headers: { 'Content-Type': mimeType },
-            body: audioMessage
-        }).then(res => {
-            console.log( res.headers );
-            console.log( res.body );
-            console.log( res.status  );
-            if (res.ok == true) {
-                console.log('Successfully transcribed audio message');
-                let text = res.json().then( response => {
-                transcription = response[ "transcription" ]
-                if ( transcription == "multimodal editor proof" ) {
-                    console.log( "TODO: Implement voice command handling for [" + transcription + "]" );
-                    proofreadFromClipboard();
-                } else {
-                    console.log( "Pushing 'transcription' part of this response object to clipboard [" + JSON.stringify( response ) + "]..." );
-                    console.log( "transcription [" + response[ "transcription" ] + "]" );
-                    pushToClipboardAndClose( response[ "transcription" ] );
-                }
-                // pushToCurrentTab( respText );
-            });
-            console.log( "text [" + text + "]" );
-            // alert(text);
-            } else
-            console.log('Invalid status saving audio message: ' + res.status);
-        });
-    };
+            console.log( "reader.result.split(',')[0] [" + reader.result.split(',')[0] + "]" );
+
+            const audioMessage = reader.result.split(',')[1];
+            const mimeType = reader.result.split(',')[0];
+
+            document.body.innerText = "Processing audio...";
+            response = await fetch( url, {
+                method: 'POST',
+                headers: {'Content-Type': mimeType},
+                body: audioMessage
+            } );
+            if ( !response.ok ) {
+                throw new Error( `HTTP error: ${response.status}` );
+            }
+
+            const transcriptionJson = await response.json();
+            console.log( "transcriptionJson [" + JSON.stringify( transcriptionJson ) + "]..." );
+            let transcription = transcriptionJson[ "transcription" ]
+
+            if ( transcription == "multimodal editor proof" ) {
+
+                console.log( "TODO: Finish implementing multiple voice commands handling" );
+                proofreadFromClipboard();
+
+            } else {
+                console.log( "Pushing 'transcription' part of this response object to clipboard [" + JSON.stringify( transcriptionJson ) + "]..." );
+                console.log( "transcription [" + transcriptionJson[ "transcription" ] + "]" );
+
+                const writeCmd = navigator.clipboard.writeText( transcription )
+                console.log( "Success!" );
+                document.body.innerText = "Processing audio... Done!";
+                window.setTimeout( () => {
+                    window.close();
+                }, 250 );
+            }
+        }
+    } catch (e) {
+        console.log( "Error reading audio file [" + e + "]" );
+    }
 });
 
 async function proofreadFromClipboard() {
 
-    console.log( "proofreadFromClipboard()..." )
-    document.body.innerText = "Proofreading...";
-    document.body.style.backgroundColor = "pin";
-    document.body.style.border = "2px dotted red";
+    try {
 
-    navigator.clipboard.readText().then( ( clipText) => {
-        console.log( "clipText [" + clipText + "]" );
-        proofreadOnServer( clipText );//.then( ( proofedText ) => {
-            // console.log( "proofedText [" + proofedText + "]" );
-            // pushToClipboard( proofedText );
-            // document.body.innerText = "Proofreading... Done!";
-            // window.setTimeout( () => {
-            //     window.close();
-            // }, 250 );
-        // });
-    });
-    // const rawText = await getFromClipboard().then(
-    //     (clipText) => {
-    //         console.log( "Success? [" + clipText + "]" );
-    //         return clipText;
-    //     }
-    // );
-    // console.log( "rawText From clipboard [" + rawText + "]" );
-    //
-    // const proofedText = await proofreadOnServer( rawText );
-    // console.log( "proofedText [" + proofedText + "]" );
-    //
-    // pushToClipboard( proofedText );
-    // document.body.innerText = "Proofreading... Done!";
-    //
-    // window.setTimeout( () => {
-    //     window.close();
-    // }, 250 );
+        document.body.innerText = "Proofreading...";
+        document.body.style.backgroundColor = "pin";
+        document.body.style.border = "2px dotted red";
+
+        const rawText = await navigator.clipboard.readText()
+        console.log( "rawText [" + rawText + "]" );
+
+        let url = genieInTheBoxServer + "/api/proofread?question=" + rawText
+        const response = await fetch( url, {
+            method: 'GET',
+            headers: {'Access-Control-Allow-Origin': '*'}
+        } );
+        console.log( "response.status [" + response.status + "]" );
+
+        if (!response.ok) {
+            throw new Error( `HTTP error: ${response.status}` );
+        }
+        const proofreadText = await response.text();
+        console.log( "proofreadText [" + proofreadText + "]" );
+
+        console.log( "Pushing proofreadText [" + proofreadText + "] to clipboard..." );
+        const pasteCmd = await navigator.clipboard.writeText( proofreadText );
+
+        document.body.innerText = "Proofreading... Done!";
+        window.setTimeout( () => {
+            window.close();
+        }, 250 );
+
+    } catch ( e ) {
+        console.log( "Error: " + e );
+    }
 }
 
 // pushToCurrentTab = ( msg ) => {
@@ -223,31 +245,9 @@ async function proofreadFromClipboard() {
 //         return "";
 //     });
 // }
-async function proofreadOnServer( rawText ) {
 
-    console.log( "proofreadOnServer() called...")
 
-    let url = genieInTheBoxServer + "/api/proofread?question=" + rawText
-    const encodedUrl = encodeURI(url);
-    console.log("encoded: " + encodedUrl);
-
-    await fetch(url, {
-        method: 'GET',
-        headers: {'Access-Control-Allow-Origin': '*'}
-    }).then( async (response) => {
-        console.log("response.status: " + response.status);
-        if ( response.status !== 200) {
-            return Promise.reject("Server error: [" + response.status + "] [" + response.statusText + "]" );
-        } else {
-            await response.text().then( async proofreadText => {
-                console.log( "proofreadText [" + proofreadText + "]" );
-                pushToClipboardAndClose( proofreadText )
-                // return proofreadText;
-            })
-        }
-    })
-}
-pushToClipboardAndClose = (text ) => {
+pushToClipboardAndClose = ( text ) => {
 
   // console.log( "Pushing 'transcription' part of this response object to clipboard [" + JSON.stringify( response ) + "]..." );
   // console.log( "transcription [" + response[ "transcription" ] + "]" );
@@ -258,7 +258,7 @@ pushToClipboardAndClose = (text ) => {
   }, () => {
     console.log( "Failed to write to clipboard!" );
   }).then( () => {
-    document.body.innerText = "Proofreading... Done!";
+    document.body.innerText = "Processing... Done!";
     window.setTimeout( () => {
         window.close();
     }, 250 );
