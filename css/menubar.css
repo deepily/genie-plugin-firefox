@@ -1,0 +1,9 @@
+* {
+    box-sizing: border-box;
+    background-color: white;
+}
+
+.button {
+    display: inline-block;
+    width: 100%;
+}
