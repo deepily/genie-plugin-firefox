@@ -1,7 +1,12 @@
 console.log( "recorder.js loading..." );
 
+let commandMode = "multimodal editor"
+
+// localStorage.removeItem( "mode" );
 tempMode = localStorage.getItem( "mode" );
-if ( tempMode == null ) {
+// console.log( "tempMode [" + tempMode + "]" );
+
+if ( tempMode === null ){
     currentMode = "transcription";
 } else {
     currentMode = tempMode;
@@ -142,7 +147,14 @@ playButton.addEventListener('click', () => {
 
 saveButton.addEventListener('click', async () => {
 
-    const url = genieInTheBoxServer + "/api/upload-and-transcribe-mp3"
+    // if we're in command mode then we can skip obligating the user to say multimodal editor every time and just send it along as a prefix
+    if ( currentMode === commandMode ) {
+        prefix = commandMode;
+    } else {
+        prefix = "";
+    }
+
+    const url = genieInTheBoxServer + "/api/upload-and-transcribe-mp3?prefix=" + prefix;
     console.log( "Attempting to upload and transcribe to url [" + url + "]" )
 
     try {
@@ -166,11 +178,12 @@ saveButton.addEventListener('click', async () => {
         const transcriptionJson = await response.json();
         console.log( "transcriptionJson [" + JSON.stringify( transcriptionJson ) + "]..." );
         let transcription = transcriptionJson[ "transcription" ]
+        let prefix        = transcriptionJson[ "prefix" ]
 
-        if ( transcription.startsWith( "multimodal editor" ) ) {
+        // are we implicitly or explicitly in command mode? 
+        if ( prefix.startsWith( commandMode ) || transcription.startsWith( commandMode ) ) {
 
-            console.log( "TODO: Finish implementing multiple voice commands handling" );
-            handleCommands( transcription );
+            handleCommands( prefix, transcription );
 
         } else {
             console.log( "Pushing 'transcription' part of this response object to clipboard [" + JSON.stringify( transcriptionJson ) + "]..." );
@@ -188,24 +201,37 @@ saveButton.addEventListener('click', async () => {
     }
 });
 
-async function handleCommands( transcription ) {
+async function handleCommands( prefix, transcription ) {
 
-    console.log( "handleCommands( transcription ) called with transcription [" + transcription + "]" );
-    if ( transcription == "multimodal editor proof" ) {
+    console.log( "handleCommands( transcription ) called with prefix [" + prefix + "] transcription [" + transcription + "]" );
+    if ( !transcription.startsWith( commandMode ) ) {
+        transcription = prefix + " " + transcription;
+    }
+    console.log( "Updated transcription [" + transcription + "]" );
+
+    if ( transcription.startsWith( "multimodal editor proof" ) ) {
 
         proofreadFromClipboard();
 
     } else if ( transcription == "multimodal editor toggle" ) {
 
         document.body.innerText = "Processing audio... Done!";
-        if ( currentMode == "command" ){
+
+        if (currentMode === commandMode) {
             currentMode = "transcription";
         } else {
-            currentMode = "command";
+            currentMode = commandMode
         }
-        localStorage.setItem( "mode", currentMode );
-        await doTextToSpeech( "Switching to " + currentMode + " mode", closeWindow=false, refreshWindow=true );
-        // closeWindow();
+        localStorage.setItem("mode", currentMode);
+        await doTextToSpeech("Switching to " + currentMode + " command mode", closeWindow = false, refreshWindow = true);
+
+    } else if ( transcription == "multimodal editor mode" ) {
+
+        await doTextToSpeech( "Current mode is " + transcription, closeWindow=false, refreshWindow=true );
+
+    } else {
+        console.log( "Unknown command [" + transcription + "]" );
+        await doTextToSpeech( "Unknown command " + transcription + ", please try again", closeWindow=false, refreshWindow=true );
     }
 }
 async function proofreadFromClipboard() {
