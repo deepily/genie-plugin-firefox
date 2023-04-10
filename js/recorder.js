@@ -1,8 +1,10 @@
 console.log( "recorder.js loading..." );
 
+currentMode = "transcription";
+
 // ¡OJO! TODO: These constants should be declared globally and ultimately in a runtime configurable configuration service provided by the browser.
 // ¡OJO! TODO: background-context-menu.js and recorder.js both make duplicate declarations of these constants.
-// const sttServerAndPort = "http://127.0.0.1:5000";
+const ttsServer = "http://127.0.0.1:5002";
 const genieInTheBoxServer = "http://127.0.0.1:7999";
 
 function formatter() {
@@ -138,56 +140,64 @@ saveButton.addEventListener('click', async () => {
     console.log( "Attempting to upload and transcribe to url [" + url + "]" )
 
     try {
-        const reader = new FileReader();
-        reader.readAsDataURL( audio.audioBlob )
+        const result = await readBlobAsDataURL( audio.audioBlob )
+        console.log( "result [" + typeof result + "]" );
+        console.log( "result.split(',')[0] [" + result.split(',')[0] + "]" );
 
-        // I'm not exactly certain what's going on with the return of a Promise from "readAsDataURL". I would like to
-        // await the results and handle them without having to nest another block, but for now, this is better than what
-        // I had before.
-        // TODO: Figure out how to await the results of "readAsDataURL" without having to nest another block.
-        const read = reader.onload = async function() {
+        const audioMessage = result.split(',')[1];
+        const mimeType = result.split(',')[0];
 
-            console.log( "reader.result.split(',')[0] [" + reader.result.split(',')[0] + "]" );
+        document.body.innerText = "Processing audio...";
+        response = await fetch( url, {
+            method: 'POST',
+            headers: {'Content-Type': mimeType},
+            body: audioMessage
+        } );
+        if ( !response.ok ) {
+            throw new Error( `HTTP error: ${response.status}` );
+        }
 
-            const audioMessage = reader.result.split(',')[1];
-            const mimeType = reader.result.split(',')[0];
+        const transcriptionJson = await response.json();
+        console.log( "transcriptionJson [" + JSON.stringify( transcriptionJson ) + "]..." );
+        let transcription = transcriptionJson[ "transcription" ]
 
-            document.body.innerText = "Processing audio...";
-            response = await fetch( url, {
-                method: 'POST',
-                headers: {'Content-Type': mimeType},
-                body: audioMessage
-            } );
-            if ( !response.ok ) {
-                throw new Error( `HTTP error: ${response.status}` );
-            }
+        if ( transcription.startsWith( "multimodal editor" ) ) {
 
-            const transcriptionJson = await response.json();
-            console.log( "transcriptionJson [" + JSON.stringify( transcriptionJson ) + "]..." );
-            let transcription = transcriptionJson[ "transcription" ]
+            console.log( "TODO: Finish implementing multiple voice commands handling" );
+            handleCommands( transcription );
 
-            if ( transcription == "multimodal editor proof" ) {
+        } else {
+            console.log( "Pushing 'transcription' part of this response object to clipboard [" + JSON.stringify( transcriptionJson ) + "]..." );
+            console.log( "transcription [" + transcriptionJson[ "transcription" ] + "]" );
 
-                console.log( "TODO: Finish implementing multiple voice commands handling" );
-                proofreadFromClipboard();
-
-            } else {
-                console.log( "Pushing 'transcription' part of this response object to clipboard [" + JSON.stringify( transcriptionJson ) + "]..." );
-                console.log( "transcription [" + transcriptionJson[ "transcription" ] + "]" );
-
-                const writeCmd = navigator.clipboard.writeText( transcription )
-                console.log( "Success!" );
-                document.body.innerText = "Processing audio... Done!";
-                window.setTimeout( () => {
-                    window.close();
-                }, 250 );
-            }
+            const writeCmd = navigator.clipboard.writeText( transcription )
+            console.log( "Success!" );
+            document.body.innerText = "Processing audio... Done!";
+            window.setTimeout( () => {
+                window.close();
+            }, 250 );
         }
     } catch (e) {
         console.log( "Error reading audio file [" + e + "]" );
     }
 });
 
+async function handleCommands( transcription ) {
+    console.log( "handleCommands( transcription ) called with transcription [" + transcription + "]" );
+    if ( transcription == "multimodal editor proof" ) {
+        proofreadFromClipboard();
+    } else if ( transcription == "multimodal editor toggle" ) {
+        console.log( "TODO: Implement 'multimodal editor toggle'" );
+        document.body.innerText = "Processing audio... Done!";
+        if ( currentMode == "proof" ){
+            currentMode = "transcription";
+        } else {
+            currentMode = "proofreading";
+        }
+        await doTextToSpeech( "Switching to " + currentMode + " mode" );
+        closeWindow();
+    }
+}
 async function proofreadFromClipboard() {
 
     try {
@@ -216,15 +226,45 @@ async function proofreadFromClipboard() {
         const pasteCmd = await navigator.clipboard.writeText( proofreadText );
 
         document.body.innerText = "Proofreading... Done!";
-        window.setTimeout( () => {
-            window.close();
-        }, 250 );
+        closeWindow();
 
     } catch ( e ) {
         console.log( "Error: " + e );
     }
 }
 
+function closeWindow() {
+    window.setTimeout( () => {
+        window.close();
+    }, 250 );
+}
+
+async function readBlobAsDataURL( file ) {
+
+    // From: https://errorsandanswers.com/read-a-file-synchronously-in-javascript/
+    let result_base64 = await new Promise((resolve) => {
+        let fileReader = new FileReader();
+        fileReader.onload = (e) => resolve(fileReader.result);
+        fileReader.readAsDataURL( file );
+    });
+    console.log(result_base64.split( "," )[ 0 ]); // aGV5IHRoZXJl...
+
+    return result_base64;
+}
+
+async function doTextToSpeech( text ) {
+
+    console.log("doTextToSpeech() called...")
+
+    let url = ttsServer + "/api/tts?text=" + text
+    const encodedUrl = encodeURI(url);
+    console.log("encoded: " + encodedUrl);
+
+    const audio = await new Audio(encodedUrl);
+    await audio.play();
+
+    console.log("doTextToSpeech() called... done!")
+}
 // pushToCurrentTab = ( msg ) => {
 //
 //     browser.tabs.sendMessage( tabs[0].id, {
