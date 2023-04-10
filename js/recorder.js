@@ -189,11 +189,14 @@ saveButton.addEventListener('click', async () => {
 });
 
 async function handleCommands( transcription ) {
+
     console.log( "handleCommands( transcription ) called with transcription [" + transcription + "]" );
     if ( transcription == "multimodal editor proof" ) {
+
         proofreadFromClipboard();
+
     } else if ( transcription == "multimodal editor toggle" ) {
-        console.log( "TODO: Implement 'multimodal editor toggle'" );
+
         document.body.innerText = "Processing audio... Done!";
         if ( currentMode == "command" ){
             currentMode = "transcription";
@@ -201,8 +204,8 @@ async function handleCommands( transcription ) {
             currentMode = "command";
         }
         localStorage.setItem( "mode", currentMode );
-        await doTextToSpeech( "Switching to " + currentMode + " mode" );
-        closeWindow();
+        await doTextToSpeech( "Switching to " + currentMode + " mode", closeWindow=false, refreshWindow=true );
+        // closeWindow();
     }
 }
 async function proofreadFromClipboard() {
@@ -259,7 +262,7 @@ async function readBlobAsDataURL( file ) {
     return result_base64;
 }
 
-async function doTextToSpeech( text ) {
+async function doTextToSpeech( text, closeWindow=true, refreshWindow=false ) {
 
     console.log("doTextToSpeech() called...")
 
@@ -274,7 +277,11 @@ async function doTextToSpeech( text ) {
         audio.play();
         audio.addEventListener( "ended", () => {
             document.body.innerText = "Playing audio... Done!";
-            closeWindow();
+            if ( closeWindow ) {
+                closeWindow();
+            } else if ( refreshWindow ) {
+                window.location.reload();
+            }
         } );
     });
     console.log("audioResult [" + audioResult + "]");
