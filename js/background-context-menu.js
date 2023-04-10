@@ -127,7 +127,7 @@ var makeItGreen = 'document.body.style.border = "5px solid green"';
 //     console.log( "DOM fully loaded and parsed, Setting up event listeners... Done!" );
 // });
 
-function showPopup ( info ){
+function showRecorderPopup (info ){
 
     var popupURL = browser.runtime.getURL( "../html/recorder.html" );
 
@@ -156,7 +156,7 @@ browser.contextMenus.onClicked.addListener(function(info, tab) {
         selection.deleteFromDocument();
 
         browser.tabs.executeScript(tab.id, {
-            code: showPopup( info )
+            code: showRecorderPopup( info )
         });
     }
 });
@@ -168,7 +168,7 @@ browser.commands.onCommand.addListener((command) => {
 
     if (command === "popup-vox-to-text") {
         // console.log( "Popping up recorder.html..." );
-        showPopup( null )
+        showRecorderPopup( null )
     }
 });
 console.log( "browser.commands.onCommand.addListener ... Done?" )
