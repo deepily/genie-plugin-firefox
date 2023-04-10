@@ -13,6 +13,9 @@ if ( tempMode === null ){
 }
 console.log( "currentMode [" + currentMode + "]" );
 
+url = window.location.href;
+console.log( "url [" + url + "]" );
+
 // ¡OJO! TODO: These constants should be declared globally and ultimately in a runtime configurable configuration service provided by the browser.
 // ¡OJO! TODO: background-context-menu.js and recorder.js both make duplicate declarations of these constants.
 const ttsServer = "http://127.0.0.1:5002";
@@ -180,7 +183,7 @@ saveButton.addEventListener('click', async () => {
         let transcription = transcriptionJson[ "transcription" ]
         let prefix        = transcriptionJson[ "prefix" ]
 
-        // are we implicitly or explicitly in command mode? 
+        // are we implicitly or explicitly in command mode?
         if ( prefix.startsWith( commandMode ) || transcription.startsWith( commandMode ) ) {
 
             handleCommands( prefix, transcription );
@@ -224,6 +227,20 @@ async function handleCommands( prefix, transcription ) {
         }
         localStorage.setItem("mode", currentMode);
         await doTextToSpeech("Switching to " + currentMode + " command mode", closeWindow = false, refreshWindow = true);
+
+    } else if ( transcription.startsWith( "multimodal editor open new tab" ) ) {
+
+        url = transcription.replace( "multimodal editor open new tab", "" ).trim().replace( " ", "" )
+        if ( !url.startsWith( "http" ) ) {
+            url = "https://" + url;
+        }
+        console.log( "url [" + url + "]" );
+
+        await doTextToSpeech( "Opening new tab", closeWindow=false, refreshWindow=false );
+        navigator.tabs.create( {
+            url: url,
+            active: true
+        } );
 
     } else if ( transcription == "multimodal editor mode" ) {
 
