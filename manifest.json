@@ -45,7 +45,8 @@
     "contextMenus",
     "clipboardWrite",
     "clipboardRead",
-    "storage"
+    "storage",
+    "tabs"
   ],
   "content_scripts": [ {
       "js": [
