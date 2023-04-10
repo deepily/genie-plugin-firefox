@@ -13,7 +13,7 @@
       "48": "icons/border-48.png"
     },
     "default_title": "Genie Multiplexer",
-    "default_popup": "html/recorder.html"
+    "default_popup": "html/menubar.html"
   },
   "icons": {
     "48": "icons/border-48.png"
@@ -21,14 +21,14 @@
   "commands": {
     "_execute_browser_action": {
       "suggested_key": {
-        "default": "Ctrl+Shift+P",
-        "mac": "MacCtrl+Shift+P"
+        "default": "Ctrl+P",
+        "mac": "MacCtrl+P"
       }
     },
     "popup-vox-to-text": {
       "suggested_key": {
-        "default": "Alt+Shift+T",
-        "mac": "MacCtrl+T"
+        "default": "Alt+J",
+        "mac": "MacCtrl+J"
       },
       "description": "Pops up voice to text recorder"
     }
