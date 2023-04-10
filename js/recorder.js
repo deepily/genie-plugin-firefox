@@ -1,6 +1,12 @@
 console.log( "recorder.js loading..." );
 
-currentMode = "transcription";
+tempMode = localStorage.getItem( "mode" );
+if ( tempMode == null ) {
+    currentMode = "transcription";
+} else {
+    currentMode = tempMode;
+}
+console.log( "currentMode [" + currentMode + "]" );
 
 // ¡OJO! TODO: These constants should be declared globally and ultimately in a runtime configurable configuration service provided by the browser.
 // ¡OJO! TODO: background-context-menu.js and recorder.js both make duplicate declarations of these constants.
@@ -189,11 +195,12 @@ async function handleCommands( transcription ) {
     } else if ( transcription == "multimodal editor toggle" ) {
         console.log( "TODO: Implement 'multimodal editor toggle'" );
         document.body.innerText = "Processing audio... Done!";
-        if ( currentMode == "proof" ){
+        if ( currentMode == "command" ){
             currentMode = "transcription";
         } else {
-            currentMode = "proofreading";
+            currentMode = "command";
         }
+        localStorage.setItem( "mode", currentMode );
         await doTextToSpeech( "Switching to " + currentMode + " mode" );
         closeWindow();
     }
@@ -260,8 +267,17 @@ async function doTextToSpeech( text ) {
     const encodedUrl = encodeURI(url);
     console.log("encoded: " + encodedUrl);
 
-    const audio = await new Audio(encodedUrl);
-    await audio.play();
+    let audioResult = await new Promise((resolve) => {
+        document.body.innerText = "Playing audio...";
+        let audio = new Audio(encodedUrl);
+        audio.onload = (e) => resolve(audio.result);
+        audio.play();
+        audio.addEventListener( "ended", () => {
+            document.body.innerText = "Playing audio... Done!";
+            closeWindow();
+        } );
+    });
+    console.log("audioResult [" + audioResult + "]");
 
     console.log("doTextToSpeech() called... done!")
 }
