@@ -15,6 +15,15 @@ console.log( "currentMode [" + currentMode + "]" );
 
 url = window.location.href;
 console.log( "url [" + url + "]" );
+args = url.split( "mode=" )
+if ( args.length > 1 ) {
+    tempMode = args[ 1 ].replaceAll( "%20", " " )
+    console.log( "Resetting mode to [" + tempMode + "]" );
+    currentMode = tempMode;
+} else {
+    console.log( "No mode specified [" + args[ 0 ] + "]" );
+}
+console.log( "currentMode [" + currentMode + "]" );
 
 // ¡OJO! TODO: These constants should be declared globally and ultimately in a runtime configurable configuration service provided by the browser.
 // ¡OJO! TODO: background-context-menu.js and recorder.js both make duplicate declarations of these constants.
@@ -33,15 +42,20 @@ document.getElementById( "record" ).addEventListener( "click", formatter );
 window.addEventListener( "DOMContentLoaded", (event) => {
 
     console.log( "DOM fully loaded and parsed, Checking permissions...." );
-    document.getElementById('record').click()
 
-    navigator.mediaDevices.getUserMedia( { audio: true, video: false } )
-    .then( ( stream ) => {
-        console.log( "Microphone available" )
-    },
-    e => {
-        console.log( "Microphone NOT available" )
-    } );
+    if ( currentMode == "transcription" || currentMode == "multimodal editor" ) {
+        document.getElementById('record').click()
+
+        navigator.mediaDevices.getUserMedia({audio: true, video: false})
+            .then((stream) => {
+                    console.log("Microphone available")
+                },
+                e => {
+                    console.log("Microphone NOT available")
+                });
+    } else {
+        handleCommands( "", currentMode )
+    }
     console.log( "DOM fully loaded and parsed, Checking permissions.... Done!" );
 });
 window.addEventListener( "keydown", function (event) {
@@ -227,24 +241,23 @@ async function handleCommands( prefix, transcription ) {
         }
         localStorage.setItem("mode", currentMode);
         await doTextToSpeech("Switching to " + currentMode + " command mode", closeWindow = false, refreshWindow = true);
-
-    } else if ( transcription.startsWith( "multimodal editor open new tab" ) ) {
-
-        url = transcription.replace( "multimodal editor open new tab", "" ).trim().replace( " ", "" )
-        if ( !url.startsWith( "http" ) ) {
-            url = "https://" + url;
-        }
-        console.log( "url [" + url + "]" );
-
-        await doTextToSpeech( "Opening new tab", closeWindow=false, refreshWindow=false );
-        navigator.tabs.create( {
-            url: url,
-            active: true
-        } );
+    // } else if ( transcription.startsWith( "multimodal editor open new tab" ) ) {
+    //
+    //     url = transcription.replace( "multimodal editor open new tab", "" ).trim().replace( " ", "" )
+    //     if ( !url.startsWith( "http" ) ) {
+    //         url = "https://" + url;
+    //     }
+    //     console.log( "url [" + url + "]" );
+    //
+    //     await doTextToSpeech( "Opening new tab", closeWindow=false, refreshWindow=false );
+    //     navigator.tabs.create( {
+    //         url: url,
+    //         active: true
+    //     } );
 
     } else if ( transcription == "multimodal editor mode" ) {
 
-        await doTextToSpeech( "Current mode is " + transcription, closeWindow=false, refreshWindow=true );
+        await doTextToSpeech( "Current mode is command mode, say 'toggle' to resume transcription mode", closeWindow=false, refreshWindow=true );
 
     } else {
         console.log( "Unknown command [" + transcription + "]" );
@@ -256,8 +269,10 @@ async function proofreadFromClipboard() {
     try {
 
         document.body.innerText = "Proofreading...";
-        document.body.style.backgroundColor = "pin";
+        document.body.style.backgroundColor = "white";
         document.body.style.border = "2px dotted red";
+
+        doTextToSpeech( "Proofreading...", closeWindow=false, refreshWindow=false )
 
         const rawText = await navigator.clipboard.readText()
         console.log( "rawText [" + rawText + "]" );
@@ -279,7 +294,7 @@ async function proofreadFromClipboard() {
         const pasteCmd = await navigator.clipboard.writeText( proofreadText );
 
         document.body.innerText = "Proofreading... Done!";
-        closeWindow();
+        doTextToSpeech( "Done!", closeWindow=true, refreshWindow=false );
 
     } catch ( e ) {
         console.log( "Error: " + e );
@@ -323,7 +338,16 @@ async function doTextToSpeech( text, closeWindow=true, refreshWindow=false ) {
             if ( closeWindow ) {
                 closeWindow();
             } else if ( refreshWindow ) {
-                window.location.reload();
+
+                // Remove any argument that might have been passed in the first time.
+                url = window.location.href;
+                if ( url.includes( "?mode=" ) ) {
+                    url = url.substring( 0, url.indexOf( "?" ) );
+                    console.log( "updated? url [" + url + "]" );
+                    window.location.href = url;
+                } else {
+                    window.location.reload();
+                }
             }
         } );
     });
