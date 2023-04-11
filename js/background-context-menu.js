@@ -326,4 +326,11 @@ doTextToSpeech = async (text) => {
     console.log("doTextToSpeech() called... done!")
 }
 
+browser.runtime.onMessage.addListener((message) => {
+    console.log( "background-context-menu.js: Message.command received: " + message.command ) ;
+    if (message.command === "transcribe") {
+        // showRecorderPopup();
+    }
+} );
+
 console.log( "NEW!  background-context-menu.js loading... Done!" );

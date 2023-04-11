@@ -21,13 +21,13 @@
   "commands": {
     "_execute_browser_action": {
       "suggested_key": {
-        "default": "Ctrl+P",
-        "mac": "MacCtrl+P"
+        "default": "Ctrl+K",
+        "mac": "MacCtrl+K"
       }
     },
     "popup-vox-to-text": {
       "suggested_key": {
-        "default": "Alt+J",
+        "default": "Ctrl+J",
         "mac": "MacCtrl+J"
       },
       "description": "Pops up voice to text recorder"
@@ -35,7 +35,8 @@
   },
   "background": {
         "scripts": [
-            "js/background-context-menu.js"
+            "js/background-context-menu.js",
+            "js/background.js"
         ],
         "type": "classic",
         "persistent": false
@@ -47,14 +48,5 @@
     "clipboardRead",
     "storage",
     "tabs"
-  ],
-  "content_scripts": [ {
-      "js": [
-        "js/background.js"
-      ],
-      "matches": [
-        "https://*/*",
-        "http://*/*"
-      ]
-    } ]
+  ]
 }
