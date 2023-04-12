@@ -23,49 +23,58 @@ document.addEventListener("keypress", (event) => {
     // }
 } );
 
+async function sendMessage( command ) {
 
-document.addEventListener("click", (e) => {
+    await browser.tabs.query({currentWindow: true, active: true}).then(async (tabs) => {
+        let tab = tabs[0];
+        await browser.tabs.sendMessage( tab.id, {
+            command: command
+        });
+        return true;
+    });
+}
+document.addEventListener("click", async (e) => {
 
-    console.log( "click detected: " + e.target.id );
+    console.log("click detected: " + e.target.id);
 
-    if ( e.target.id === "transcription") {
 
-        popupRecorder("" );
+    if (e.target.id === "transcription") {
 
-    } else if ( e.target.id === "transcription-debug" ) {
+        popupRecorder("");
 
-        popupRecorder("", true );
+    } else if (e.target.id === "transcription-debug") {
 
-    } else if ( e.target.id === "command-paste" ) {
-    } else if ( e.target.id === "command-mode" ) {
+        popupRecorder("", true);
 
-        popupRecorder("multimodal editor" );
+    } else if (e.target.id === "command-copy") {
 
-    } else if ( e.target.id === "command-proofread" ) {
+        response = await sendMessage( e.target.id )
 
-        popupRecorder("multimodal editor proofread");
+    } else if (e.target.id === "command-mode") {
 
-    } else if ( e.target.id === "command-whats-this" ) {
+        popupRecorder("multimodal editor");
+
+    } else if (e.target.id === "command-proofread") {
+
+        // response = await sendMessage( e.target.id )
+        popupRecorder("multimodal editor proofread" );
+
+    } else if (e.target.id === "command-whats-this") {
 
         fetchWhatsThisMean();
 
 
         browser.tabs.query({currentWindow: true, active: true}).then(async (tabs) => {
-        let tab = tabs[0];
-        browser.tabs.sendMessage( tab.id, {
-            command: e.target.id
+            let tab = tabs[0];
+            browser.tabs.sendMessage(tab.id, {
+                command: e.target.id
+            });
         });
-    });
     } else {
-        console.log( "Unknown button clicked: " + e.target.id );
+        console.log("Unknown button clicked: " + e.target.id);
     }
-    // browser.tabs.query({currentWindow: true, active: true}).then(async (tabs) => {
-    //     let tab = tabs[0];
-    //     browser.tabs.sendMessage( tab.id, {
-    //         command: e.target.id
-    //     });
-    // });
 } );
+
 function popupRecorder( mode, debug=false ) {
 
     url = ""
@@ -96,13 +105,13 @@ function popupRecorder( mode, debug=false ) {
 //         });
 //     } )
 // }
-// browser.tabs.executeScript({file: "../js/content.js"})
-// .then( () => { console.log( "Script loaded..." ) } )
-// .catch(reportExecuteScriptError);
-//
-// function reportExecuteScriptError(error) {
-//     console.error(`Failed to execute content script: ${error.message}`);
-// }
+browser.tabs.executeScript({file: "../js/content.js"})
+.then( () => { console.log( "Script loaded..." ) } )
+.catch(reportExecuteScriptError);
+
+function reportExecuteScriptError(error) {
+    console.error(`Failed to execute content script: ${error.message}`);
+}
 
 fetchWhatsThisMean = async () => {
 
