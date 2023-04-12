@@ -1,49 +1,96 @@
 console.log( "recorder.js loading..." );
 
 let commandMode = "multimodal editor"
+let debug       = false;
 
-// localStorage.removeItem( "mode" );
-tempMode = localStorage.getItem( "mode" );
-// console.log( "tempMode [" + tempMode + "]" );
+function getLastKnownMode() {
 
-if ( tempMode === null ){
-    currentMode = "transcription";
-} else {
-    currentMode = tempMode;
+    // localStorage.removeItem( "mode" );
+    tempMode = localStorage.getItem( "mode" );
+    // console.log( "tempMode [" + tempMode + "]" );
+
+    if ( tempMode === null ){
+        return "transcription";
+    } else {
+        return tempMode;
+    }
 }
-console.log( "currentMode [" + currentMode + "]" );
+currentMode = getLastKnownMode();
 
-url = window.location.href;
-console.log( "url [" + url + "]" );
-args = url.split( "mode=" )
-if ( args.length > 1 ) {
-    tempMode = args[ 1 ].replaceAll( "%20", " " )
-    console.log( "Resetting mode to [" + tempMode + "]" );
-    currentMode = tempMode;
-} else {
-    console.log( "No mode specified [" + args[ 0 ] + "]" );
+console.log( "currentMode BEFORE adjusting with name value pairs passed in on the URL [" + currentMode + "]" );
+function updateInitParamsFromUrl( currentMode ) {
+
+    url = window.location.href;
+    console.log( "url [" + url + "]" );
+
+    // test to see if mode was passed in with the URL.
+    args = url.split( "mode=" )
+    if ( args.length > 1 ) {
+        tempMode = args[ 1 ].replaceAll( "%20", " " )
+        console.log( "Resetting mode to [" + tempMode + "]" );
+        currentMode = tempMode;
+    } else {
+        console.log( "No mode specified by URL [" + args[ 0 ] + "]" );
+    }
+
+    // test to see if debug was passed in with the URL.
+    args = url.split( "debug=true" )
+    if ( args.length > 1 ) {
+        debug = true;
+    }
+    console.log( "Starting in debug mode [" + debug + "]" );
+
+    return currentMode;
 }
-console.log( "currentMode [" + currentMode + "]" );
+currentMode = updateInitParamsFromUrl( currentMode );
+
+console.log( "currentMode AFTER adjusting with name value pairs passed in on the URL [" + currentMode + "]" );
+
+function updatePrefix( currentMode ) {
+
+    // if we're in command mode then we can skip obligating the user to say multimodal editor every time and just send it along as a prefix
+    if ( currentMode.startsWith( commandMode ) ){
+        prefix = commandMode;
+    } else {
+        prefix = "";
+    }
+    return prefix;
+}
+prefix = updatePrefix( currentMode );
 
 // ¡OJO! TODO: These constants should be declared globally and ultimately in a runtime configurable configuration service provided by the browser.
 // ¡OJO! TODO: background-context-menu.js and recorder.js both make duplicate declarations of these constants.
 const ttsServer = "http://127.0.0.1:5002";
 const genieInTheBoxServer = "http://127.0.0.1:7999";
 
-function formatter() {
-  document.body.style.backgroundColor = "pink";
-  document.body.style.border = "2px dotted red";
-  document.body.style.padding = "8px";
+function setModeIndicators( state ) {
+
+    if ( state == "processing" ) {
+
+        document.body.style.backgroundColor = "pink";
+        document.body.style.border = "2px dotted red";
+        document.body.style.padding = "8px";
+
+    } else {
+
+        document.body.style.backgroundColor = "white";
+        document.body.style.border = "2px dotted black";
+        document.body.style.padding = "8px";
+    }
 }
 
-document.getElementById( "record" ).addEventListener( "click", formatter );
+document.getElementById( "record" ).addEventListener( "click", setModeIndicators( "processing" ) );
 
 // let stream = "";
 window.addEventListener( "DOMContentLoaded", (event) => {
 
     console.log( "DOM fully loaded and parsed, Checking permissions...." );
 
+    // Only hide if we're not in debug mode
+    document.getElementById('play').hidden = !debug;
+
     if ( currentMode == "transcription" || currentMode == "multimodal editor" ) {
+
         document.getElementById('record').click()
 
         navigator.mediaDevices.getUserMedia({audio: true, video: false})
@@ -99,7 +146,7 @@ const recordAudio = () =>
       const start = () => {
         audioChunks = [];
         mediaRecorder.start();
-        // document.getElementById('record').hidden = true;
+        document.getElementById('record').hidden = !debug;
         document.getElementById('stop').focus();
       };
 
@@ -164,12 +211,12 @@ playButton.addEventListener('click', () => {
 
 saveButton.addEventListener('click', async () => {
 
-    // if we're in command mode then we can skip obligating the user to say multimodal editor every time and just send it along as a prefix
-    if ( currentMode === commandMode ) {
-        prefix = commandMode;
-    } else {
-        prefix = "";
-    }
+    // // if we're in command mode then we can skip obligating the user to say multimodal editor every time and just send it along as a prefix
+    // if ( currentMode === commandMode ) {
+    //     prefix = commandMode;
+    // } else {
+    //     prefix = "";
+    // }
 
     const url = genieInTheBoxServer + "/api/upload-and-transcribe-mp3?prefix=" + prefix;
     console.log( "Attempting to upload and transcribe to url [" + url + "]" )

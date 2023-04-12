@@ -28,10 +28,15 @@ document.addEventListener("click", (e) => {
 
     console.log( "click detected: " + e.target.id );
 
-    if ( e.target.id === "transcribe") {
+    if ( e.target.id === "transcription") {
 
-        popupRecorder("transcription");
+        popupRecorder("" );
 
+    } else if ( e.target.id === "transcription-debug" ) {
+
+        popupRecorder("", true );
+
+    } else if ( e.target.id === "command-paste" ) {
     } else if ( e.target.id === "command-mode" ) {
 
         popupRecorder("multimodal editor" );
@@ -44,7 +49,6 @@ document.addEventListener("click", (e) => {
 
         fetchWhatsThisMean();
 
-    } else if ( e.target.id === "command-paste" ) {
 
         browser.tabs.query({currentWindow: true, active: true}).then(async (tabs) => {
         let tab = tabs[0];
@@ -62,9 +66,17 @@ document.addEventListener("click", (e) => {
     //     });
     // });
 } );
-function popupRecorder( mode ) {
+function popupRecorder( mode, debug=false ) {
+
+    url = ""
+    if ( mode !== "" ) {
+        url = "../html/recorder.html?mode=" + mode + "&debug=" + debug
+    } else {
+        url = "../html/recorder.html?debug=" + debug
+    }
+
     let createData = {
-        url: "../html/recorder.html?mode=" + mode,
+        url: url,
         type: "popup",
         height: 15, // Browser will force this to be a certain Minimum height
         width: 280
