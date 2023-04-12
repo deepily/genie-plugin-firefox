@@ -182,9 +182,18 @@ console.log( "browser.commands.onCommand.addListener ... Done?" )
 //     // for information on the purpose of this error capture.
 //     () => void browser.runtime.lastError,
 // );
+// browser.contextMenus.create({
+//         id: "whats-this-mean",
+//         title: "What's this?",
+//         contexts: ["selection"]
+//     },
+//     // See https://extensionworkshop.com/documentation/develop/manifest-v3-migration-guide/#event-pages-and-backward-compatibility
+//     // for information on the purpose of this error capture.
+//     () => void browser.runtime.lastError,
+// );
 browser.contextMenus.create({
-        id: "whats-this-mean",
-        title: "What's this?",
+        id: "proofread",
+        title: "Proofread",
         contexts: ["selection"]
     },
     // See https://extensionworkshop.com/documentation/develop/manifest-v3-migration-guide/#event-pages-and-backward-compatibility
@@ -248,22 +257,25 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
                 //     console.log( "calling doTextToSpeech()... done!" )
                 // } );
             });
-            // .then( ( response ) => {
-            //     response.text().then(respText => {
-            //         console.log("respText: " + respText );
-            //     });
-            // });
-
-            // doTextToSpeech( explanation )
-            // } else if ( info.menuItemId === "read-to-me" ) {
-            //
-            //     console.log( "read-to-me clicked [" + info.selectionText + "]" );
-            //     console.log( "info: " + JSON.stringify( info ) );
-            //
-            //     doTextToSpeech( info );
-            //
-            // }
         });
+    } else if ( info.menuItemId === "proofread") {
+
+        // Getting selected text in Firefox is supremely fucked up.\!
+        // console.log("info: " + JSON.stringify(info));
+        // console.log( document.getSelection().toString() );
+        // // window.getSelection().deleteFromDocument();
+        // document.execCommand("copy")
+        // var activeElement = document.activeElement;
+        // console.log( "activeElement [" + JSON.stringify(activeElement ) + "]" );
+        // console.log( "activeElement.value [" + activeElement.value + "]" );
+        //
+        // if (activeElement && activeElement.value) {
+        //     // firefox bug https://bugzilla.mozilla.org/show_bug.cgi?id=85686
+        //     console.log( "FF BUG? " + activeElement.value.substring(activeElement.selectionStart, activeElement.selectionEnd) );
+        // } else {
+        //     console.log( document.getSelection().toString() );
+        // }
+        proofread( info.selectionText );
     }
 });
 // insertModal = ( info ) => {
@@ -271,6 +283,36 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
 //     console.log( "insertModal() called..." )
 //     insertCss()
 // }
+
+async function proofread( rawText ) {
+
+    console.log( "proofread() rawText [" + rawText + "]" );
+    try {
+        doTextToSpeech( "Proofreading...", closeWindow=false, refreshWindow=false )
+        console.log( "Calling genieInTheBoxServer [" + genieInTheBoxServer + "]..." );
+
+        let url = genieInTheBoxServer + "/api/proofread?question=" + rawText
+        const response = await fetch( url, {
+            method: 'GET',
+            headers: {'Access-Control-Allow-Origin': '*'}
+        } );
+        console.log( "response.status [" + response.status + "]" );
+
+        if (!response.ok) {
+            throw new Error( `HTTP error: ${response.status}` );
+        }
+        const proofreadText = await response.text();
+        console.log( "proofreadText [" + proofreadText + "]" );
+
+        console.log( "Pushing proofreadText [" + proofreadText + "] to clipboard..." );
+        const pasteCmd = await navigator.clipboard.writeText( proofreadText );
+
+        doTextToSpeech( "Done!", closeWindow=true, refreshWindow=false );
+
+    } catch ( e ) {
+        console.log( "Error: " + e );
+    }
+}
 
 fetchWhatsThisMean = async (info) => {
 
@@ -306,22 +348,6 @@ doTextToSpeech = async (text) => {
 
     const audio = new Audio(encodedUrl);
     await audio.play();
-
-    // You know, this actually works, but I'm not going to use it because I can do it in two lines instead.
-    // await fetch(url, {
-    //     method: 'GET',
-    //     headers: {'Access-Control-Allow-Origin': '*'}
-    // }).then(async (response) => {
-    //     console.log("response.status: " + response.status);
-    //     await response.blob().then(async audioBlob => {
-    //         const audioUrl = URL.createObjectURL(audioBlob);
-    //         const audio = new Audio(audioUrl);
-    //         console.log("Playing audio...");
-    //         await audio.play();
-    //         console.log("Playing audio... done?");
-    //     })
-    //
-    // })
 
     console.log("doTextToSpeech() called... done!")
 }
