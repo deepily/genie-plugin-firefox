@@ -19,15 +19,22 @@
         if (message.command === "command-copy") {
 
             selectedText = document.getSelection().toString()
-            console.log("content.js: selectedText: " + selectedText);
+            // console.log("content.js: selectedText: " + selectedText);
             await copyToClipboard( selectedText );
+            browser.runtime.sendMessage( {
+                "text": selectedText,
+                "command": message.command
+            } );
 
-        } else if (message.command === "command-proofread") {
+        } else if ( message.command === "command-proofread") {
 
             selectedText = document.getSelection().toString()
-            console.log("content.js: selectedText: " + selectedText);
+            // console.log("content.js: selectedText: " + selectedText);
             await copyToClipboard( selectedText );
-            // popupRecorder( "multimodal editor proofread" );
+            browser.runtime.sendMessage( {
+                "selectedText": selectedText,
+                "command": message.command
+            } );
 
         } else if (message.command === "command-paste") {
 
@@ -41,7 +48,7 @@
     } );
     //
     // create a function that copies the parameter text to the clipboard
-    async function copyToClipboard(text) {
+    async function copyToClipboard( selectedText) {
 
         if (selectedText.length > 0) {
             const writeCmd = await navigator.clipboard.writeText(selectedText);

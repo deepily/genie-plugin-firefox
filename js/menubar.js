@@ -40,10 +40,12 @@ document.addEventListener("click", async (e) => {
 
     if (e.target.id === "transcription") {
 
+        // await doTextToSpeech( "Transcription mode" )
         popupRecorder("");
 
     } else if (e.target.id === "transcription-debug") {
 
+        // await doTextToSpeech( "Debug mode" )
         popupRecorder("", true);
 
     } else if (e.target.id === "command-copy") {
@@ -52,12 +54,13 @@ document.addEventListener("click", async (e) => {
 
     } else if (e.target.id === "command-mode") {
 
+        // await doTextToSpeech( "Command mode" )
         popupRecorder("multimodal editor");
 
     } else if (e.target.id === "command-proofread") {
 
-        // response = await sendMessage( e.target.id )
-        popupRecorder("multimodal editor proofread" );
+        response = await sendMessage( e.target.id )
+        // popupRecorder("multimodal editor proofread" );
 
     } else if (e.target.id === "command-whats-this") {
 

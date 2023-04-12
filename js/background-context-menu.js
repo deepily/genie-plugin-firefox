@@ -6,6 +6,17 @@ const genieInTheBoxServer = "http://127.0.0.1:7999";
 const ttsServer = "http://127.0.0.1:5002";
 
 console.log( "NEW! background-context-menu.js loading... Done!" );
+
+// browser.runtime.onMessage.addListener( notify );
+//
+// function notify( message ) {
+//     browser.notifications.create({
+//         "type": "basic",
+//         "iconUrl": browser.extension.getURL( "../icons/border-48.png" ),
+//         "title": "You did something.!",
+//         "message": message.text
+//     });
+// }
 function onCreated() {
   if (browser.runtime.lastError) {
     console.log("error creating item:" + browser.runtime.lastError);
@@ -288,10 +299,11 @@ async function proofread( rawText ) {
 
     console.log( "proofread() rawText [" + rawText + "]" );
     try {
-        doTextToSpeech( "Proofreading...", closeWindow=false, refreshWindow=false )
+        await doTextToSpeech( "Proofreading..." )
+        let url = genieInTheBoxServer + "/api/proofread?question=" + rawText
+
         console.log( "Calling genieInTheBoxServer [" + genieInTheBoxServer + "]..." );
 
-        let url = genieInTheBoxServer + "/api/proofread?question=" + rawText
         const response = await fetch( url, {
             method: 'GET',
             headers: {'Access-Control-Allow-Origin': '*'}
@@ -304,12 +316,14 @@ async function proofread( rawText ) {
         const proofreadText = await response.text();
         console.log( "proofreadText [" + proofreadText + "]" );
 
-        console.log( "Pushing proofreadText [" + proofreadText + "] to clipboard..." );
+        console.log( "Pushing proofreadText to clipboard..." );
         const pasteCmd = await navigator.clipboard.writeText( proofreadText );
 
-        doTextToSpeech( "Done!", closeWindow=true, refreshWindow=false );
+        doTextToSpeech( "Done! Copied to clipboard." );
 
     } catch ( e ) {
+
+        doTextToSpeech( "Unable to proofread that text, please see the error log." );
         console.log( "Error: " + e );
     }
 }
@@ -353,10 +367,22 @@ doTextToSpeech = async (text) => {
 }
 
 browser.runtime.onMessage.addListener((message) => {
-    console.log( "background-context-menu.js: Message.command received: " + message.command ) ;
-    if (message.command === "transcribe") {
-        // showRecorderPopup();
+
+    // console.log( "background-context-menu.js: Message.command received: " + JSON.stringify( message ) ) ;
+
+    if ( message.command === "command-proofread" ) {
+
+        console.log( "background-context-menu.js: command-proofread received" ) ;
+        proofread( message.selectedText );
+
+    } else if ( message.command === "command-copy" ) {
+
+        doTextToSpeech( "Copied to clipboard." );
     }
+
+    // if (message.command === "transcribe") {
+    //     // showRecorderPopup();
+    // }
 } );
 
 console.log( "NEW!  background-context-menu.js loading... Done!" );
