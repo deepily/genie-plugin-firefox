@@ -12,49 +12,79 @@
     }
     window.hasRun = true;
 
-    browser.runtime.onMessage.addListener(async (message) => {
+    browser.runtime.onMessage.addListener(async ( message) => {
 
-        console.log("content.js: Message.command received: " + message.command);
+        console.log( "content.js: Message.command received: " + message.command);
 
-        if (message.command === "command-copy") {
+        if ( message.command === "command-copy" ) {
 
             selectedText = document.getSelection().toString()
-            // console.log("content.js: selectedText: " + selectedText);
+
             await copyToClipboard( selectedText );
             browser.runtime.sendMessage( {
                 "text": selectedText,
                 "command": message.command
             } );
 
-        } else if ( message.command === "command-proofread") {
+        } else if ( message.command === "command-cut" ) {
+
+            selection = document.getSelection()
+            
+            await copyToClipboard( selection.toString() );
+            selection.deleteFromDocument()
+            
+            browser.runtime.sendMessage( {
+                "text": selectedText,
+                "command": message.command
+            } );
+            
+        } else if ( message.command === "command-delete" ) {
+
+            document.getSelection().deleteFromDocument()
+            
+        } else if ( message.command === "command-paste" ) {
+
+            console.log( "content.js: Pasting from clipboard?" );
+            const clipboardText = await navigator.clipboard.readText()
+            console.log( "content.js: clipboardText: " + clipboardText );
+            paste( clipboardText );
+
+            // selection = document.getSelection()
+            // if ( selection.rangeCount ) {
+            //     selection.deleteFromDocument()
+            // }
+            // selection.getRangeAt(0).insertNode(document.createTextNode(clipboardText) )
+
+        } else if ( message.command === "command-proofread" ) {
 
             selectedText = document.getSelection().toString()
-            // console.log("content.js: selectedText: " + selectedText);
+            // console.log( "content.js: selectedText: " + selectedText);
             await copyToClipboard( selectedText );
             browser.runtime.sendMessage( {
                 "selectedText": selectedText,
                 "command": message.command
             } );
-
-        } else if (message.command === "command-paste") {
-
-            console.log("content.js: Pasting from clipboard?");
-            navigator.clipboard.readText().then((text) => {
-                console.log("clipboard.readText() text: " + text);
-            }, () => {
-                console.log("clipboard.readText() Failure!");
-            });
         }
     } );
+
+    function paste( text ) {
+
+        console.log( "paste() called..." );
+        selection = document.getSelection()
+        if ( selection.rangeCount ) {
+            selection.deleteFromDocument()
+        }
+        selection.getRangeAt(0).insertNode(document.createTextNode( text ) )
+    }
     //
     // create a function that copies the parameter text to the clipboard
     async function copyToClipboard( selectedText) {
 
         if (selectedText.length > 0) {
-            const writeCmd = await navigator.clipboard.writeText(selectedText);
-            console.log("clipboard.writeText() Success!");
+            const writeCmd = await navigator.clipboard.writeText( selectedText );
+            console.log( "clipboard.writeText() Success!" );
         } else {
-            console.log("content.js: No text selected!");
+            console.log( "content.js: No text selected!" );
         }
     }
 
@@ -75,18 +105,18 @@
     //     console.log( "showRecorderPopup() called... " )
     //     var popupURL = browser.runtime.getURL( "../html/recorder.html" );
     //
-    //     let creating = browser.runtime.create({
+    //     let creating = browser.runtime.create( {
     //         url: popupURL,
     //         type: "popup",
     //         height: 15, // Browser will force this to be a certain Minimum height
     //         width: 280
-    //     });
+    //     } );
     //     // creating.then( onCreated = () => {
-    //     //     console.log("Created");
+    //     //     console.log( "Created" );
     //     // }, onError = ( error ) => {
     //     //     console.log(`Error: ${error}`);
-    //     // });
+    //     // } );
     //     console.log( "showRecorderPopup() called... Done!" )
     // };
     // console.log( "content.js loading... Done!" );
-})();
+} )();

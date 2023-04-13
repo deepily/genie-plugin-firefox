@@ -3,14 +3,19 @@
 const ttsServer = "http://127.0.0.1:5002";
 const genieInTheBoxServer = "http://127.0.0.1:7999";
 
+// Set focus after the DOM is loaded.
+window.addEventListener( "DOMContentLoaded", (event) => {
+    console.log( "DOM fully loaded and parsed, Setting up form event listeners..." );
+    document.getElementById( "transcription" ).focus();
+} );
 // capture key events
-document.addEventListener("keypress", (event) => {
+document.addEventListener( "keypress", (event) => {
 
     console.log( "key pressed: " + event.key );
 
-    // if (event.key === "ArrowDown") {
+    // if (event.key === "ArrowDown" ) {
     //
-    //     console.log("ArrowDown")
+    //     console.log( "ArrowDown" )
     //     currentFocus = document.activeElement;
     //     for ( button in buttons ) {
     //         if ( button === currentFocus ) {
@@ -18,8 +23,8 @@ document.addEventListener("keypress", (event) => {
     //             break;
     //         }
     //     }
-    // } else if (event.key === "ArrowUp") {
-    //     console.log("ArrowUp")
+    // } else if (event.key === "ArrowUp" ) {
+    //     console.log( "ArrowUp" )
     // }
 } );
 
@@ -33,36 +38,36 @@ async function sendMessage( command ) {
         return true;
     });
 }
-document.addEventListener("click", async (e) => {
+document.addEventListener( "click", async (e) => {
 
-    console.log("click detected: " + e.target.id);
+    console.log( "click detected: " + e.target.id);
 
 
-    if (e.target.id === "transcription") {
+    if ( e.target.id === "transcription" ) {
 
         // await doTextToSpeech( "Transcription mode" )
-        popupRecorder("");
+        popupRecorder( "" );
 
-    } else if (e.target.id === "transcription-debug") {
+    } else if ( e.target.id === "transcription-debug" ) {
 
         // await doTextToSpeech( "Debug mode" )
-        popupRecorder("", true);
+        popupRecorder( "", true);
 
-    } else if (e.target.id === "command-copy") {
+    } else if ( e.target.id === "command-cut" || e.target.id === "command-copy" || e.target.id === "command-paste" || e.target.id === "command-delete" ) {
 
         response = await sendMessage( e.target.id )
 
-    } else if (e.target.id === "command-mode") {
+    } else if ( e.target.id === "command-mode" ) {
 
         // await doTextToSpeech( "Command mode" )
-        popupRecorder("multimodal editor");
+        popupRecorder( "multimodal editor" );
 
-    } else if (e.target.id === "command-proofread") {
+    } else if ( e.target.id === "command-proofread" ) {
 
         response = await sendMessage( e.target.id )
-        // popupRecorder("multimodal editor proofread" );
+        // popupRecorder( "multimodal editor proofread" );
 
-    } else if (e.target.id === "command-whats-this") {
+    } else if ( e.target.id === "command-whats-this" ) {
 
         fetchWhatsThisMean();
 
@@ -74,7 +79,7 @@ document.addEventListener("click", async (e) => {
             });
         });
     } else {
-        console.log("Unknown button clicked: " + e.target.id);
+        console.log( "Unknown button clicked: " + e.target.id);
     }
 } );
 
@@ -95,47 +100,35 @@ function popupRecorder( mode, debug=false ) {
     };
     let creating = browser.windows.create(createData);
 }
-// function listenForClicks() {
-//
-//     document.addEventListener("click", (e) => {
-//         console.log( "click detected: " + e.target.id );
-//
-//         browser.tabs.query({currentWindow: true, active: true}).then(async (tabs) => {
-//             let tab = tabs[0];
-//             browser.tabs.sendMessage( tab.id, {
-//                 command: e.target.id
-//             });
-//         });
-//     } )
-// }
+
 browser.tabs.executeScript({file: "../js/content.js"})
 .then( () => { console.log( "Script loaded..." ) } )
 .catch(reportExecuteScriptError);
 
-function reportExecuteScriptError(error) {
+function reportExecuteScriptError( error) {
     console.error(`Failed to execute content script: ${error.message}`);
 }
 
 fetchWhatsThisMean = async () => {
 
-    console.log("fetchWhatsThisMean() called...")
+    console.log( "fetchWhatsThisMean() called..." )
 
     const clipboardText = await navigator.clipboard.readText();
 
     let url = genieInTheBoxServer + "/api/ask-ai-text?question=" + clipboardText
     const encodedUrl = encodeURI(url);
-    console.log("encoded: " + encodedUrl);
+    console.log( "encoded: " + encodedUrl);
 
     await fetch(url, {
         method: 'GET',
         headers: {'Access-Control-Allow-Origin': '*'}
     }).then( async (response) => {
-        console.log("response.status: " + response.status);
+        console.log( "response.status: " + response.status);
         if ( response.status !== 200) {
-            return Promise.reject("Server error: " + response.status);
+            return Promise.reject( "Server error: " + response.status);
         } else {
             await response.text().then( async respText => {
-                console.log("respText: " + respText);
+                console.log( "respText: " + respText);
                 await doTextToSpeech( respText )
             })
         }
@@ -144,14 +137,14 @@ fetchWhatsThisMean = async () => {
 
 doTextToSpeech = async (text) => {
 
-    console.log("doTextToSpeech() called...")
+    console.log( "doTextToSpeech() called..." )
 
     let url = ttsServer + "/api/tts?text=" + text
     const encodedUrl = encodeURI(url);
-    console.log("encoded: " + encodedUrl);
+    console.log( "encoded: " + encodedUrl);
 
-    const audio = new Audio(encodedUrl);
+    const audio = new Audio( encodedUrl);
     await audio.play();
 
-    console.log("doTextToSpeech() called... done!")
+    console.log( "doTextToSpeech() called... done!" )
 }
