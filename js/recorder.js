@@ -1,62 +1,75 @@
 console.log( "recorder.js loading..." );
 
-let commandMode = "multimodal editor"
-let debug       = false;
+const searchDuckDuckGo  = "duck duck go";
+const searchGoogle      = "google";
+const openNewTab        = "open new tab";
+const multimodalEditor  = "multimodal editor";
+const commandMode       = "command"
+const transcriptionMode = "transcription"
 
-function getLastKnownMode() {
+let debug               = false;
 
-    // localStorage.removeItem( "mode" );
-    tempMode = localStorage.getItem( "mode" );
-    // console.log( "tempMode [" + tempMode + "]" );
+var currentMode         = "";
+var prefix              = "";
+// var command             = "";
+var transcription       = "";
 
-    if ( tempMode === null ){
-        return "transcription";
-    } else {
-        return tempMode;
-    }
+const readLocalStorage = async (key, defaultValue ) => {
+    return new Promise(( resolve, reject ) => {
+        browser.storage.local.get( [ key ], function ( result ) {
+            if (result[ key ] === undefined) {
+                reject( defaultValue );
+            } else {
+                resolve( result[ key ] );
+            }
+        } );
+    } );
 }
-currentMode = getLastKnownMode();
+async function initializeStartupParameters() {
 
-console.log( "currentMode BEFORE adjusting with name value pairs passed in on the URL [" + currentMode + "]" );
-function updateInitParamsFromUrl( currentMode ) {
+    console.log( "initializeStartupParameters()..." );
+    
+    currentMode   = await readLocalStorage("mode", transcriptionMode);
+    prefix        = await readLocalStorage("prefix", "" );
+    // TODO: Command should be renamed transcription!
+    transcription = await readLocalStorage("command", "" );
+    debug         = await readLocalStorage("debug", false);
 
-    url = window.location.href;
-    console.log( "url [" + url + "]" );
-
-    // test to see if mode was passed in with the URL.
-    args = url.split( "mode=" )
-    if ( args.length > 1 ) {
-        tempMode = args[ 1 ].replaceAll( "%20", " " )
-        console.log( "Resetting mode to [" + tempMode + "]" );
-        currentMode = tempMode;
-    } else {
-        console.log( "No mode specified by URL [" + args[ 0 ] + "]" );
-    }
-
-    // test to see if debug was passed in with the URL.
-    args = url.split( "debug=true" )
-    if ( args.length > 1 ) {
-        debug = true;
-    }
-    console.log( "Starting in debug mode [" + debug + "]" );
-
-    return currentMode;
+    dumpStartupParameters();
 }
-currentMode = updateInitParamsFromUrl( currentMode );
+async function dumpStartupParameters() {
 
-console.log( "currentMode AFTER adjusting with name value pairs passed in on the URL [" + currentMode + "]" );
-
-function updatePrefix( currentMode ) {
-
-    // if we're in command mode then we can skip obligating the user to say multimodal editor every time and just send it along as a prefix
-    if ( currentMode.startsWith( commandMode ) ){
-        prefix = commandMode;
-    } else {
-        prefix = "";
-    }
-    return prefix;
+    console.log( "  currentMode [" + currentMode + "]" );
+    console.log( "       prefix [" + prefix + "]" );
+    console.log( "transcription [" + transcription + "]" );
+    console.log( "        debug [" + debug + "]" );
 }
-prefix = updatePrefix( currentMode );
+function updateLastKnownRecorderState( currentMode, prefix, transcription, debug ) {
+
+    console.log( "updateLastKnownRecorderState()..." );
+
+    // dumpStartupParameters()
+    console.log( "  currentMode [" + currentMode + "]" );
+    console.log( "       prefix [" + prefix + "]" );
+    console.log( "transcription [" + transcription + "]" );
+    console.log( "        debug [" + debug + "]" );
+
+    browser.storage.local.set( {
+           "mode": currentMode,
+         "prefix": prefix,
+        "command": transcription,
+          "debug": debug
+    } );
+    console.log( "updateLastKnownRecorderState()... Done!" );
+}
+function updateLocalStorageLastUrl( url ) {
+
+    console.log( "updateLocalStorageLastUrl()..." + url  );
+    browser.storage.local.set( {
+        "lastUrl": url
+    } );
+    return true;
+}
 
 // ¡OJO! TODO: These constants should be declared globally and ultimately in a runtime configurable configuration service provided by the browser.
 // ¡OJO! TODO: background-context-menu.js and recorder.js both make duplicate declarations of these constants.
@@ -74,37 +87,46 @@ function setModeIndicators( state ) {
     } else {
 
         document.body.style.backgroundColor = "white";
-        document.body.style.border = "2px dotted black";
+        document.body.style.border = "2px dotted white";
         document.body.style.padding = "8px";
     }
 }
 
 document.getElementById( "record" ).addEventListener( "click", setModeIndicators( "processing" ) );
 
-// let stream = "";
-window.addEventListener( "DOMContentLoaded", (event) => {
+window.addEventListener( "DOMContentLoaded", async (event) => {
 
-    console.log( "DOM fully loaded and parsed, Checking permissions...." );
+    console.log("DOM fully loaded and parsed, Getting startup parameters...." );
+    await initializeStartupParameters();
+
+    // parent.postMessage( { "type": "recorder", "mode": currentMode, "prefix": prefix, "transcription": transcription, "debug": debug }, "*" );
+
+    // console.log( "window.opener.location" + window.opener.location );
+    console.log( "window.parent.location: " + window.parent.location );
+    console.log( "window.parent.location.href: " + window.parent.location.href );
+
+    console.log("DOM fully loaded and parsed. Checking permissions...." );
 
     // Only hide if we're not in debug mode
     document.getElementById('play').hidden = !debug;
 
-    if ( currentMode == "transcription" || currentMode == "multimodal editor" ) {
+    if ( currentMode === "transcription"  || transcription === "" ) { // || currentMode == "multimodal editor" ) {
 
         document.getElementById('record').click()
 
         navigator.mediaDevices.getUserMedia({audio: true, video: false})
             .then((stream) => {
-                    console.log("Microphone available")
+                    console.log("Microphone available" )
                 },
                 e => {
-                    console.log("Microphone NOT available")
-                });
+                    console.log("Microphone NOT available" )
+                } );
     } else {
-        handleCommands( "", currentMode )
+        // Skip recording mode and jump right into handling commands.
+        handleCommand( prefix, transcription )
     }
-    console.log( "DOM fully loaded and parsed, Checking permissions.... Done!" );
-});
+    console.log("DOM fully loaded and parsed. Checking permissions.... Done!" );
+} );
 window.addEventListener( "keydown", function (event) {
 
     console.log( "event [" + event + "]" );
@@ -131,17 +153,17 @@ window.addEventListener( "keydown", function (event) {
     //   console.log( "'Ctrl t' pressed" );
     //   document.getElementById('save').click();
     // }
-});
+} );
 
 const recordAudio = () =>
     new Promise(async resolve => {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true } );
       const mediaRecorder = new MediaRecorder(stream);
       let audioChunks = [];
 
       mediaRecorder.addEventListener('dataavailable', event => {
         audioChunks.push(event.data);
-      });
+      } );
 
       const start = () => {
         audioChunks = [];
@@ -153,18 +175,18 @@ const recordAudio = () =>
       const stop = () =>
         new Promise(resolve => {
           mediaRecorder.addEventListener('stop', () => {
-            const audioBlob = new Blob(audioChunks, { type: 'audio/mpeg' });
+            const audioBlob = new Blob(audioChunks, { type: 'audio/mpeg' } );
             const audioUrl = URL.createObjectURL(audioBlob);
             const audio = new Audio(audioUrl);
             const play = () => audio.play();
-            resolve({ audioChunks, audioBlob, audioUrl, play });
-          });
+            resolve({ audioChunks, audioBlob, audioUrl, play } );
+          } );
 
           mediaRecorder.stop();
-        });
+        } );
 
-      resolve({ start, stop });
-    });
+      resolve({ start, stop } );
+    } );
 
 // const sleep = time => new Promise(resolve => setTimeout(resolve, time));
 
@@ -190,7 +212,7 @@ recordButton.addEventListener('click', async () => {
       recorder = await recordAudio();
     }
     recorder.start();
-});
+} );
 
 stopButton.addEventListener('click', async () => {
 
@@ -203,20 +225,13 @@ stopButton.addEventListener('click', async () => {
     saveButton.removeAttribute('disabled');
     saveButton.focus();
     audio = await recorder.stop();
-});
+} );
 
 playButton.addEventListener('click', () => {
     audio.play();
-});
+} );
 
 saveButton.addEventListener('click', async () => {
-
-    // // if we're in command mode then we can skip obligating the user to say multimodal editor every time and just send it along as a prefix
-    // if ( currentMode === commandMode ) {
-    //     prefix = commandMode;
-    // } else {
-    //     prefix = "";
-    // }
 
     const url = genieInTheBoxServer + "/api/upload-and-transcribe-mp3?prefix=" + prefix;
     console.log( "Attempting to upload and transcribe to url [" + url + "]" )
@@ -238,23 +253,30 @@ saveButton.addEventListener('click', async () => {
         if ( !response.ok ) {
             throw new Error( `HTTP error: ${response.status}` );
         }
+        document.body.innerText = "Processing audio... Done!";
 
         const transcriptionJson = await response.json();
         console.log( "transcriptionJson [" + JSON.stringify( transcriptionJson ) + "]..." );
         let transcription = transcriptionJson[ "transcription" ]
         let prefix        = transcriptionJson[ "prefix" ]
 
-        // are we implicitly or explicitly in command mode?
-        if ( prefix.startsWith( commandMode ) || transcription.startsWith( commandMode ) ) {
+        // are we in command mode?
+        if ( prefix.startsWith( multimodalEditor) || transcription.startsWith( multimodalEditor ) ) {
 
-            handleCommands( prefix, transcription );
+            // prefix = multimodalEditor;
+            // if ( transcription.startsWith( multimodalEditor ) ) {
+            //     transcription = transcription.replace( multimodalEditor, "" ).trim();
+            // }
+            handleCommand( prefix, transcription );
 
         } else {
             console.log( "Pushing 'transcription' part of this response object to clipboard [" + JSON.stringify( transcriptionJson ) + "]..." );
             console.log( "transcription [" + transcriptionJson[ "transcription" ] + "]" );
 
+            updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
+
             const writeCmd = navigator.clipboard.writeText( transcription )
-            console.log( "Success!" );
+            if ( debug ) { console.log( "Success!" ); }
             document.body.innerText = "Processing audio... Done!";
             window.setTimeout( () => {
                 window.close();
@@ -263,48 +285,67 @@ saveButton.addEventListener('click', async () => {
     } catch (e) {
         console.log( "Error reading audio file [" + e + "]" );
     }
-});
+} );
 
-async function handleCommands( prefix, transcription ) {
+async function handleCommand( prefix, transcription ) {
 
     console.log( "handleCommands( transcription ) called with prefix [" + prefix + "] transcription [" + transcription + "]" );
-    if ( !transcription.startsWith( commandMode ) ) {
-        transcription = prefix + " " + transcription;
-    }
-    console.log( "Updated transcription [" + transcription + "]" );
 
-    if ( transcription.startsWith( "multimodal editor proof" ) ) {
+    if ( ( prefix == multimodalEditor && ( transcription === "mode" || transcription === "help" )  ) ||
+         ( prefix == "" && transcription === multimodalEditor ) ) {
 
+        // Remove whatever commands were sent.
+        transcription = "";
+        prefix        = multimodalEditor;
+        currentMode   = commandMode;
+
+        updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
+        await doTextToSpeech( "Now in command mode", closeWindow=false, refreshWindow=true );
+
+    } else if ( transcription.startsWith( "proof" ) ) {
+
+        updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
         proofreadFromClipboard();
 
-    } else if ( transcription == "multimodal editor toggle" ) {
+    } else if ( transcription === "toggle" || transcription === transcriptionMode || transcription === "exit" ) {
 
-        document.body.innerText = "Processing audio... Done!";
+        currentMode   = transcriptionMode;
+               prefix = "";
+        transcription = "";
+        updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
 
-        if (currentMode === commandMode) {
-            currentMode = "transcription";
+        await doTextToSpeech( "Switching to " + currentMode + " mode", closeWindow = false, refreshWindow = true);
+
+    } else if ( transcription == openNewTab ) {
+
+        // Push transcription into the prefix so that we can capture where we want to go in the next conditional block below.
+        prefix        = prefix + " " + transcription;
+        transcription = "";
+
+        console.log( "Okay, we know what you want (a new tab), but we don't know where you want to go." )
+        updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
+        window.location.reload();
+
+    } else if ( transcription.startsWith( openNewTab ) || prefix === multimodalEditor + " " + openNewTab ) {
+
+        if ( prefix === multimodalEditor + " " + openNewTab ) {
+            url = "https://" + transcription + "?ts=" + Date.now();
         } else {
-            currentMode = commandMode
+            url = "https://" + transcription.replace( openNewTab, "" ).trim() + "?ts=" + Date.now();
         }
-        localStorage.setItem("mode", currentMode);
-        await doTextToSpeech("Switching to " + currentMode + " command mode", closeWindow = false, refreshWindow = true);
-    // } else if ( transcription.startsWith( "multimodal editor open new tab" ) ) {
-    //
-    //     url = transcription.replace( "multimodal editor open new tab", "" ).trim().replace( " ", "" )
-    //     if ( !url.startsWith( "http" ) ) {
-    //         url = "https://" + url;
-    //     }
-    //     console.log( "url [" + url + "]" );
-    //
-    //     await doTextToSpeech( "Opening new tab", closeWindow=false, refreshWindow=false );
-    //     navigator.tabs.create( {
-    //         url: url,
-    //         active: true
-    //     } );
 
-    } else if ( transcription == "multimodal editor mode" ) {
+        console.log( "Updating lastUrl to [" + url + "]" );
+        updateLocalStorageLastUrl( url );
 
-        await doTextToSpeech( "Current mode is command mode, say 'toggle' to resume transcription mode", closeWindow=false, refreshWindow=true );
+    } else if ( transcription.startsWith( searchGoogle ) ) {
+
+        await doTextToSpeech( "to do " + searchGoogle, closeWindow=false, refreshWindow=false );
+        // closeWindow();
+
+    } else if ( transcription.startsWith( searchDuckDuckGo ) ) {
+
+        await doTextToSpeech( "to do " + searchDuckDuckGo, closeWindow=false, refreshWindow=false );
+        // closeWindow();
 
     } else {
         console.log( "Unknown command [" + transcription + "]" );
@@ -361,7 +402,7 @@ async function readBlobAsDataURL( file ) {
         let fileReader = new FileReader();
         fileReader.onload = (e) => resolve(fileReader.result);
         fileReader.readAsDataURL( file );
-    });
+    } );
     console.log(result_base64.split( "," )[ 0 ]); // aGV5IHRoZXJl...
 
     return result_base64;
@@ -369,45 +410,38 @@ async function readBlobAsDataURL( file ) {
 
 async function doTextToSpeech( text, closeWindow=true, refreshWindow=false ) {
 
-    console.log("doTextToSpeech() called...")
+    console.log( "doTextToSpeech() called..." )
 
     let url = ttsServer + "/api/tts?text=" + text
-    const encodedUrl = encodeURI(url);
-    console.log("encoded: " + encodedUrl);
+    const encodedUrl = encodeURI( url );
+    console.log( "encoded: " + encodedUrl );
 
     let audioResult = await new Promise((resolve) => {
         document.body.innerText = "Playing audio...";
         let audio = new Audio(encodedUrl);
-        audio.onload = (e) => resolve(audio.result);
+        audio.onload = (e) => resolve( audio.result );
         audio.play();
         audio.addEventListener( "ended", () => {
             document.body.innerText = "Playing audio... Done!";
-            if ( closeWindow ) {
-                closeWindow();
-            } else if ( refreshWindow ) {
-
-                // Remove any argument that might have been passed in the first time.
-                url = window.location.href;
-                if ( url.includes( "?mode=" ) ) {
-                    url = url.substring( 0, url.indexOf( "?" ) );
-                    console.log( "updated? url [" + url + "]" );
-                    window.location.href = url;
-                } else {
-                    window.location.reload();
-                }
+            // if ( closeWindow ) {
+            //     closeWindow();
+            // } else if
+            if ( refreshWindow ) {
+                window.location.reload();
             }
         } );
-    });
-    console.log("audioResult [" + audioResult + "]");
+        resolve( true );
+    } );
+    console.log( "audioResult [" + audioResult + "]" );
 
-    console.log("doTextToSpeech() called... done!")
+    console.log( "doTextToSpeech() called... done!" )
 }
 // pushToCurrentTab = ( msg ) => {
 //
 //     browser.tabs.sendMessage( tabs[0].id, {
 //         command: "insert-text",
 //         transcribedText: msg
-//     });
+//     } );
 // }
 
 // async function getFromClipboard() {
@@ -420,7 +454,7 @@ async function doTextToSpeech( text, closeWindow=true, refreshWindow=false ) {
 //     }, () => {
 //         console.log( "Nothing read from clipboard!" );
 //         return "";
-//     });
+//     } );
 // }
 
 
@@ -439,7 +473,7 @@ pushToClipboardAndClose = ( text ) => {
     window.setTimeout( () => {
         window.close();
     }, 250 );
-  });
+  } );
   // console.log( "document.hasFocus() " + document.hasFocus());
   // console.log( "document.activeElement " + document.activeElement.id);
   // document.activeElement.value = msg;
@@ -453,7 +487,7 @@ pushToClipboardAndClose = ( text ) => {
   //     })
   //     .then(results => {
   //       console.log(results[0])
-  //     });
+  //     } );
   // window.close()
 }
 // const typeInTextarea = ( newText, el = document.activeElement) => {
@@ -472,5 +506,25 @@ pushToClipboardAndClose = ( text ) => {
 //   .then( console.log( "JS injector script loading... done!" ) )
 //   .catch( console.log( "Unable to load JS injector script." ) );
 
+console.log( "Injecting background-context-menu.js..." )
+browser.tabs.executeScript( {file: "../js/background-context-menu.js" } )
+.then( () => { console.log( "Injecting background-context-menu.js... done!" ) } )
+.catch(reportExecuteScriptError);
+
+function reportExecuteScriptError( error) {
+    console.error( `Failed to execute content script: ${error.message}` );
+}
+
+async function sendMessage( command, url="" ) {
+
+    await browser.tabs.query( {currentWindow: true, active: true} ).then(async (tabs) => {
+        let tab = tabs[0];
+        await browser.tabs.sendMessage( tab.id, {
+            command: command,
+                url: url
+        } );
+        return true;
+    } );
+}
 console.log( "recorder.js loaded" );
 // document.body.style.border = "5px solid green";

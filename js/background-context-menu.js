@@ -1,3 +1,5 @@
+// import { readLocalStorage } from "./recorder.js";
+
 console.log( "background-context-menu.js loading..." );
 
 // ¡OJO! TODO: These constants should be declared globally and ultimately in a runtime configurable configuration service provided by the browser.
@@ -6,6 +8,27 @@ const genieInTheBoxServer = "http://127.0.0.1:7999";
 const ttsServer = "http://127.0.0.1:5002";
 
 console.log( "NEW! background-context-menu.js loading... Done!" );
+
+const readLocalStorage = async (key, defaultValue ) => {
+    return new Promise(( resolve, reject ) => {
+        browser.storage.local.get( [ key ], function ( result ) {
+            if ( result[ key ] === undefined || result[ key ] === "null" ) {
+                resolve( defaultValue );
+            } else {
+                resolve( result[ key ] );
+            }
+        } );
+    } );
+}
+let lastUrl = "";
+window.addEventListener( "DOMContentLoaded", async (event) => {
+
+    console.log( "DOM fully loaded and parsed, Setting up form event listeners..." );
+    lastUrl = await readLocalStorage( "lastUrl", "" ).then( (value) => {
+        return value;
+    });
+    console.log( "lastUrl [" + lastUrl + "]" );
+} );
 
 // browser.runtime.onMessage.addListener( notify );
 //
@@ -19,9 +42,9 @@ console.log( "NEW! background-context-menu.js loading... Done!" );
 // }
 function onCreated() {
   if (browser.runtime.lastError) {
-    console.log("error creating item:" + browser.runtime.lastError);
+    console.log( "error creating item:" + browser.runtime.lastError);
   } else {
-    // console.log("item created successfully");
+    // console.log( "item created successfully" );
   }
 }
 function onError() {
@@ -57,9 +80,9 @@ var makeItGreen = 'document.body.style.border = "5px solid green"';
 //     }, true);
 // }, false);
 
-// const input = document.querySelector("input");
+// const input = document.querySelector( "input" );
 //
-// input.addEventListener("keyup", logKey);
+// input.addEventListener( "keyup", logKey);
 //
 // function logKey(e) {
 //     console.log( e.code );
@@ -73,17 +96,17 @@ var makeItGreen = 'document.body.style.border = "5px solid green"';
 //     console.log( "Key pressed [" + event.key + "]" );
 // });
 // console.log( "background-context-menu.js loading input event listeners..." );
-// document.querySelector("input").addEventListener( "focus", (event) => {
+// document.querySelector( "input" ).addEventListener( "focus", (event) => {
 //
 //     console.log( "Focus event [" + event + "]" );
 // } );
-// document.querySelector("input").addEventListener( "blur", (event) => {
+// document.querySelector( "input" ).addEventListener( "blur", (event) => {
 //
 //     console.log( "Blur event [" + event + "]" );
 // } );
 // console.log( "background-context-menu.js loading input event listeners... Done!" );
 
-// const form = document.getElementById("form");
+// const form = document.getElementById( "form" );
 //
 // form.addEventListener(
 //   "focus",
@@ -102,22 +125,22 @@ var makeItGreen = 'document.body.style.border = "5px solid green"';
 // );
 
 // This always fails returns know for any queried known objects
-// window.addEventListener("DOMContentLoaded", (event) => {
+// window.addEventListener( "DOMContentLoaded", (event) => {
 //
 //     console.log( "DOM fully loaded and parsed, Setting up form event listeners..." );
 //
 //     console.log( "window [" + window + "]" );
 //     console.log( "document [" + document + "]" );
 //     console.log( "window.document [" + window.document + "]" );
-//     console.log( "window.document.getElementsByClassName( 'form' ) [" + window.document.getElementsByClassName("form" ) + "]" );
+//     console.log( "window.document.getElementsByClassName( 'form' ) [" + window.document.getElementsByClassName( "form" ) + "]" );
 //
-//     let forms = window.document.getElementsByClassName("form")
+//     let forms = window.document.getElementsByClassName( "form" )
 //     console.log( "forms.length [" + forms.length + "]" );
 //     for ( let i = 0; i < forms.length; i++ ) {
 //         console.log( "form [" + forms[ i ] + "]" );
 //     }
 //
-//     const form = window.document.getElementsByClassName("form");
+//     const form = window.document.getElementsByClassName( "form" );
 //
 //     form.addEventListener(
 //       "focus",
@@ -151,16 +174,16 @@ function showRecorderPopup (info ){
     creating.then(onCreated, onError);
 };
 browser.contextMenus.onClicked.addListener(function(info, tab) {
-    // if (info.menuItemId == "radio-blue") {
+    // if (info.menuItemId == "radio-blue" ) {
     //   browser.tabs.executeScript(tab.id, {
     //     code: makeItBlue
     //   });
-    // } else if (info.menuItemId == "radio-green") {
+    // } else if (info.menuItemId == "radio-green" ) {
     //   browser.tabs.executeScript(tab.id, {
     //     code: makeItGreen
     //   });
     // } else
-    if (info.menuItemId == "radio-popup") {
+    if (info.menuItemId == "radio-popup" ) {
 
         let selection = window.getSelection();
         console.log( "Menu clicked. selection [" + selection + "]" );
@@ -177,7 +200,7 @@ browser.commands.onCommand.addListener((command) => {
 
     // console.log( "command [" + command + "]" )
 
-    if (command === "popup-vox-to-text") {
+    if (command === "popup-vox-to-text" ) {
         // console.log( "Popping up recorder.html..." );
         showRecorderPopup( null )
     }
@@ -228,7 +251,7 @@ browser.contextMenus.create({
 //
 //         let tab = tabs[0]; // Safe to assume there will only be one result
 //
-//         console.log( "background-context-menu.js inserting CSS...[" + tab + "]");
+//         console.log( "background-context-menu.js inserting CSS...[" + tab + "]" );
 //         try {
 //             // Insert CSS from a file:
 //             browser.tabs.insertCSS( tab.id, { file: "../css/modal.css" } )
@@ -239,43 +262,44 @@ browser.contextMenus.create({
 //         } catch (err) {
 //             console.error(`failed to insert CSS: ${err}`);
 //         }
-//         console.log( "background-context-menu.js inserting CSS... Done!");
+//         console.log( "background-context-menu.js inserting CSS... Done!" );
 //     }, console.error )
 // }
 browser.contextMenus.onClicked.addListener(async (info, tab) => {
 //
-//     if (info.menuItemId === "insert-modal") {
+//     if (info.menuItemId === "insert-modal" ) {
 //
-//         console.log("insert-modal clicked [" + info.selectionText + "]");
-//         console.log("info: " + JSON.stringify(info));
+//         console.log( "insert-modal clicked [" + info.selectionText + "]" );
+//         console.log( "info: " + JSON.stringify(info));
 //
 //         insertModal(info);
 //
-//     } else if (info.menuItemId === "whats-this-mean") {
-    if (info.menuItemId === "whats-this-mean") {
+//     } else if (info.menuItemId === "whats-this-mean" ) {
+    if (info.menuItemId === "whats-this-mean" ) {
 
-        console.log("whats-this-mean clicked [" + info.selectionText + "]");
-        console.log("info: " + JSON.stringify(info));
+        console.log( "whats-this-mean clicked [" + info.selectionText + "]" );
+        console.log( "info: " + JSON.stringify(info));
 
-        console.log("calling fetchWhatsThisMean()...")
+        console.log( "calling fetchWhatsThisMean()..." )
         new Promise(function (resolve, reject) {
 
             fetchWhatsThisMean(info).then((explanation) => {
-                console.log("calling fetchWhatsThisMean()... done!")
-                // console.log("explanation: " + explanation);
+                console.log( "calling fetchWhatsThisMean()... done!" )
+                // console.log( "explanation: " + explanation);
                 // console.log( "calling doTextToSpeech()..." )
                 // doTextToSpeech( explanation ).then( ( audio ) => {
                 //     console.log( "calling doTextToSpeech()... done!" )
                 // } );
+                // } );
             });
         });
-    } else if ( info.menuItemId === "proofread") {
+    } else if ( info.menuItemId === "proofread" ) {
 
         // Getting selected text in Firefox is supremely fucked up.\!
-        // console.log("info: " + JSON.stringify(info));
+        // console.log( "info: " + JSON.stringify(info));
         // console.log( document.getSelection().toString() );
         // // window.getSelection().deleteFromDocument();
-        // document.execCommand("copy")
+        // document.execCommand( "copy" )
         // var activeElement = document.activeElement;
         // console.log( "activeElement [" + JSON.stringify(activeElement ) + "]" );
         // console.log( "activeElement.value [" + activeElement.value + "]" );
@@ -330,22 +354,22 @@ async function proofread( rawText ) {
 
 fetchWhatsThisMean = async (info) => {
 
-    console.log("fetchWhatsThisMean() called...")
+    console.log( "fetchWhatsThisMean() called..." )
 
     let url = genieInTheBoxServer + "/api/ask-ai-text?question=" + info.selectionText
     const encodedUrl = encodeURI(url);
-    console.log("encoded: " + encodedUrl);
+    console.log( "encoded: " + encodedUrl);
 
     await fetch(url, {
         method: 'GET',
         headers: {'Access-Control-Allow-Origin': '*'}
     }).then( async (response) => {
-        console.log("response.status: " + response.status);
+        console.log( "response.status: " + response.status);
         if ( response.status !== 200) {
-            return Promise.reject("Server error: " + response.status);
+            return Promise.reject( "Server error: " + response.status);
         } else {
             await response.text().then( async respText => {
-                console.log("respText: " + respText);
+                console.log( "respText: " + respText);
                 await doTextToSpeech( respText )
             })
         }
@@ -354,21 +378,45 @@ fetchWhatsThisMean = async (info) => {
 
 doTextToSpeech = async (text) => {
 
-    console.log("doTextToSpeech() called...")
+    console.log( "doTextToSpeech() called..." )
 
     let url = ttsServer + "/api/tts?text=" + text
     const encodedUrl = encodeURI(url);
-    console.log("encoded: " + encodedUrl);
+    console.log( "encoded: " + encodedUrl);
 
     const audio = new Audio(encodedUrl);
     await audio.play();
 
-    console.log("doTextToSpeech() called... done!")
+    console.log( "doTextToSpeech() called... done!" )
 }
 
+function createNewTab( url ) {
+
+    console.log( "createNewTab() called..." )
+    browser.tabs.create( { url: url } );
+}
+browser.storage.onChanged.addListener( ( changes, areaName ) => {
+
+    console.log( "background-context-menu.js: storage.onChanged() called..." )
+    console.log( "changes: " + JSON.stringify( changes ) );
+    console.log( "areaName: " + areaName );
+
+    if ( areaName === "local" && lastUrl !== changes.lastUrl.newValue ) {
+        openNewTab( changes.lastUrl.newValue );
+        lastUrl = changes.lastUrl.newValue;
+    } else {
+        console.log( "lastUrl NOT changed: " + lastUrl )
+    }
+} );
+function openNewTab( url ) {
+  console.log( "Opening new tab" );
+   browser.tabs.create({
+     "url": url
+   });
+}
 browser.runtime.onMessage.addListener((message) => {
 
-    // console.log( "background-context-menu.js: Message.command received: " + JSON.stringify( message ) ) ;
+    console.log( "background-context-menu.js: Message.command received: " + JSON.stringify( message ) ) ;
 
     if ( message.command === "command-proofread" ) {
 
@@ -378,9 +426,14 @@ browser.runtime.onMessage.addListener((message) => {
     } else if ( message.command === "command-copy" ) {
 
         doTextToSpeech( "Copied to clipboard." );
+
+    } else if ( message.command === "command-open-new-tab" ) {
+
+        console.log( "background-context-menu.js: command-open-new-tab received" ) ;
+        browser.tabs.create( { url: message.url } );
     }
 
-    // if (message.command === "transcribe") {
+    // if (message.command === "transcribe" ) {
     //     // showRecorderPopup();
     // }
 } );

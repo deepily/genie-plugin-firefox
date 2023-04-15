@@ -5,12 +5,7 @@ console.log( "background.js loading..." );
 // const genieInTheBoxServer = "http://127.0.0.1:7999";
 // const ttsServer = "http://127.0.0.1:5002";
 
-function openNewTab() {
-  console.log( "injecting new tab" );
-   browser.tabs.create({
-     "url": "/my-page.html"
-   });
-}
+
 
 
 /*
