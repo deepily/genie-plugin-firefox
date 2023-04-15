@@ -1,7 +1,7 @@
 console.log( "recorder.js loading..." );
 
-const searchDuckDuckGo  = "duck duck go";
-const searchGoogle      = "google";
+const searchDuckDuckGo  = "search duck duck go";
+const searchGoogle      = "search google";
 const openNewTab        = "open new tab";
 const multimodalEditor  = "multimodal editor";
 const commandMode       = "command"
@@ -316,13 +316,16 @@ async function handleCommand( prefix, transcription ) {
 
         await doTextToSpeech( "Switching to " + currentMode + " mode", closeWindow = false, refreshWindow = true);
 
-    } else if ( transcription == openNewTab ) {
+    } else if ( transcription == openNewTab || transcription == searchGoogle || transcription == searchDuckDuckGo ) {
 
-        // Push transcription into the prefix so that we can capture where we want to go in the next conditional block below.
+        // Push transcription into the prefix so that we can capture where we want to go/do in the next conditional blocks below.
         prefix        = prefix + " " + transcription;
         transcription = "";
 
-        console.log( "Okay, we know what you want (a new tab), but we don't know where you want to go." )
+        // await doTextToSpeech( "Url or search terms", closeWindow=false, refreshWindow=false );
+
+        console.log( transcription )
+        console.log( "We know what you want (a new tab/search), but we don't know where you want to go or what you want to search." )
         updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
         window.location.reload();
 
@@ -336,16 +339,33 @@ async function handleCommand( prefix, transcription ) {
 
         console.log( "Updating lastUrl to [" + url + "]" );
         updateLocalStorageLastUrl( url );
+        closeWindow();
 
-    } else if ( transcription.startsWith( searchGoogle ) ) {
+    } else if ( transcription.startsWith( searchGoogle ) || prefix === multimodalEditor + " " + searchGoogle ) {
 
-        await doTextToSpeech( "to do " + searchGoogle, closeWindow=false, refreshWindow=false );
-        // closeWindow();
+        if ( prefix === multimodalEditor + " " + searchGoogle ) {
+            searchTerms = transcription;
+        } else {
+            searchTerms = transcription.replace( searchGoogle, "" ).trim()
+        }
+        url = "https://www.google.com/search?q=" + searchTerms + "&ts=" + Date.now();
 
-    } else if ( transcription.startsWith( searchDuckDuckGo ) ) {
+        console.log( "Updating lastUrl to [" + url + "]" );
+        updateLocalStorageLastUrl( url )
+        closeWindow();
 
-        await doTextToSpeech( "to do " + searchDuckDuckGo, closeWindow=false, refreshWindow=false );
-        // closeWindow();
+    } else if ( transcription.startsWith( searchDuckDuckGo ) || prefix === multimodalEditor + " " + searchDuckDuckGo ) {
+
+        if ( prefix === multimodalEditor + " " + searchDuckDuckGo ) {
+            searchTerms = transcription;
+        } else {
+            searchTerms = transcription.replace( searchDuckDuckGo, "" ).trim()
+        }
+        url = "https://www.duckduckgo.com/?q=" + searchTerms + "&ts=" + Date.now();
+
+        console.log( "Updating lastUrl to [" + url + "]" );
+        updateLocalStorageLastUrl( url )
+        closeWindow();
 
     } else {
         console.log( "Unknown command [" + transcription + "]" );
