@@ -25,6 +25,9 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
 
     console.log( "DOM fully loaded and parsed, Setting up form event listeners..." );
     lastUrl = await readLocalStorage( "lastUrl", "" ).then( (value) => {
+        if ( value === undefined || value === "null" ) {
+            return "";
+        }
         return value;
     });
     console.log( "lastUrl [" + lastUrl + "]" );
@@ -168,8 +171,8 @@ function showRecorderPopup (info ){
     let creating = browser.windows.create({
         url: popupURL,
         type: "popup",
-        height: 15, // Browser will force this to be a certain Minimum height
-        width: 280
+        height: 320,
+        width: 256,
     });
     creating.then(onCreated, onError);
 };
@@ -400,8 +403,11 @@ browser.storage.onChanged.addListener( ( changes, areaName ) => {
     console.log( "background-context-menu.js: storage.onChanged() called..." )
     console.log( "changes: " + JSON.stringify( changes ) );
     console.log( "areaName: " + areaName );
+    console.log( "lastUrl: " + lastUrl );
 
-    if ( areaName === "local" && lastUrl !== changes.lastUrl.newValue ) {
+    if ( changes.lastUrl === undefined || changes.lastUrl === null ) {
+        console.log( "lastUrl NOT set yet: " + lastUrl )
+    } else if ( areaName === "local" && lastUrl !== changes.lastUrl.newValue ) {
         openNewTab( changes.lastUrl.newValue );
         lastUrl = changes.lastUrl.newValue;
     } else {

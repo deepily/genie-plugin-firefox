@@ -80,14 +80,14 @@ function setModeIndicators( state ) {
 
     if ( state == "processing" ) {
 
-        document.body.style.backgroundColor = "pink";
-        document.body.style.border = "2px dotted red";
+        // document.body.style.backgroundColor = "pink";
+        // document.body.style.border = "2px dotted red";
         document.body.style.padding = "8px";
 
     } else {
 
-        document.body.style.backgroundColor = "white";
-        document.body.style.border = "2px dotted white";
+        // document.body.style.backgroundColor = "white";
+        // document.body.style.border = "2px dotted white";
         document.body.style.padding = "8px";
     }
 }
@@ -100,6 +100,8 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
     await initializeStartupParameters();
 
     // parent.postMessage( { "type": "recorder", "mode": currentMode, "prefix": prefix, "transcription": transcription, "debug": debug }, "*" );
+    document.getElementById('record').hidden = true;
+    document.getElementById('stop').focus();
 
     // console.log( "window.opener.location" + window.opener.location );
     console.log( "window.parent.location: " + window.parent.location );
@@ -123,6 +125,8 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
                 } );
     } else {
         // Skip recording mode and jump right into handling commands.
+        document.getElementById('stop').focus();
+        document.getElementById( "recorder-body" ).className = "thinking";
         handleCommand( prefix, transcription )
     }
     console.log("DOM fully loaded and parsed. Checking permissions.... Done!" );
@@ -133,8 +137,8 @@ window.addEventListener( "keydown", function (event) {
     console.log( "event.key [" + event.key + "]" );
     if ( event.key == "Escape" ) {
         console.log( "Escape pressed" );
-        document.body.style.backgroundColor = "white";
-        document.body.innerText = "Exiting...";
+        // document.body.style.backgroundColor
+        // document.body.innerText = "Exiting...";
         window.setTimeout( () => {
             window.close();
         }, 250 );
@@ -168,13 +172,17 @@ const recordAudio = () =>
       const start = () => {
         audioChunks = [];
         mediaRecorder.start();
-        document.getElementById('record').hidden = !debug;
-        document.getElementById('stop').focus();
+        document.getElementById('record').hidden = true;
+        btnStop = document.getElementById('stop');
+        btnStop.focus();
+        btnStop.className = "";
       };
 
       const stop = () =>
         new Promise(resolve => {
           mediaRecorder.addEventListener('stop', () => {
+            document.getElementById('stop').className = "disabled";
+            document.getElementById('save').className = "";
             const audioBlob = new Blob(audioChunks, { type: 'audio/mpeg' } );
             const audioUrl = URL.createObjectURL(audioBlob);
             const audio = new Audio(audioUrl);
@@ -200,9 +208,9 @@ let audio;
 
 recordButton.addEventListener('click', async () => {
 
-    document.body.style.backgroundColor = "pink";
-    document.body.style.border = "2px dotted red";
-    ``
+    // // document.body.style.backgroundColor = "pink";
+    // document.body.style.border = "2px dotted red";
+    // ``
     recordButton.setAttribute('disabled', true);
     stopButton.removeAttribute('disabled');
     stopButton.focus();
@@ -216,8 +224,8 @@ recordButton.addEventListener('click', async () => {
 
 stopButton.addEventListener('click', async () => {
 
-    document.body.style.backgroundColor = "white";
-    document.body.style.border = "2px solid white";
+    // document.body.style.backgroundColor
+    // document.body.style.border = "2px solid white";
 
     recordButton.removeAttribute('disabled');
     stopButton.setAttribute('disabled', true);
@@ -244,7 +252,9 @@ saveButton.addEventListener('click', async () => {
         const audioMessage = result.split(',')[1];
         const mimeType = result.split(',')[0];
 
-        document.body.innerText = "Processing audio...";
+        // document.body.innerText = "Processing audio...";
+        document.getElementById( "recorder-body" ).className = "thinking";
+
         response = await fetch( url, {
             method: 'POST',
             headers: {'Content-Type': mimeType},
@@ -253,7 +263,7 @@ saveButton.addEventListener('click', async () => {
         if ( !response.ok ) {
             throw new Error( `HTTP error: ${response.status}` );
         }
-        document.body.innerText = "Processing audio... Done!";
+        // document.body.innerText = "Processing audio... Done!";
 
         const transcriptionJson = await response.json();
         console.log( "transcriptionJson [" + JSON.stringify( transcriptionJson ) + "]..." );
@@ -277,7 +287,7 @@ saveButton.addEventListener('click', async () => {
 
             const writeCmd = navigator.clipboard.writeText( transcription )
             if ( debug ) { console.log( "Success!" ); }
-            document.body.innerText = "Processing audio... Done!";
+            // document.body.innerText = "Processing audio... Done!";
             window.setTimeout( () => {
                 window.close();
             }, 250 );
@@ -298,16 +308,17 @@ async function handleCommand( prefix, transcription ) {
         transcription = "";
         prefix        = multimodalEditor;
         currentMode   = commandMode;
+        document.getElementById('stop').className = "disabled";
 
         updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
-        await doTextToSpeech( "Now in command mode", closeWindow=false, refreshWindow=true );
+        await doTextToSpeech( "Command mode. Say reset or exit to ", closeWindow=false, refreshWindow=true );
 
     } else if ( transcription.startsWith( "proof" ) ) {
 
         updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
         proofreadFromClipboard();
 
-    } else if ( transcription === "toggle" || transcription === transcriptionMode || transcription === "exit" ) {
+    } else if ( transcription === "toggle" || transcription === "reset" || transcription === transcriptionMode || transcription === "exit" ) {
 
         currentMode   = transcriptionMode;
                prefix = "";
@@ -376,9 +387,9 @@ async function proofreadFromClipboard() {
 
     try {
 
-        document.body.innerText = "Proofreading...";
-        document.body.style.backgroundColor = "white";
-        document.body.style.border = "2px dotted red";
+        // document.body.innerText = "Proofreading...";
+        // document.body.style.backgroundColor
+        // document.body.style.border = "2px dotted red";
 
         doTextToSpeech( "Proofreading...", closeWindow=false, refreshWindow=false )
 
@@ -401,7 +412,7 @@ async function proofreadFromClipboard() {
         console.log( "Pushing proofreadText [" + proofreadText + "] to clipboard..." );
         const pasteCmd = await navigator.clipboard.writeText( proofreadText );
 
-        document.body.innerText = "Proofreading... Done!";
+        // document.body.innerText = "Proofreading... Done!";
         doTextToSpeech( "Done!", closeWindow=true, refreshWindow=false );
 
     } catch ( e ) {
@@ -437,12 +448,12 @@ async function doTextToSpeech( text, closeWindow=true, refreshWindow=false ) {
     console.log( "encoded: " + encodedUrl );
 
     let audioResult = await new Promise((resolve) => {
-        document.body.innerText = "Playing audio...";
+        // document.body.innerText = "Playing audio...";
         let audio = new Audio(encodedUrl);
         audio.onload = (e) => resolve( audio.result );
         audio.play();
         audio.addEventListener( "ended", () => {
-            document.body.innerText = "Playing audio... Done!";
+            // document.body.innerText = "Playing audio... Done!";
             // if ( closeWindow ) {
             //     closeWindow();
             // } else if
@@ -489,7 +500,7 @@ pushToClipboardAndClose = ( text ) => {
   }, () => {
     console.log( "Failed to write to clipboard!" );
   }).then( () => {
-    document.body.innerText = "Processing... Done!";
+    // document.body.innerText = "Processing... Done!";
     window.setTimeout( () => {
         window.close();
     }, 250 );
@@ -526,10 +537,10 @@ pushToClipboardAndClose = ( text ) => {
 //   .then( console.log( "JS injector script loading... done!" ) )
 //   .catch( console.log( "Unable to load JS injector script." ) );
 
-console.log( "Injecting background-context-menu.js..." )
-browser.tabs.executeScript( {file: "../js/background-context-menu.js" } )
-.then( () => { console.log( "Injecting background-context-menu.js... done!" ) } )
-.catch(reportExecuteScriptError);
+// console.log( "Injecting background-context-menu.js..." )
+// browser.tabs.executeScript( {file: "../js/background-context-menu.js" } )
+// .then( () => { console.log( "Injecting background-context-menu.js... done!" ) } )
+// .catch(reportExecuteScriptError);
 
 function reportExecuteScriptError( error) {
     console.error( `Failed to execute content script: ${error.message}` );

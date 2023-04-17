@@ -134,8 +134,8 @@ async function popupRecorder(mode = "transcription", prefix = "", command = "", 
     let createData = {
         url: "../html/recorder.html",
         type: "popup",
-        height: 15, // Browser will force this to be a certain Minimum height
-        width: 280,
+        height: 320,
+        width: 256,
         allowScriptsToClose: true,
         type: "panel"
     };

@@ -7,7 +7,7 @@
     .elementToFadeInAndOut {
       /*width:200px;*/
       /*height: 200px;*/
-      border: red 2px dotted;
+      /*border: red 2px dotted;*/
       -webkit-animation: fadeinout 4s linear forwards;
       animation: fadeinout 4s linear forwards;
       opacity: 0;
@@ -20,15 +20,68 @@
     @keyframes fadeinout {
       50% { opacity: 1; }
     }
+    button {
+      /*display: inline-block;*/
+      width: 28px;
+      height: 28px;
+      background-color: white;
+      border: 1px solid darkslategray;
+      border-radius: 14px;
+    }
+    #save {
+      background: url( "../icons/play-16.png" );
+      background-repeat: no-repeat;
+      background-position-x: 6px;
+      background-position-y: 5px;
+    }
+    #save.disabled {
+      background: url( "../icons/play-disabled-16.png" );
+      background-repeat: no-repeat;
+      background-position-x: 6px;
+      background-position-y: 5px;
+    }
+    #stop {
+      background: url( "../icons/pause-16.png" );
+      background-repeat: no-repeat;
+      background-position-x: 5px;
+      background-position-y: 5px;
+    }
+    #stop.disabled {
+      background: url( "../icons/pause-disabled-16.png" );
+      background-repeat: no-repeat;
+      background-position-x: 6px;
+      background-position-y: 5px;
+    }
+    /*#play {*/
+    /*  background-image: url( "../icons/play-16.png" );*/
+    /*}*/
+    body.recording {
+      background-image: url( "../icons/microphone-on.png" );
+      background-repeat: no-repeat;
+    }
+    body.thinking {
+      background-image: url( "../icons/thinking-on.png" );
+      background-repeat: no-repeat;
+    }
+    #button-bar {
+      margin: auto;
+      width: 226px;
+      /*border: 1px solid green;*/
+      /*padding: 10px;*/
+      text-align: center;
+      position: absolute;
+      bottom: 14px;
+    }
   </style>
 </head>
-<body id="recorder-body" style="width: 230px; margin: 22px auto;">
+<body id="recorder-body" class="recording">
 
-  <button id="record" style="margin-left: 0px">Record</button>
-  <button id="stop" disabled>Stop</button>
-  <button id="play" disabled>Play</button>
-  <button id="save" disabled>Transcribe</button>
-
+  <div id="button-bar">
+    <button id="record"></button>
+    <button id="stop" disabled></button>
+    <button id="play" disabled>Play</button>
+    <button id="save" disabled class="disabled"></button>
+  </div>
   <script src="../js/recorder.js"></script>
 
 </body>
