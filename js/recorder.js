@@ -260,6 +260,7 @@ saveButton.addEventListener('click', async () => {
             headers: {'Content-Type': mimeType},
             body: audioMessage
         } );
+        document.getElementById( "recorder-body" ).className = "thinking-disabled"
         if ( !response.ok ) {
             throw new Error( `HTTP error: ${response.status}` );
         }
@@ -273,10 +274,6 @@ saveButton.addEventListener('click', async () => {
         // are we in command mode?
         if ( prefix.startsWith( multimodalEditor) || transcription.startsWith( multimodalEditor ) ) {
 
-            // prefix = multimodalEditor;
-            // if ( transcription.startsWith( multimodalEditor ) ) {
-            //     transcription = transcription.replace( multimodalEditor, "" ).trim();
-            // }
             handleCommand( prefix, transcription );
 
         } else {
