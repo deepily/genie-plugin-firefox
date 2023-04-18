@@ -227,6 +227,7 @@ stopButton.addEventListener('click', async () => {
     // document.body.style.backgroundColor
     // document.body.style.border = "2px solid white";
 
+    document.body.className = "recording-disabled";
     recordButton.removeAttribute('disabled');
     stopButton.setAttribute('disabled', true);
     playButton.removeAttribute('disabled');
