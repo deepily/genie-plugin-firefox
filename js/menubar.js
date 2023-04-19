@@ -60,7 +60,11 @@ document.addEventListener( "click", async (e) => {
     if ( e.target.id === "transcription" ) {
 
         // await doTextToSpeech( "Transcription mode" )
-        popupRecorder( mode="transcription" );
+        popupRecorder(mode="transcription");
+
+    } else if ( e.target.id === "transcription-python" ) {
+
+        popupRecorder(mode="transcription", prefix="multimodal python punctuation" );
 
     } else if ( e.target.id === "transcription-debug" ) {
 
@@ -115,7 +119,7 @@ document.addEventListener( "click", async (e) => {
     }
     e.preventDefault()
 } );
-async function popupRecorder(mode = "transcription", prefix = "", command = "", debug = false) {
+async function popupRecorder(mode="transcription", prefix="", command="", debug=false) {
 
     console.log(`popupRecorder() Mode [${mode}], prefix [${prefix}], command [${command}], debug [${debug}]...`)
 
