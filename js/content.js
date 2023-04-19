@@ -12,9 +12,38 @@
     }
     window.hasRun = true;
 
+    console.log( "content.js loading... Adding event listeners..." );
+    document.addEventListener( "focus", (event) => {
+        console.log( "focus event detected: " + JSON.stringify( event ) );
+        console.log( "content.js: FOCUS event.target: " + JSON.stringify( event.target ) ) ;
+        console.log( "content.js: FOCUS active element: " + JSON.stringify( document.activeElement ) ) ;
+    } );
+    document.addEventListener( "blur", (event) => {
+        console.log( "blur event detected: " + JSON.stringify( event ) );
+        console.log( "content.js: BLUR event.target: " + JSON.stringify( event.target ) ) ;
+        console.log( "content.js: BLUR active element: " + JSON.stringify( document.activeElement ) );
+    } );
+    console.log( "content.js loading... Adding event listeners... Done!" );
+
+    var inputs, index;
+
+    console.log( "content.js: Inputs..." );
+    inputs = document.getElementsByTagName('input');
+    for ( index = 0; index < inputs.length; ++index ) {
+        console.log( "input: " + inputs[ index ].id + " has focus " + ( inputs[ index ] === document.activeElement ) );
+    }
+    console.log( "content.js: Inputs... done!" );
+
+    document.addEventListener( "click", async (e) => {
+       console.log( "click detected: " + e.target );
+       console.log( "click detected: " + e.target.id );
+    } )
+
     browser.runtime.onMessage.addListener(async ( message) => {
 
         console.log( "content.js: Message.command received: " + message.command);
+
+        console.log( "content.js: active element: " + document.activeElement );
 
         if ( message.command === "command-copy" ) {
 
@@ -98,35 +127,6 @@
         }
     }
 
-    // function popupRecorder( mode ) {
-    //
-    //     let url = "../html/recorder.html?mode=" + mode;
-    //
-    //     let createData = {
-    //         url: url,
-    //         type: "popup",
-    //         height: 15, // Browser will force this to be a certain Minimum height
-    //         width: 280
-    //     };
-    //     let creating = navigator..windows.create(createData);
-    // }
-    // function showRecorderPopup ( info ){
-    //
-    //     console.log( "showRecorderPopup() called... " )
-    //     var popupURL = browser.runtime.getURL( "../html/recorder.html" );
-    //
-    //     let creating = browser.runtime.create( {
-    //         url: popupURL,
-    //         type: "popup",
-    //         height: 15, // Browser will force this to be a certain Minimum height
-    //         width: 280
-    //     } );
-    //     // creating.then( onCreated = () => {
-    //     //     console.log( "Created" );
-    //     // }, onError = ( error ) => {
-    //     //     console.log(`Error: ${error}`);
-    //     // } );
-    //     console.log( "showRecorderPopup() called... Done!" )
-    // };
+
     // console.log( "content.js loading... Done!" );
 } )();

@@ -6,6 +6,7 @@ console.log( "background-context-menu.js loading..." );
 // ¡OJO! TODO: background-context-menu.js and recorder.js both make duplicate declarations of these constants.
 const genieInTheBoxServer = "http://127.0.0.1:7999";
 const ttsServer = "http://127.0.0.1:5002";
+var currentFocus = null;
 
 console.log( "NEW! background-context-menu.js loading... Done!" );
 
@@ -40,6 +41,8 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
         return value[ 0 ].toUpperCase() + value.slice( 1 );
     } );
     console.log( "lastUrl [" + lastUrl + "]" );
+
+    currentFocus = document.fo
 } );
 
 // browser.runtime.onMessage.addListener( notify );
