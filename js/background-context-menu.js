@@ -12,7 +12,7 @@ console.log( "NEW! background-context-menu.js loading... Done!" );
 const readLocalStorage = async (key, defaultValue ) => {
     return new Promise(( resolve, reject ) => {
         browser.storage.local.get( [ key ], function ( result ) {
-            if ( result[ key ] === undefined || result[ key ] === "null" ) {
+            if ( result[ key ] === undefined || result[ key ] === null ) {
                 resolve( defaultValue );
             } else {
                 resolve( result[ key ] );
@@ -21,15 +21,24 @@ const readLocalStorage = async (key, defaultValue ) => {
     } );
 }
 let lastUrl = "";
+let titleMode = "Transcription"
 window.addEventListener( "DOMContentLoaded", async (event) => {
 
     console.log( "DOM fully loaded and parsed, Setting up form event listeners..." );
     lastUrl = await readLocalStorage( "lastUrl", "" ).then( (value) => {
-        if ( value === undefined || value === "null" ) {
-            return "";
+        // TODO: This is redundant! The default value is already set in the readLocalStorage function.
+        if ( value === undefined || value === null ) {
+            return defaultValue;
         }
         return value;
-    });
+    } );
+    titleMode = await readLocalStorage( "mode", "Transcription" ).then( (value) => {
+        // TODO: This is redundant! The default value is already set in the readLocalStorage function.
+        if ( value === undefined || value === null ) {
+            return defaultValue[ 0 ].toUpperCase() + defaultValue.slice( 1 );
+        }
+        return value[ 0 ].toUpperCase() + value.slice( 1 );
+    } );
     console.log( "lastUrl [" + lastUrl + "]" );
 } );
 
@@ -166,6 +175,7 @@ var makeItGreen = 'document.body.style.border = "5px solid green"';
 
 function showRecorderPopup (info ){
 
+    console.log( "showRecorderPopup() titleMode [" + titleMode + "]" );
     var popupURL = browser.runtime.getURL( "../html/recorder.html" );
 
     let creating = browser.windows.create({
@@ -173,6 +183,7 @@ function showRecorderPopup (info ){
         type: "popup",
         height: 320,
         width: 256,
+        titlePreface: titleMode
     });
     creating.then(onCreated, onError);
 };

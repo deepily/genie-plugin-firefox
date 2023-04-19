@@ -3,6 +3,8 @@
 const ttsServer = "http://127.0.0.1:5002";
 const genieInTheBoxServer = "http://127.0.0.1:7999";
 
+let titleMode = "Transcription"
+
 // Set focus after the DOM is loaded.
 window.addEventListener( "DOMContentLoaded", (event) => {
 
@@ -117,19 +119,10 @@ async function popupRecorder(mode = "transcription", prefix = "", command = "", 
 
     console.log(`popupRecorder() Mode [${mode}], prefix [${prefix}], command [${command}], debug [${debug}]...`)
 
-    // await localStorage.setItem(    "mode", mode );
-    // await localStorage.setItem(  "prefix", prefix );
-    // await localStorage.setItem( "command", command );
-    // await localStorage.setItem(   "debug", debug );
-
-    // await browser.storage.local.set( {
-    //        "mode": mode,
-    //      "prefix": prefix,
-    //     "command": command,
-    //       "debug": debug
-    // } );
     const result = updateLocalStorage( mode, prefix, command, debug );
     console.log( "result: " + result );
+
+    console.log( "popupRecorder() titleMode [" + titleMode + "]" );
 
     let createData = {
         url: "../html/recorder.html",

@@ -11,8 +11,8 @@ let debug               = false;
 
 var currentMode         = "";
 var prefix              = "";
-// var command             = "";
 var transcription       = "";
+var titleMode           = "Transcription";
 
 const readLocalStorage = async (key, defaultValue ) => {
     return new Promise(( resolve, reject ) => {
@@ -29,11 +29,12 @@ async function initializeStartupParameters() {
 
     console.log( "initializeStartupParameters()..." );
     
-    currentMode   = await readLocalStorage("mode", transcriptionMode);
+    currentMode   = await readLocalStorage("mode", transcriptionMode );
     prefix        = await readLocalStorage("prefix", "" );
     // TODO: Command should be renamed transcription!
     transcription = await readLocalStorage("command", "" );
-    debug         = await readLocalStorage("debug", false);
+    debug         = await readLocalStorage("debug", false );
+    titleMode     = currentMode[ 0 ].toUpperCase() + currentMode.slice( 1 );
 
     dumpStartupParameters();
 }
@@ -76,32 +77,40 @@ function updateLocalStorageLastUrl( url ) {
 const ttsServer = "http://127.0.0.1:5002";
 const genieInTheBoxServer = "http://127.0.0.1:7999";
 
-function setModeIndicators( state ) {
-
-    if ( state == "processing" ) {
-
-        // document.body.style.backgroundColor = "pink";
-        // document.body.style.border = "2px dotted red";
-        document.body.style.padding = "8px";
-
-    } else {
-
-        // document.body.style.backgroundColor = "white";
-        // document.body.style.border = "2px dotted white";
-        document.body.style.padding = "8px";
-    }
-}
-
-document.getElementById( "record" ).addEventListener( "click", setModeIndicators( "processing" ) );
+// function setModeIndicators( state ) {
+//
+//     if ( state == "processing" ) {
+//
+//         // document.body.style.backgroundColor = "pink";
+//         // document.body.style.border = "2px dotted red";
+//         document.body.style.padding = "8px";
+//
+//     } else {
+//
+//         // document.body.style.backgroundColor = "white";
+//         // document.body.style.border = "2px dotted white";
+//         document.body.style.padding = "8px";
+//     }
+// }
+//
+// document.getElementById( "record" ).addEventListener( "click", setModeIndicators( "processing" ) );
 
 window.addEventListener( "DOMContentLoaded", async (event) => {
 
     console.log("DOM fully loaded and parsed, Getting startup parameters...." );
     await initializeStartupParameters();
 
+    modeImg = document.getElementById('mode-img' )
+    modeImg.title = "Mode: " + titleMode;
+    if ( titleMode == "Transcription" ) {
+        modeImg.src = "../icons/mode-transcription-24.png";
+    } else {
+        modeImg.src = "../icons/mode-command-24.png";
+    }
+
     // parent.postMessage( { "type": "recorder", "mode": currentMode, "prefix": prefix, "transcription": transcription, "debug": debug }, "*" );
-    document.getElementById('record').hidden = true;
-    document.getElementById('stop').focus();
+    document.getElementById('record' ).hidden = true;
+    document.getElementById('stop' ).focus();
 
     // console.log( "window.opener.location" + window.opener.location );
     console.log( "window.parent.location: " + window.parent.location );
@@ -110,11 +119,11 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
     console.log("DOM fully loaded and parsed. Checking permissions...." );
 
     // Only hide if we're not in debug mode
-    document.getElementById('play').hidden = !debug;
+    document.getElementById('play' ).hidden = !debug;
 
     if ( currentMode === "transcription"  || transcription === "" ) { // || currentMode == "multimodal editor" ) {
 
-        document.getElementById('record').click()
+        document.getElementById('record' ).click()
 
         navigator.mediaDevices.getUserMedia({audio: true, video: false})
             .then((stream) => {
@@ -125,7 +134,7 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
                 } );
     } else {
         // Skip recording mode and jump right into handling commands.
-        document.getElementById('stop').focus();
+        document.getElementById('stop' ).focus();
         document.getElementById( "recorder-body" ).className = "thinking";
         handleCommand( prefix, transcription )
     }
@@ -145,17 +154,17 @@ window.addEventListener( "keydown", function (event) {
     }
     // if ( event.ctrlKey && event.key == "r" ) {
     //   console.log( "'Ctrl r' pressed" );
-    //   document.getElementById('record').click();
+    //   document.getElementById('record' ).click();
     // } else if ( event.ctrlKey && event.key == "s" ) {
     //   console.log( "'Ctrl s' pressed" );
-    //   document.getElementById('stop').click();
+    //   document.getElementById('stop' ).click();
     //   console.log( "Key pressed [" + event.key + "]" );
     // } else if ( event.ctrlKey && event.key == "p" ) {
     //   console.log( "Ctrl 'p' pressed" );
-    //   document.getElementById('play').click();
+    //   document.getElementById('play' ).click();
     // } else if ( event.ctrlKey && event.key == "t" ) {
     //   console.log( "'Ctrl t' pressed" );
-    //   document.getElementById('save').click();
+    //   document.getElementById('save' ).click();
     // }
 } );
 
@@ -172,8 +181,8 @@ const recordAudio = () =>
       const start = () => {
         audioChunks = [];
         mediaRecorder.start();
-        document.getElementById('record').hidden = true;
-        btnStop = document.getElementById('stop');
+        document.getElementById('record' ).hidden = true;
+        btnStop = document.getElementById('stop' );
         btnStop.focus();
         btnStop.className = "";
       };
@@ -181,8 +190,8 @@ const recordAudio = () =>
       const stop = () =>
         new Promise(resolve => {
           mediaRecorder.addEventListener('stop', () => {
-            document.getElementById('stop').className = "disabled";
-            document.getElementById('save').className = "";
+            document.getElementById('stop' ).className = "disabled";
+            document.getElementById('save' ).className = "";
             const audioBlob = new Blob(audioChunks, { type: 'audio/mpeg' } );
             const audioUrl = URL.createObjectURL(audioBlob);
             const audio = new Audio(audioUrl);
@@ -198,10 +207,10 @@ const recordAudio = () =>
 
 // const sleep = time => new Promise(resolve => setTimeout(resolve, time));
 
-const recordButton = document.querySelector('#record');
-const stopButton = document.querySelector('#stop');
-const playButton = document.querySelector('#play');
-const saveButton = document.querySelector('#save');
+const recordButton = document.querySelector('#record' );
+const stopButton = document.querySelector('#stop' );
+const playButton = document.querySelector('#play' );
+const saveButton = document.querySelector('#save' );
 
 let recorder;
 let audio;
@@ -212,7 +221,7 @@ recordButton.addEventListener('click', async () => {
     // document.body.style.border = "2px dotted red";
     // ``
     recordButton.setAttribute('disabled', true);
-    stopButton.removeAttribute('disabled');
+    stopButton.removeAttribute('disabled' );
     stopButton.focus();
     playButton.setAttribute('disabled', true);
     saveButton.setAttribute('disabled', true);
@@ -228,10 +237,10 @@ stopButton.addEventListener('click', async () => {
     // document.body.style.border = "2px solid white";
 
     document.body.className = "recording-disabled";
-    recordButton.removeAttribute('disabled');
+    recordButton.removeAttribute('disabled' );
     stopButton.setAttribute('disabled', true);
-    playButton.removeAttribute('disabled');
-    saveButton.removeAttribute('disabled');
+    playButton.removeAttribute('disabled' );
+    saveButton.removeAttribute('disabled' );
     saveButton.focus();
     audio = await recorder.stop();
 } );
@@ -248,10 +257,10 @@ saveButton.addEventListener('click', async () => {
     try {
         const result = await readBlobAsDataURL( audio.audioBlob )
         console.log( "result [" + typeof result + "]" );
-        console.log( "result.split(',')[0] [" + result.split(',')[0] + "]" );
+        console.log( "result.split(',' )[0] [" + result.split(',' )[0] + "]" );
 
-        const audioMessage = result.split(',')[1];
-        const mimeType = result.split(',')[0];
+        const audioMessage = result.split(',' )[1];
+        const mimeType = result.split(',' )[0];
 
         // document.body.innerText = "Processing audio...";
         document.getElementById( "recorder-body" ).className = "thinking";
@@ -306,10 +315,14 @@ async function handleCommand( prefix, transcription ) {
         transcription = "";
         prefix        = multimodalEditor;
         currentMode   = commandMode;
-        document.getElementById('stop').className = "disabled";
+        document.getElementById('stop' ).className = "disabled";
+
+        modeImg = document.getElementById('mode-img' )
+        modeImg.title = "Mode: Command";
+        modeImg.src = "../icons/mode-command-24.png";
 
         updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
-        await doTextToSpeech( "Command mode. Say reset or exit to ", closeWindow=false, refreshWindow=true );
+        await doTextToSpeech( "Command mode", closeWindow=false, refreshWindow=true );
 
     } else if ( transcription.startsWith( "proof" ) ) {
 
@@ -521,7 +534,7 @@ pushToClipboardAndClose = ( text ) => {
 }
 // const typeInTextarea = ( newText, el = document.activeElement) => {
 //     const [start, end] = [el.selectionStart, el.selectionEnd];
-//     el.setRangeText(newText, start, end, 'select');
+//     el.setRangeText(newText, start, end, 'select' );
 // }
 
 
