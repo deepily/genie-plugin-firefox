@@ -8,15 +8,15 @@
 
   "browser_action": {
     "default_icon": {
-      "16": "icons/border-16.png",
-      "32": "icons/border-32.png",
-      "48": "icons/border-48.png"
+      "16": "icons/microphone-16.png",
+      "32": "icons/microphone-32.png",
+      "48": "icons/microphone-48.png"
     },
     "default_title": "Genie in the Box Multiplexer",
     "default_popup": "html/menubar.html"
   },
   "icons": {
-    "48": "icons/border-48.png"
+    "48": "icons/microphone-48.png"
   },
   "commands": {
     "_execute_browser_action": {
