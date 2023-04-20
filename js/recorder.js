@@ -29,11 +29,11 @@ async function initializeStartupParameters() {
 
     console.log( "initializeStartupParameters()..." );
     
-    currentMode   = await readLocalStorage("mode", transcriptionMode );
-    prefix        = await readLocalStorage("prefix", "" );
+    currentMode   = await readLocalStorage( "mode", transcriptionMode );
+    prefix        = await readLocalStorage( "prefix", "" );
     // TODO: Command should be renamed transcription!
-    transcription = await readLocalStorage("command", "" );
-    debug         = await readLocalStorage("debug", false );
+    transcription = await readLocalStorage( "command", "" );
+    debug         = await readLocalStorage( "debug", false );
     titleMode     = currentMode[ 0 ].toUpperCase() + currentMode.slice( 1 );
 
     dumpStartupParameters();
@@ -97,10 +97,10 @@ const genieInTheBoxServer = "http://127.0.0.1:7999";
 
 window.addEventListener( "DOMContentLoaded", async (event) => {
 
-    console.log("DOM fully loaded and parsed, Getting startup parameters...." );
+    console.log( "DOM fully loaded and parsed, Getting startup parameters...." );
     await initializeStartupParameters();
 
-    modeImg = document.getElementById('mode-img' )
+    modeImg = document.getElementById( "mode-img" )
     modeImg.title = "Mode: " + titleMode;
     if ( titleMode == "Transcription" ) {
         modeImg.src = "../icons/mode-transcription-24.png";
@@ -109,36 +109,36 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
     }
 
     // parent.postMessage( { "type": "recorder", "mode": currentMode, "prefix": prefix, "transcription": transcription, "debug": debug }, "*" );
-    document.getElementById('record' ).hidden = true;
-    document.getElementById('stop' ).focus();
+    document.getElementById( "record" ).hidden = true;
+    document.getElementById( "stop" ).focus();
 
     // console.log( "window.opener.location" + window.opener.location );
     console.log( "window.parent.location: " + window.parent.location );
     console.log( "window.parent.location.href: " + window.parent.location.href );
 
-    console.log("DOM fully loaded and parsed. Checking permissions...." );
+    console.log( "DOM fully loaded and parsed. Checking permissions...." );
 
     // Only hide if we're not in debug mode
-    document.getElementById('play' ).hidden = !debug;
+    document.getElementById( "play" ).hidden = !debug;
 
     if ( currentMode === "transcription"  || transcription === "" ) { // || currentMode == "multimodal editor" ) {
 
-        document.getElementById('record' ).click()
+        document.getElementById( "record" ).click()
 
         navigator.mediaDevices.getUserMedia({audio: true, video: false})
             .then((stream) => {
-                    console.log("Microphone available" )
+                    console.log( "Microphone available" )
                 },
                 e => {
-                    console.log("Microphone NOT available" )
+                    console.log( "Microphone NOT available" )
                 } );
     } else {
         // Skip recording mode and jump right into handling commands.
-        document.getElementById('stop' ).focus();
+        document.getElementById( "stop" ).focus();
         document.getElementById( "recorder-body" ).className = "thinking";
         handleCommand( prefix, transcription )
     }
-    console.log("DOM fully loaded and parsed. Checking permissions.... Done!" );
+    console.log( "DOM fully loaded and parsed. Checking permissions.... Done!" );
 } );
 window.addEventListener( "keydown", function (event) {
 
@@ -154,17 +154,17 @@ window.addEventListener( "keydown", function (event) {
     }
     // if ( event.ctrlKey && event.key == "r" ) {
     //   console.log( "'Ctrl r' pressed" );
-    //   document.getElementById('record' ).click();
+    //   document.getElementById( "record" ).click();
     // } else if ( event.ctrlKey && event.key == "s" ) {
     //   console.log( "'Ctrl s' pressed" );
-    //   document.getElementById('stop' ).click();
+    //   document.getElementById( "stop" ).click();
     //   console.log( "Key pressed [" + event.key + "]" );
     // } else if ( event.ctrlKey && event.key == "p" ) {
     //   console.log( "Ctrl 'p' pressed" );
-    //   document.getElementById('play' ).click();
+    //   document.getElementById( "play" ).click();
     // } else if ( event.ctrlKey && event.key == "t" ) {
     //   console.log( "'Ctrl t' pressed" );
-    //   document.getElementById('save' ).click();
+    //   document.getElementById( "save" ).click();
     // }
 } );
 
@@ -174,25 +174,25 @@ const recordAudio = () =>
       const mediaRecorder = new MediaRecorder(stream);
       let audioChunks = [];
 
-      mediaRecorder.addEventListener('dataavailable', event => {
+      mediaRecorder.addEventListener( "dataavailable", event => {
         audioChunks.push(event.data);
       } );
 
       const start = () => {
         audioChunks = [];
         mediaRecorder.start();
-        document.getElementById('record' ).hidden = true;
-        btnStop = document.getElementById('stop' );
+        document.getElementById( "record" ).hidden = true;
+        btnStop = document.getElementById( "stop" );
         btnStop.focus();
         btnStop.className = "";
       };
 
       const stop = () =>
         new Promise(resolve => {
-          mediaRecorder.addEventListener('stop', () => {
-            document.getElementById('stop' ).className = "disabled";
-            document.getElementById('save' ).className = "";
-            const audioBlob = new Blob(audioChunks, { type: 'audio/mpeg' } );
+          mediaRecorder.addEventListener( "stop", () => {
+            document.getElementById( "stop" ).className = "disabled";
+            document.getElementById( "save" ).className = "";
+            const audioBlob = new Blob(audioChunks, { type: "audio/mpeg" } );
             const audioUrl = URL.createObjectURL(audioBlob);
             const audio = new Audio(audioUrl);
             const play = () => audio.play();
@@ -207,49 +207,60 @@ const recordAudio = () =>
 
 // const sleep = time => new Promise(resolve => setTimeout(resolve, time));
 
-const recordButton = document.querySelector('#record' );
-const stopButton = document.querySelector('#stop' );
-const playButton = document.querySelector('#play' );
-const saveButton = document.querySelector('#save' );
+const recordButton = document.querySelector( "#record" );
+const stopButton   = document.querySelector( "#stop" );
+const playButton   = document.querySelector( "#play" );
+const saveButton   = document.querySelector( "#save" );
+const modeImage    = document.querySelector( "#mode-img" );
 
 let recorder;
 let audio;
 
-recordButton.addEventListener('click', async () => {
+modeImage.addEventListener( "click", async () => {
+
+    if ( currentMode == commandMode ) {
+        mode = transcriptionMode;
+        modeImage.src = "../icons/mode-transcription-24.png";
+        modeImage.title = "Mode: " + transcriptionMode[ 0 ].toUpperCase() + transcriptionMode.slice( 1 );
+        transcription = "exit";
+        handleCommand( prefix, transcription )
+    }
+} );
+recordButton.addEventListener( "click", async () => {
 
     // // document.body.style.backgroundColor = "pink";
     // document.body.style.border = "2px dotted red";
     // ``
-    recordButton.setAttribute('disabled', true);
-    stopButton.removeAttribute('disabled' );
+    recordButton.setAttribute( "disabled", true);
+    stopButton.removeAttribute( "disabled" );
     stopButton.focus();
-    playButton.setAttribute('disabled', true);
-    saveButton.setAttribute('disabled', true);
+    playButton.setAttribute( "disabled", true);
+    saveButton.setAttribute( "disabled", true);
     if (!recorder) {
       recorder = await recordAudio();
     }
     recorder.start();
 } );
 
-stopButton.addEventListener('click', async () => {
+stopButton.addEventListener( "click", async () => {
 
     // document.body.style.backgroundColor
     // document.body.style.border = "2px solid white";
 
     document.body.className = "recording-disabled";
-    recordButton.removeAttribute('disabled' );
-    stopButton.setAttribute('disabled', true);
-    playButton.removeAttribute('disabled' );
-    saveButton.removeAttribute('disabled' );
+    recordButton.removeAttribute( "disabled" );
+    stopButton.setAttribute( "disabled", true);
+    playButton.removeAttribute( "disabled" );
+    saveButton.removeAttribute( "disabled" );
     saveButton.focus();
     audio = await recorder.stop();
 } );
 
-playButton.addEventListener('click', () => {
+playButton.addEventListener( "click", () => {
     audio.play();
 } );
 
-saveButton.addEventListener('click', async () => {
+saveButton.addEventListener( "click", async () => {
 
     const url = genieInTheBoxServer + "/api/upload-and-transcribe-mp3?prefix=" + prefix;
     console.log( "Attempting to upload and transcribe to url [" + url + "]" )
@@ -257,17 +268,17 @@ saveButton.addEventListener('click', async () => {
     try {
         const result = await readBlobAsDataURL( audio.audioBlob )
         console.log( "result [" + typeof result + "]" );
-        console.log( "result.split(',' )[0] [" + result.split(',' )[0] + "]" );
+        console.log( "result.split( "," )[0] [" + result.split( "," )[0] + "]" );
 
-        const audioMessage = result.split(',' )[1];
-        const mimeType = result.split(',' )[0];
+        const audioMessage = result.split( "," )[1];
+        const mimeType = result.split( "," )[0];
 
         // document.body.innerText = "Processing audio...";
         document.getElementById( "recorder-body" ).className = "thinking";
 
         response = await fetch( url, {
-            method: 'POST',
-            headers: {'Content-Type': mimeType},
+            method: "POST",
+            headers: {"Content-Type": mimeType},
             body: audioMessage
         } );
         document.getElementById( "recorder-body" ).className = "thinking-disabled"
@@ -315,9 +326,9 @@ async function handleCommand( prefix, transcription ) {
         transcription = "";
         prefix        = multimodalEditor;
         currentMode   = commandMode;
-        document.getElementById('stop' ).className = "disabled";
+        document.getElementById( "stop" ).className = "disabled";
 
-        modeImg = document.getElementById('mode-img' )
+        modeImg = document.getElementById( "mode-img" )
         modeImg.title = "Mode: Command";
         modeImg.src = "../icons/mode-command-24.png";
 
@@ -409,8 +420,8 @@ async function proofreadFromClipboard() {
 
         let url = genieInTheBoxServer + "/api/proofread?question=" + rawText
         const response = await fetch( url, {
-            method: 'GET',
-            headers: {'Access-Control-Allow-Origin': '*'}
+            method: "GET",
+            headers: {"Access-Control-Allow-Origin": "*"}
         } );
         console.log( "response.status [" + response.status + "]" );
 
@@ -534,7 +545,7 @@ pushToClipboardAndClose = ( text ) => {
 }
 // const typeInTextarea = ( newText, el = document.activeElement) => {
 //     const [start, end] = [el.selectionStart, el.selectionEnd];
-//     el.setRangeText(newText, start, end, 'select' );
+//     el.setRangeText(newText, start, end, "select" );
 // }
 
 
