@@ -66,6 +66,10 @@ document.addEventListener( "click", async (e) => {
 
         popupRecorder(mode="transcription", prefix="multimodal python punctuation" );
 
+    } else if ( e.target.id === "transcription-email" ) {
+
+        popupRecorder(mode="transcription", prefix="multimodal text email" );
+
     } else if ( e.target.id === "transcription-debug" ) {
 
         // await doTextToSpeech( "Debug mode" )
