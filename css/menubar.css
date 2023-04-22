@@ -13,7 +13,8 @@
 .button {
     display: inline-block;
     background-color: white;
-    width: 97%;
+    /*width: 20%;*/
+    width: 110px;
     text-align: left;
     padding: 8px;
     transition-duration: 0.4s;
@@ -35,7 +36,7 @@
 .button:focus {
     background-color: pink;
     color: black;
-    border-style: dotted;
+    border-style: solid;
     border-color: red;
     border-width: 1px;
     cursor: pointer;
