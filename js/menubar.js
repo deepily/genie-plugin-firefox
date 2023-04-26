@@ -1,4 +1,8 @@
 // import "genie-utils.js"
+const ZOOM_INCREMENT = 0.2;
+const MAX_ZOOM = 5;
+const MIN_ZOOM = 0.3;
+const DEFAULT_ZOOM = 1;
 
 const ttsServer = "http://127.0.0.1:5002";
 const genieInTheBoxServer = "http://127.0.0.1:7999";
@@ -17,24 +21,24 @@ window.addEventListener( "DOMContentLoaded", (event) => {
     .then( () => { console.log( "Loading content script... done!" ) } )
     .catch(reportExecuteScriptError);
 
-    document.addEventListener( "keypress", (event) => {
+} );
+document.addEventListener( "keypress", (event) => {
 
-        console.log( "key pressed: " + event.key );
+    console.log( "key pressed: " + event.key );
 
-        if (event.key === "ArrowDown" ) {
+    if (event.key === "ArrowDown" ) {
 
-            console.log( "ArrowDown" )
-            // currentFocus = document.activeElement;
-            // for ( button in buttons ) {
-            //     if ( button === currentFocus ) {
-            //         console.log( "button has focus: " + button )
-            //         break;
-            //     }
-            // }
-        } else if (event.key === "ArrowUp" ) {
-            console.log( "ArrowUp" )
-        }
-    } );
+        console.log( "ArrowDown" )
+        // currentFocus = document.activeElement;
+        // for ( button in buttons ) {
+        //     if ( button === currentFocus ) {
+        //         console.log( "button has focus: " + button )
+        //         break;
+        //     }
+        // }
+    } else if (event.key === "ArrowUp" ) {
+        console.log( "ArrowUp" )
+    }
 } );
 
 function reportExecuteScriptError( error) {
@@ -52,64 +56,77 @@ async function sendMessage( command ) {
         return true;
     } );
 }
+
+function getCurrentWindowTabs() {
+  return browser.tabs.query({currentWindow: true});
+}
 document.addEventListener( "click", async (e) => {
 
     console.log( "click detected: " + e.target.id);
     // e.preventDefault()
 
-    if ( e.target.id === "transcription" ) {
+    function callOnActiveTab(callback) {
+        getCurrentWindowTabs().then((tabs) => {
+            for (let tab of tabs) {
+                if (tab.active) {
+                    callback(tab, tabs);
+                }
+            }
+        });
+    }
+    if (e.target.id === "transcription") {
 
         // await doTextToSpeech( "Transcription mode" )
-        popupRecorder(mode="transcription");
+        popupRecorder(mode = "transcription");
 
-    } else if ( e.target.id === "transcription-python" ) {
+    } else if (e.target.id === "transcription-python") {
 
-        popupRecorder(mode="transcription", prefix="multimodal python punctuation" );
+        popupRecorder(mode = "transcription", prefix = "multimodal python punctuation");
 
-    } else if ( e.target.id === "transcription-email" ) {
+    } else if (e.target.id === "transcription-email") {
 
-        popupRecorder(mode="transcription", prefix="multimodal text email" );
+        popupRecorder(mode = "transcription", prefix = "multimodal text email");
 
-    } else if ( e.target.id === "transcription-debug" ) {
+    } else if (e.target.id === "transcription-debug") {
 
         // await doTextToSpeech( "Debug mode" )
-        popupRecorder( mode="transcription", debug=true );
+        popupRecorder(mode = "transcription", debug = true);
 
-    } else if ( e.target.id === "command-cut" || e.target.id === "command-copy" || e.target.id === "command-paste" || e.target.id === "command-delete" ) {
+    } else if (e.target.id === "command-cut" || e.target.id === "command-copy" || e.target.id === "command-paste" || e.target.id === "command-delete") {
 
-        response = await sendMessage( e.target.id )
+        response = await sendMessage(e.target.id)
 
-    } else if ( e.target.id === "command-mode" ) {
-
-        // await doTextToSpeech( "Command mode" )
-        popupRecorder( mode="command", prefix="multimodal editor", command="mode" );
-
-    } else if ( e.target.id === "command-open-new-tab" ) {
+    } else if (e.target.id === "command-mode") {
 
         // await doTextToSpeech( "Command mode" )
-        console.log( "command-new-tab" );
-        popupRecorder( mode="command", prefix="multimodal editor", command="open new tab" );
+        popupRecorder(mode = "command", prefix = "multimodal editor", command = "mode");
+
+    } else if (e.target.id === "command-open-new-tab") {
+
+        // await doTextToSpeech( "Command mode" )
+        console.log("command-new-tab");
+        popupRecorder(mode = "command", prefix = "multimodal editor", command = "open new tab");
         // browser.tabs.create()
         // sendMessage( e.target.id )
 
-    } else if ( e.target.id === "command-search-duck-duck-go" ) {
+    } else if (e.target.id === "command-search-duck-duck-go") {
 
         // await doTextToSpeech( "Command mode" )
-        popupRecorder( mode="command", prefix="multimodal editor", command="search duck duck go" );
+        popupRecorder(mode = "command", prefix = "multimodal editor", command = "search duck duck go");
 
-    } else if ( e.target.id === "command-search-google" ) {
+    } else if (e.target.id === "command-search-google") {
 
         // await doTextToSpeech( "Command mode" )
-        popupRecorder( mode="command", prefix="multimodal editor", command="search google" );
+        popupRecorder(mode = "command", prefix = "multimodal editor", command = "search google");
 
-    } else if ( e.target.id === "command-proofread" ) {
+    } else if (e.target.id === "command-proofread") {
 
-        response = await sendMessage( e.target.id )
+        response = await sendMessage(e.target.id)
         // popupRecorder( "multimodal editor proofread" );
 
-    } else if ( e.target.id === "command-whats-this" ) {
+    } else if (e.target.id === "command-whats-this") {
 
-        doTextToSpeech( "TODO: Implement what's this?" )
+        doTextToSpeech("TODO: Implement what's this?")
         // fetchWhatsThisMean();
         //
         // browser.tabs.query( {currentWindow: true, active: true} ).then(async (tabs) => {
@@ -118,8 +135,53 @@ document.addEventListener( "click", async (e) => {
         //         command: e.target.id
         //     } );
         // } );
+
+        // verbatim copy and paste from web extension example tabs tabs tabs
+    } else if (e.target.id === "tabs-add-zoom") {
+        callOnActiveTab((tab) => {
+            let gettingZoom = browser.tabs.getZoom(tab.id);
+            gettingZoom.then((zoomFactor) => {
+                //the maximum zoomFactor is 5, it can't go higher
+                if (zoomFactor >= MAX_ZOOM) {
+                    // alert("Tab zoom factor is already at max!");
+                } else {
+                    let newZoomFactor = zoomFactor + ZOOM_INCREMENT;
+                    //if the newZoomFactor is set to higher than the max accepted
+                    //it won't change, and will never alert that it's at maximum
+                    newZoomFactor = newZoomFactor > MAX_ZOOM ? MAX_ZOOM : newZoomFactor;
+                    browser.tabs.setZoom(tab.id, newZoomFactor);
+                }
+            });
+        });
+    } else if (e.target.id === "tabs-decrease-zoom") {
+        callOnActiveTab((tab) => {
+            let gettingZoom = browser.tabs.getZoom(tab.id);
+            gettingZoom.then((zoomFactor) => {
+                //the minimum zoomFactor is 0.3, it can't go lower
+                if (zoomFactor <= MIN_ZOOM) {
+                    // alert("Tab zoom factor is already at minimum!");
+                } else {
+                    let newZoomFactor = zoomFactor - ZOOM_INCREMENT;
+                    //if the newZoomFactor is set to lower than the min accepted
+                    //it won't change, and will never alert that it's at minimum
+                    newZoomFactor = newZoomFactor < MIN_ZOOM ? MIN_ZOOM : newZoomFactor;
+                    browser.tabs.setZoom(tab.id, newZoomFactor);
+                }
+            });
+        });
+    } else if (e.target.id === "tabs-default-zoom") {
+        callOnActiveTab((tab) => {
+            let gettingZoom = browser.tabs.getZoom(tab.id);
+            gettingZoom.then((zoomFactor) => {
+                if (zoomFactor == DEFAULT_ZOOM) {
+                    // alert("Tab zoom is already at the default zoom factor");
+                } else {
+                    browser.tabs.setZoom(tab.id, DEFAULT_ZOOM);
+                }
+            });
+        });
     } else {
-        console.log( "Unknown button clicked: " + e.target.id);
+        console.log("Unknown button clicked: " + e.target.id);
     }
     e.preventDefault()
 } );
