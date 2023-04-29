@@ -422,14 +422,16 @@ browser.storage.onChanged.addListener( ( changes, areaName ) => {
     if ( changes.lastUrl === undefined || changes.lastUrl === null ) {
         console.log( "lastUrl NOT set yet: " + lastUrl )
     } else if ( areaName === "local" && lastUrl !== changes.lastUrl.newValue ) {
-        openNewTab( changes.lastUrl.newValue );
+        // Remove time stamp from URL
+        url = changes.lastUrl.newValue.split( "?ts=" )[ 0 ];
+        openNewTab( url );
         lastUrl = changes.lastUrl.newValue;
     } else {
         console.log( "lastUrl NOT changed: " + lastUrl )
     }
 } );
 function openNewTab( url ) {
-  console.log( "Opening new tab" );
+  console.log( "Opening new tab: " + url );
    browser.tabs.create({
      "url": url
    });
