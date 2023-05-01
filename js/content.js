@@ -12,6 +12,17 @@
     }
     window.hasRun = true;
 
+    document.addEventListener("selectionchange", () => {
+
+        // console.log( document.getSelection().toString() );
+        if ( document.getSelection().toString() === "" ) {
+            console.log( "selectionchange event detected: empty selection" );
+        } else {
+            console.log( "Auto pasting to the clipboard [" + document.getSelection().toString() + "]" );
+            copyToClipboard( document.getSelection().toString() );
+        }
+    });
+
     // console.log( "content.js loading... Adding event listeners..." );
     // document.addEventListener( "focus", (event) => {
     //     console.log( "focus event detected: " + JSON.stringify( event ) );
