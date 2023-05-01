@@ -127,6 +127,20 @@ document.addEventListener( "click", async (e) => {
         // await doTextToSpeech( "Command mode" )
         popupRecorder(mode = "command", prefix = "multimodal editor", command = "search google");
 
+    } else if (e.target.id === "command-search-duck-duck-go-clipboard" ) {
+
+        const rawText = await navigator.clipboard.readText()
+        url = "https://www.duckduckgo.com/?q=" + rawText + "&ts=" + Date.now();
+        console.log("Updating lastUrl to [" + url + "]");
+        updateLocalStorageLastUrl(url);
+
+    } else if (e.target.id === "command-search-google-clipboard" ) {
+
+        const rawText = await navigator.clipboard.readText()
+        url = "https://www.google.com/search?q=" + rawText + "&ts=" + Date.now();
+        console.log("Updating lastUrl to [" + url + "]");
+        updateLocalStorageLastUrl(url);
+
     } else if (e.target.id === "command-proofread") {
 
         response = await sendMessage( e.target.id )
@@ -224,6 +238,14 @@ document.addEventListener( "click", async (e) => {
     }
     e.preventDefault()
 } );
+async function updateLocalStorageLastUrl( url ) {
+
+    console.log( "updateLocalStorageLastUrl()..." + url  );
+    browser.storage.local.set( {
+        "lastUrl": url
+    } );
+    return true;
+}
 async function popupRecorder(mode="transcription", prefix="", command="", debug=false) {
 
     console.log(`popupRecorder() Mode [${mode}], prefix [${prefix}], command [${command}], debug [${debug}]...`)
