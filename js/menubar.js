@@ -1,5 +1,5 @@
 // import "genie-utils.js"
-const ZOOM_INCREMENT = 0.2;
+const ZOOM_INCREMENT = 0.1;
 const MAX_ZOOM = 5;
 const MIN_ZOOM = 0.3;
 const DEFAULT_ZOOM = 1;
@@ -199,6 +199,7 @@ document.addEventListener( "click", async (e) => {
     // verbatim copy and paste from web extension example tabs tabs tabs
     } else if (e.target.id === "tabs-add-zoom") {
         callOnActiveTab((tab) => {
+            console.log("tabs-add-zoom, tab: " + JSON.stringify( tab ) );
             let gettingZoom = browser.tabs.getZoom(tab.id);
             gettingZoom.then((zoomFactor) => {
                 //the maximum zoomFactor is 5, it can't go higher
@@ -253,12 +254,63 @@ async function updateLocalStorageLastUrl( url ) {
     } );
     return true;
 }
-async function popupRecorder(mode="transcription", prefix="", command="", debug=false) {
+// async function updateLocalStorageLastTabId( value ) {
+//
+//     console.log( "updateLocalStorageLastTabId()... " + value );
+//     browser.storage.local.set( {
+//         "lastTabId": value
+//     } );
+//     return true;
+// }
+async function popupRecorder(mode="transcription", prefix="", command="", debug=false, tabId=-1) {
 
-    console.log(`popupRecorder() Mode [${mode}], prefix [${prefix}], command [${command}], debug [${debug}]...`)
+    // console.log( `popupRecorder() Mode [${mode}], prefix [${prefix}], command [${command}], debug [${debug}] tabId [${tabId}]...` )
 
-    const result = updateLocalStorage( mode, prefix, command, debug );
+    lastTabId = await browser.tabs.query({currentWindow: true, active: true}).then(async (tabs) => {
+        return tabs[0].id;
+    // }
+    //
+    //     let tab = tabs[0];
+    //     console.log( "tab: " + JSON.stringify( tab ) );
+    //     console.log( "tab.id: " + tab.id );
+    //     console.log( "tab.url: " + tab.url );
+    //     console.log( "tab.title: " + tab.title );
+    //     console.log( "tab.windowId: " + tab.windowId );
+    //     console.log( "tab.index: " + tab.index );
+    //     console.log( "tab.active: " + tab.active );
+    //     console.log( "tab.pinned: " + tab.pinned );
+    //     console.log( "tab.audible: " + tab.audible );
+    //     console.log( "tab.discarded: " + tab.discarded );
+    //     console.log( "tab.favIconUrl: " + tab.favIconUrl );
+    //     console.log( "tab.height: " + tab.height );
+    //     console.log( "tab.hidden: " + tab.hidden );
+    //     console.log( "tab.incognito: " + tab.incognito );
+    //     console.log( "tab.isArticle: " + tab.isArticle );
+    //     console.log( "tab.isInReaderMode: " + tab.isInReaderMode );
+    //     console.log( "tab.lastAccessed: " + tab.lastAccessed );
+    //     console.log( "tab.mutedInfo: " + tab.mutedInfo );
+    //     console.log( "tab.openerTabId: " + tab.openerTabId );
+    //     console.log( "tab.pinned: " + tab.pinned );
+    //     console.log( "tab.selected: " + tab.selected );
+    //     console.log( "tab.status: " + tab.status );
+    //     console.log( "tab.successorTabId: " + tab.successorTabId );
+    //     console.log( "tab.width: " + tab.width );
+    //     console.log( "tab.windowId: " + tab.windowId );
+
+        // browser.tabs.sendMessage(tab.id, {
+        //     command: "popupRecorder",
+        //     mode: mode,
+        //     prefix: prefix,
+        //     command: command,
+        //     debug: debug
+        // } );
+        // Go forward.
+    });
+    console.log( "lastTabId: " + lastTabId );
+
+    const result = await updateLocalStorage( mode, prefix, command, debug, lastTabId );
     console.log( "result: " + result );
+    // await updateLocalStorageLastTabId( lastTabId );
 
     console.log( "popupRecorder() titleMode [" + titleMode + "]" );
 
@@ -283,15 +335,18 @@ async function popupRecorder(mode="transcription", prefix="", command="", debug=
 //     alert( "messageToParentWindow()... " + foo );
 // }
 // TODO: Command should be renamed transcription!
-async function updateLocalStorage( mode, prefix, command, debug ) {
+async function updateLocalStorage( mode, prefix, command, debug, lastTabId ) {
+
+    console.log( `updateLocalStorage() Mode [${mode}], prefix [${prefix}], command [${command}], debug [${debug}] lastTabId [${lastTabId}]...` )
 
     await browser.storage.local.set( {
-      alwaysOnTop: true,
+      alwaysOnTop: false,
            "mode": mode,
          "prefix": prefix,
         // TODO: Command should be renamed transcription!
         "command": command,
-          "debug": debug
+          "debug": debug,
+        "lastTabId": lastTabId
     } );
     return true;
 }

@@ -1,6 +1,6 @@
 // import { readLocalStorage } from "./recorder.js";
 // These values are duplicates from menubar.js!!!
-const ZOOM_INCREMENT = 0.2;
+const ZOOM_INCREMENT = 0.1;
 const MAX_ZOOM = 5;
 const MIN_ZOOM = 0.3;
 const DEFAULT_ZOOM = 1;
@@ -28,6 +28,8 @@ const readLocalStorage = async (key, defaultValue ) => {
 }
 let lastUrl = "";
 lastZoom = "";
+lastTabId = -1;
+
 let titleMode = "Transcription"
 window.addEventListener( "DOMContentLoaded", async (event) => {
 
@@ -425,9 +427,10 @@ browser.storage.onChanged.addListener( ( changes, areaName ) => {
     console.log( "areaName: " + areaName );
     console.log( "lastUrl: " + lastUrl );
     console.log( "lastZoom: " + lastZoom );
+    console.log( "lastTabId: " + lastTabId );
 
     if ( changes.lastUrl === undefined || changes.lastUrl === null ) {
-        console.log( "lastUrl NOT set yet: " + lastUrl )
+        console.log( "lastUrl NOT changed: " + lastUrl )
     } else if ( areaName === "local" && lastUrl !== changes.lastUrl.newValue ) {
         // Remove time stamp from URL
         url = changes.lastUrl.newValue.split( "?ts=" )[ 0 ];
@@ -437,18 +440,36 @@ browser.storage.onChanged.addListener( ( changes, areaName ) => {
         console.log( "lastUrl NOT changed: " + lastUrl )
     }
 
-    if ( areaName === "local" && lastZoom !== changes.lastZoom.newValue ) {
+    if ( changes.lastTabId === undefined ) {
+         console.log( "lastTabId NOT changed: " + lastTabId )
+    } else if ( areaName === "local" && lastTabId !== parseInt( changes.lastTabId.newValue ) ) {
+        lastTabId = parseInt( changes.lastTabId.newValue );
+    } else {
+        console.log( "lastTabId NOT changed: " + lastUrl )
+    }
+
+     if ( changes.lastZoom === undefined ) {
+         console.log( "lastZoom NOT changed: " + lastZoom )
+     } else if ( areaName === "local" && lastZoom !== changes.lastZoom.newValue ) {
+
+        lastZoom = changes.lastZoom.newValue;
         // Remove time stamp from URL
-        zoom = changes.lastZoom.newValue.split( "?ts=" )[ 0 ];
+        zoom = lastZoom.split( "?ts=" )[ 0 ];
+        console.log( "Zoom: " + zoom );
+        console.log( "lastTabId: " + lastTabId );
+
         while ( zoom > 0 ) {
             console.log( "Zooming..." );
-            zoomIn();
+            zoomIn( lastTabId );
             zoom = zoom - 1;
-        }
-        lastZoom = changes.lastZoom.newValue;
+}
     } else {
         console.log( "lastZoom NOT changed: " + lastUrl )
     }
+
+    console.log( "lastUrl: " + lastUrl );
+    console.log( "lastZoom: " + lastZoom );
+    console.log( "lastTabId: " + lastTabId );
 } );
 function openNewTab( url ) {
   console.log( "Opening new tab: " + url );
@@ -456,36 +477,23 @@ function openNewTab( url ) {
      "url": url
    });
 }
-function zoomIn() {
+function zoomIn( tabId ) {
 
-    console.log( "zoomIn() called..." )
+    console.log( "zoomIn( " + tabId + " ) called..." )
+    console.log( "window.tabs" + JSON.stringify( window.tabs ) );
 
-    function getCurrentWindowTabs() {
-        return browser.tabs.query({currentWindow: true})
-    }
-    function callOnActiveTab(callback) {
-        getCurrentWindowTabs().then((tabs) => {
-            for (let tab of tabs) {
-                if (tab.active) {
-                    callback(tab, tabs);
-                }
-            }
-        });
-    }
-    callOnActiveTab((tab) => {
-        let gettingZoom = browser.tabs.getZoom(tab.id);
-        gettingZoom.then((zoomFactor) => {
-            //the maximum zoomFactor is 5, it can't go higher
-            if (zoomFactor >= MAX_ZOOM) {
-                // alert("Tab zoom factor is already at max!");
-            } else {
-                let newZoomFactor = zoomFactor + ZOOM_INCREMENT;
-                //if the newZoomFactor is set to higher than the max accepted
-                //it won't change, and will never alert that it's at maximum
-                newZoomFactor = newZoomFactor > MAX_ZOOM ? MAX_ZOOM : newZoomFactor;
-                browser.tabs.setZoom(tab.id, newZoomFactor);
-            }
-        });
+    let gettingZoom = browser.tabs.getZoom( tabId );
+    gettingZoom.then((zoomFactor) => {
+        //the maximum zoomFactor is 5, it can't go higher
+        if (zoomFactor >= MAX_ZOOM) {
+            // alert("Tab zoom factor is already at max!");
+        } else {
+            let newZoomFactor = zoomFactor + ZOOM_INCREMENT;
+            //if the newZoomFactor is set to higher than the max accepted
+            //it won't change, and will never alert that it's at maximum
+            newZoomFactor = newZoomFactor > MAX_ZOOM ? MAX_ZOOM : newZoomFactor;
+            browser.tabs.setZoom( tabId, newZoomFactor);
+        }
     });
 }
 browser.runtime.onMessage.addListener((message) => {

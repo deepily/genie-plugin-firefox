@@ -414,7 +414,7 @@ async function handleCommand( prefix, transcription ) {
         updateLocalStorageLastUrl( url )
         closeWindow();
 
-    } else if ( transcription.startsWith( "zoom" ) ) {
+    } else if ( transcription.startsWith( "zoom" ) || transcription === multimodalEditor + " zoom" ) {
 
         console.log( "Zooming..." );
         let zoomCount = transcription.split( "zoom" ).length - 1;
@@ -422,6 +422,7 @@ async function handleCommand( prefix, transcription ) {
         if ( zoomCount > 0 ) {
             updateLocalStorageLastZoom( zoomCount + "?ts=" + Date.now() );
         }
+        // closeWindow();
 
     } else {
         console.log( "Unknown command [" + transcription + "]" );
