@@ -57,7 +57,7 @@ div {
 .button:focus:active {
     background-color: white;
 }
-.zoom-button {
+.third-width-button {
     width: 28%;
     text-align: center;
     transition-duration: 0.4s;
@@ -68,7 +68,27 @@ div {
     margin: 2px;
     border-radius: 4px;
 }
-.zoom-button:hover {
+.third-width-button:hover {
+    background-color: pink;
+    color: black;
+    border-style: dotted;
+    border-color: red;
+    border-width: 1px;
+    cursor: pointer;
+}
+
+.half-width-button {
+    width: 44%;
+    text-align: center;
+    transition-duration: 0.4s;
+    color: darkslategray;
+    border-color: darkslategray;
+    border-style: solid;
+    border-width: 1px;
+    margin: 2px;
+    border-radius: 4px;
+}
+.half-width-button:hover {
     background-color: pink;
     color: black;
     border-style: dotted;
