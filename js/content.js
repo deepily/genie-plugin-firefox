@@ -18,7 +18,7 @@
         if ( document.getSelection().toString() === "" ) {
             console.log( "selectionchange event detected: empty selection" );
         } else {
-            console.log( "Auto pasting to the clipboard [" + document.getSelection().toString() + "]" );
+            console.log( "Auto copying to the clipboard [" + document.getSelection().toString() + "]" );
             copyToClipboard( document.getSelection().toString() );
         }
     });
