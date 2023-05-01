@@ -1,4 +1,9 @@
 // import { readLocalStorage } from "./recorder.js";
+// These values are duplicates from menubar.js!!!
+const ZOOM_INCREMENT = 0.2;
+const MAX_ZOOM = 5;
+const MIN_ZOOM = 0.3;
+const DEFAULT_ZOOM = 1;
 
 console.log( "background-context-menu.js loading..." );
 
@@ -22,6 +27,7 @@ const readLocalStorage = async (key, defaultValue ) => {
     } );
 }
 let lastUrl = "";
+lastZoom = "";
 let titleMode = "Transcription"
 window.addEventListener( "DOMContentLoaded", async (event) => {
 
@@ -418,6 +424,7 @@ browser.storage.onChanged.addListener( ( changes, areaName ) => {
     console.log( "changes: " + JSON.stringify( changes ) );
     console.log( "areaName: " + areaName );
     console.log( "lastUrl: " + lastUrl );
+    console.log( "lastZoom: " + lastZoom );
 
     if ( changes.lastUrl === undefined || changes.lastUrl === null ) {
         console.log( "lastUrl NOT set yet: " + lastUrl )
@@ -429,12 +436,57 @@ browser.storage.onChanged.addListener( ( changes, areaName ) => {
     } else {
         console.log( "lastUrl NOT changed: " + lastUrl )
     }
+
+    if ( areaName === "local" && lastZoom !== changes.lastZoom.newValue ) {
+        // Remove time stamp from URL
+        zoom = changes.lastZoom.newValue.split( "?ts=" )[ 0 ];
+        while ( zoom > 0 ) {
+            console.log( "Zooming..." );
+            zoomIn();
+            zoom = zoom - 1;
+        }
+        lastZoom = changes.lastZoom.newValue;
+    } else {
+        console.log( "lastZoom NOT changed: " + lastUrl )
+    }
 } );
 function openNewTab( url ) {
   console.log( "Opening new tab: " + url );
    browser.tabs.create({
      "url": url
    });
+}
+function zoomIn() {
+
+    console.log( "zoomIn() called..." )
+
+    function getCurrentWindowTabs() {
+        return browser.tabs.query({currentWindow: true})
+    }
+    function callOnActiveTab(callback) {
+        getCurrentWindowTabs().then((tabs) => {
+            for (let tab of tabs) {
+                if (tab.active) {
+                    callback(tab, tabs);
+                }
+            }
+        });
+    }
+    callOnActiveTab((tab) => {
+        let gettingZoom = browser.tabs.getZoom(tab.id);
+        gettingZoom.then((zoomFactor) => {
+            //the maximum zoomFactor is 5, it can't go higher
+            if (zoomFactor >= MAX_ZOOM) {
+                // alert("Tab zoom factor is already at max!");
+            } else {
+                let newZoomFactor = zoomFactor + ZOOM_INCREMENT;
+                //if the newZoomFactor is set to higher than the max accepted
+                //it won't change, and will never alert that it's at maximum
+                newZoomFactor = newZoomFactor > MAX_ZOOM ? MAX_ZOOM : newZoomFactor;
+                browser.tabs.setZoom(tab.id, newZoomFactor);
+            }
+        });
+    });
 }
 browser.runtime.onMessage.addListener((message) => {
 

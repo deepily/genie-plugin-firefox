@@ -71,6 +71,14 @@ function updateLocalStorageLastUrl( url ) {
     } );
     return true;
 }
+function updateLocalStorageLastZoom( value ) {
+
+    console.log( "updateLocalStorageLastZoom()... " + value );
+    browser.storage.local.set( {
+        "lastZoom": value
+    } );
+    return true;
+}
 
 // ¡OJO! TODO: These constants should be declared globally and ultimately in a runtime configurable configuration service provided by the browser.
 // ¡OJO! TODO: background-context-menu.js and recorder.js both make duplicate declarations of these constants.
@@ -96,6 +104,12 @@ const genieInTheBoxServer = "http://127.0.0.1:7999";
 // document.getElementById( "record" ).addEventListener( "click", setModeIndicators( "processing" ) );
 
 window.addEventListener( "DOMContentLoaded", async (event) => {
+
+    // console.log( "DOM fully loaded and parsed, Calling opener...." );
+    // // window.callerFunction( "Hello whirled peas, come up from recorder.js!" );
+    // console.log( "parent" + window.parent );
+    // // window.parent.messageToParentWindow( "Hello whirled peas, come up from recorder.js!" );
+    // window.parent.postMessage( { "message": "I'll be back for you in a bit. Good looking...", "type": "recorder", "mode": currentMode, "prefix": prefix, "transcription": transcription, "debug": debug }, "*" );
 
     console.log( "DOM fully loaded and parsed, Getting startup parameters...." );
     await initializeStartupParameters();
@@ -400,6 +414,15 @@ async function handleCommand( prefix, transcription ) {
         updateLocalStorageLastUrl( url )
         closeWindow();
 
+    } else if ( transcription.startsWith( "zoom" ) ) {
+
+        console.log( "Zooming..." );
+        let zoomCount = transcription.split( "zoom" ).length - 1;
+        console.log( "zoom [" + zoomCount + "]" );
+        if ( zoomCount > 0 ) {
+            updateLocalStorageLastZoom( zoomCount + "?ts=" + Date.now() );
+        }
+
     } else {
         console.log( "Unknown command [" + transcription + "]" );
         await doTextToSpeech( "Unknown command " + transcription + ", please try again", closeWindow=false, refreshWindow=true );
@@ -408,10 +431,6 @@ async function handleCommand( prefix, transcription ) {
 async function proofreadFromClipboard() {
 
     try {
-
-        // document.body.innerText = "Proofreading...";
-        // document.body.style.backgroundColor
-        // document.body.style.border = "2px dotted red";
 
         doTextToSpeech( "Proofreading...", closeWindow=false, refreshWindow=false )
 
@@ -568,16 +587,16 @@ function reportExecuteScriptError( error) {
     console.error( `Failed to execute content script: ${error.message}` );
 }
 
-async function sendMessage( command, url="" ) {
-
-    await browser.tabs.query( {currentWindow: true, active: true} ).then(async (tabs) => {
-        let tab = tabs[0];
-        await browser.tabs.sendMessage( tab.id, {
-            command: command,
-                url: url
-        } );
-        return true;
-    } );
-}
+// async function sendMessage( command, url="" ) {
+//
+//     await browser.tabs.query( {currentWindow: true, active: true} ).then(async (tabs) => {
+//         let tab = tabs[0];
+//         await browser.tabs.sendMessage( tab.id, {
+//             command: command,
+//                 url: url
+//         } );
+//         return true;
+//     } );
+// }
 console.log( "recorder.js loaded" );
 // document.body.style.border = "5px solid green";

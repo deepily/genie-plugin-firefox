@@ -8,6 +8,7 @@ const ttsServer = "http://127.0.0.1:5002";
 const genieInTheBoxServer = "http://127.0.0.1:7999";
 
 let titleMode = "Transcription"
+let popupRecorderWindowId = null;
 
 // Set focus after the DOM is loaded.
 window.addEventListener( "DOMContentLoaded", (event) => {
@@ -23,6 +24,12 @@ window.addEventListener( "DOMContentLoaded", (event) => {
     // .catch( reportExecuteScriptError );
 
 } );
+// window.addEventListener( "message", (event) => {
+//
+//     console.log( "message: " + event );
+//     console.log( "message: " + event.data );
+//     console.log( "message: " + JSON.stringify( event.data ) );
+// } );
 async function loadContentScript() {
 
     console.log( "Loading content script..." );
@@ -261,14 +268,25 @@ async function popupRecorder(mode="transcription", prefix="", command="", debug=
         height: 320,
         width: 256,
         allowScriptsToClose: true,
-        type: "panel"
+        type: "panel",
+        titlePreface: "Genie in The Box",
+        // callerFunction: messageToParentWindow
     };
-    let creating = browser.windows.create(createData);
+    let creating = browser.windows.create( createData );
+    popupRecorderWindow = (await creating)
+    // popupRecorderWindow.callerFunction = messageToParentWindow
+    popupRecorderWindowId = popupRecorderWindow.id;
+    console.log( "popupRecorderWindow  : " + JSON.stringify( popupRecorderWindow ) );
+    console.log( "popupRecorderWindowId: " + popupRecorderWindowId );
 }
+// function messageToParentWindow( foo ) {
+//     alert( "messageToParentWindow()... " + foo );
+// }
 // TODO: Command should be renamed transcription!
 async function updateLocalStorage( mode, prefix, command, debug ) {
 
     await browser.storage.local.set( {
+      alwaysOnTop: true,
            "mode": mode,
          "prefix": prefix,
         // TODO: Command should be renamed transcription!
