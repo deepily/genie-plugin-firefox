@@ -7,37 +7,38 @@
     * it will do nothing next time.
     */
     if (window.hasRun) {
-        console.log( "content.js loading... Bailing early!" );
+        console.log( "content.js loading... already loaded. Bailing early!" );
         return;
     }
     window.hasRun = true;
 
-    console.log( "content.js loading... Adding event listeners..." );
-    document.addEventListener( "focus", (event) => {
-        console.log( "focus event detected: " + JSON.stringify( event ) );
-        console.log( "content.js: FOCUS event.target: " + JSON.stringify( event.target ) ) ;
-        console.log( "content.js: FOCUS active element: " + JSON.stringify( document.activeElement ) ) ;
-    } );
-    document.addEventListener( "blur", (event) => {
-        console.log( "blur event detected: " + JSON.stringify( event ) );
-        console.log( "content.js: BLUR event.target: " + JSON.stringify( event.target ) ) ;
-        console.log( "content.js: BLUR active element: " + JSON.stringify( document.activeElement ) );
-    } );
-    console.log( "content.js loading... Adding event listeners... Done!" );
+    // console.log( "content.js loading... Adding event listeners..." );
+    // document.addEventListener( "focus", (event) => {
+    //     console.log( "focus event detected: " + JSON.stringify( event ) );
+    //     console.log( "content.js: FOCUS event.target: " + JSON.stringify( event.target ) ) ;
+    //     console.log( "content.js: FOCUS active element: " + JSON.stringify( document.activeElement ) ) ;
+    // } );
+    // document.addEventListener( "blur", (event) => {
+    //     console.log( "blur event detected: " + JSON.stringify( event ) );
+    //     console.log( "content.js: BLUR event.target: " + JSON.stringify( event.target ) ) ;
+    //     console.log( "content.js: BLUR active element: " + JSON.stringify( document.activeElement ) );
+    // } );
+    // console.log( "content.js loading... Adding event listeners... Done!" );
 
-    var inputs, index;
+    // var inputs, index;
+    //
+    // console.log( "content.js: Inputs..." );
+    // inputs = document.getElementsByTagName('input');
+    // for ( index = 0; index < inputs.length; ++index ) {
+    //     console.log( "input: " + inputs[ index ].id + " has focus " + ( inputs[ index ] === document.activeElement ) );
+    // }
+    // console.log( "content.js: Inputs... done!" );
+    //
+    // document.addEventListener( "click", async (e) => {
+    //    console.log( "click detected: " + e.target );
+    //    console.log( "click detected: " + e.target.id );
+    // } )
 
-    console.log( "content.js: Inputs..." );
-    inputs = document.getElementsByTagName('input');
-    for ( index = 0; index < inputs.length; ++index ) {
-        console.log( "input: " + inputs[ index ].id + " has focus " + ( inputs[ index ] === document.activeElement ) );
-    }
-    console.log( "content.js: Inputs... done!" );
-
-    document.addEventListener( "click", async (e) => {
-       console.log( "click detected: " + e.target );
-       console.log( "click detected: " + e.target.id );
-    } )
 
     browser.runtime.onMessage.addListener(async ( message) => {
 
@@ -101,6 +102,49 @@
             let backgroundPage = await window.runtime.getBackgroundPage();
             backgroundPage.createNewTab();
 
+        } else if ( message.command === "tabs-back" ) {
+
+            console.log( "tabs-back" )
+            //
+            // function onGot(historyItems) {
+            //     for (const item of historyItems) {
+            //         console.log(item.url);
+            //         console.log(new Date(item.lastVisitTime));
+            //     }
+            // }
+            //
+            // history.search({ text: "" }).then( onGot );
+            //
+            // let searching = await history.search( "" );
+            // console.log( "tabs-back: searching: " + searching );
+            // console.log( "tabs-back: history: " + history.length )
+            // console.log( JSON.stringify( history ) );
+            try {
+                console.log( "tabs-back: history: " + history.length )
+                console.log( JSON.stringify( history ) );
+                history.back();
+                console.log( "tabs-back: history: " + history.length )
+            } catch (e) {
+                console.log( "tabs-back: Can't go back any further: " + e );
+            }
+
+        } else if ( message.command === "tabs-forward" ) {
+
+            console.log( "tabs-forward" )
+            try {
+                console.log( "tabs-forward: history: " + history.length )
+                console.log( JSON.stringify( history ) );
+                history.forward();
+                console.log( "tabs-forward: history: " + history.length )
+            } catch (e) {
+                console.log( "tabs-forward: Can't go forward any further: " + e );
+            }
+        // Reload page
+        } else if ( message.command === "tabs-reload" ) {
+
+            console.log( "tabs-reload" )
+            window.location.reload();
+
         } else {
             console.log( "content.js: Unknown command: " + message.command );
         }
@@ -126,7 +170,5 @@
             console.log( "content.js: No text selected!" );
         }
     }
-
-
-    // console.log( "content.js loading... Done!" );
+    console.log( "content.js loading... Done!" );
 } )();

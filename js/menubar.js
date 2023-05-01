@@ -16,12 +16,20 @@ window.addEventListener( "DOMContentLoaded", (event) => {
 
     document.getElementById( "transcription" ).focus();
 
+    loadContentScript();
+    // console.log( "Loading content script..." );
+    // browser.tabs.executeScript( {file: "../js/content.js" } )
+    // .then( () => { console.log( "Loading content script... done!" ) } )
+    // .catch( reportExecuteScriptError );
+
+} );
+async function loadContentScript() {
+
     console.log( "Loading content script..." );
     browser.tabs.executeScript( {file: "../js/content.js" } )
     .then( () => { console.log( "Loading content script... done!" ) } )
-    .catch(reportExecuteScriptError);
-
-} );
+    .catch( reportExecuteScriptError );
+}
 document.addEventListener( "keypress", (event) => {
 
     console.log( "key pressed: " + event.key );
@@ -94,7 +102,7 @@ document.addEventListener( "click", async (e) => {
 
     } else if (e.target.id === "command-cut" || e.target.id === "command-copy" || e.target.id === "command-paste" || e.target.id === "command-delete") {
 
-        response = await sendMessage(e.target.id)
+        response = await sendMessage( e.target.id )
 
     } else if (e.target.id === "command-mode") {
 
@@ -121,7 +129,7 @@ document.addEventListener( "click", async (e) => {
 
     } else if (e.target.id === "command-proofread") {
 
-        response = await sendMessage(e.target.id)
+        response = await sendMessage( e.target.id )
         // popupRecorder( "multimodal editor proofread" );
 
     } else if (e.target.id === "command-whats-this") {
@@ -135,8 +143,39 @@ document.addEventListener( "click", async (e) => {
         //         command: e.target.id
         //     } );
         // } );
+        // Go forward.
+    } else if ( e.target.id === "tabs-back" ) {
 
-        // verbatim copy and paste from web extension example tabs tabs tabs
+        // Kluge to force a reload of the content script just in case we've already toggled forward or backwards and the script has not been reloaded.
+        response = await sendMessage( e.target.id )
+        await loadContentScript();
+
+    } else if ( e.target.id === "tabs-forward" ) {
+
+        // Kluge to force a reload of the content script just in case we've already toggled forward or backwards and the script has not been reloaded.
+        response = await sendMessage( e.target.id )
+        await loadContentScript();
+
+    } else if (e.target.id === "tabs-reload") {
+
+        // window.location.reload();
+        response = await sendMessage( e.target.id )
+        // await loadContentScript();
+
+        let searchingHistory = browser.history.search({text: "", maxResults: 5});
+            searchingHistory.then((results) => {
+            // What to show if there are no results.
+            if (results.length < 1) {
+              console.log( "This is all there is:" + hostname.url );
+            } else {
+              for (let k in results) {
+                let history = results[k];
+                console.log(history.url);
+              }
+            }
+        });
+
+    // verbatim copy and paste from web extension example tabs tabs tabs
     } else if (e.target.id === "tabs-add-zoom") {
         callOnActiveTab((tab) => {
             let gettingZoom = browser.tabs.getZoom(tab.id);
