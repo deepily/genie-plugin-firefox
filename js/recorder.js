@@ -414,15 +414,27 @@ async function handleCommand( prefix, transcription ) {
         updateLocalStorageLastUrl( url )
         closeWindow();
 
-    } else if ( transcription.startsWith( "zoom" ) || transcription === multimodalEditor + " zoom" ) {
+    } else if ( transcription.startsWith( "zoom reset" ) || transcription.startsWith( multimodalEditor + " zoom reset" ) ) {
 
-        console.log( "Zooming..." );
+        console.log( "Zoom reset..." );
+        updateLocalStorageLastZoom( "0?ts=" + Date.now() );
+        closeWindow();
+
+    } else if ( transcription.startsWith( "zoom out" ) || transcription.startsWith( multimodalEditor + " zoom out" ) ) {
+
+        console.log( "Zooming out..." );
+        let zoomCount = ( transcription.split( "zoom out" ).length - 1 ) * -1;
+        console.log( "zoom [" + zoomCount + "]" );
+        updateLocalStorageLastZoom( zoomCount + "?ts=" + Date.now() );
+        closeWindow();
+
+    } else if ( transcription.startsWith( "zoom" ) || transcription.startsWith( multimodalEditor + " zoom" ) ) {
+
+        console.log( "Zooming in..." );
         let zoomCount = transcription.split( "zoom" ).length - 1;
         console.log( "zoom [" + zoomCount + "]" );
-        if ( zoomCount > 0 ) {
-            updateLocalStorageLastZoom( zoomCount + "?ts=" + Date.now() );
-        }
-        // closeWindow();
+        updateLocalStorageLastZoom( zoomCount + "?ts=" + Date.now() );
+        closeWindow();
 
     } else {
         console.log( "Unknown command [" + transcription + "]" );
@@ -462,7 +474,7 @@ async function proofreadFromClipboard() {
     }
 }
 
-function closeWindow() {
+function closeWindow( timeout=250 ) {
     window.setTimeout( () => {
         window.close();
     }, 250 );

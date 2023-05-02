@@ -1,5 +1,5 @@
 // import "genie-utils.js"
-const ZOOM_INCREMENT = 0.1;
+const ZOOM_INCREMENT = 0.075;
 const MAX_ZOOM = 5;
 const MIN_ZOOM = 0.3;
 const DEFAULT_ZOOM = 1;
@@ -10,7 +10,7 @@ const genieInTheBoxServer = "http://127.0.0.1:7999";
 let titleMode = "Transcription"
 let popupRecorderWindowId = null;
 
-// Set focus after the DOM is loaded.
+// Set focus after the DOM is loaded
 window.addEventListener( "DOMContentLoaded", (event) => {
 
     console.log( "DOM fully loaded and parsed, Setting up form event listeners..." );
@@ -199,8 +199,9 @@ document.addEventListener( "click", async (e) => {
     // verbatim copy and paste from web extension example tabs tabs tabs
     } else if (e.target.id === "tabs-add-zoom") {
         callOnActiveTab((tab) => {
-            console.log("tabs-add-zoom, tab: " + JSON.stringify( tab ) );
-            let gettingZoom = browser.tabs.getZoom(tab.id);
+            // console.log("tabs-add-zoom, tab: " + JSON.stringify( tab ) );
+            console.log( "tabs-add-zoom, tab.id: " + tab.id );
+            let gettingZoom = browser.tabs.getZoom( tab.id);
             gettingZoom.then((zoomFactor) => {
                 //the maximum zoomFactor is 5, it can't go higher
                 if (zoomFactor >= MAX_ZOOM) {

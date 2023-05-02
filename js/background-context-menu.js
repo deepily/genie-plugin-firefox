@@ -1,6 +1,6 @@
 // import { readLocalStorage } from "./recorder.js";
 // These values are duplicates from menubar.js!!!
-const ZOOM_INCREMENT = 0.1;
+const ZOOM_INCREMENT = 0.075;
 const MAX_ZOOM = 5;
 const MIN_ZOOM = 0.3;
 const DEFAULT_ZOOM = 1;
@@ -458,11 +458,7 @@ browser.storage.onChanged.addListener( ( changes, areaName ) => {
         console.log( "Zoom: " + zoom );
         console.log( "lastTabId: " + lastTabId );
 
-        while ( zoom > 0 ) {
-            console.log( "Zooming..." );
-            zoomIn( lastTabId );
-            zoom = zoom - 1;
-}
+        zoomInOut( lastTabId, zoom );
     } else {
         console.log( "lastZoom NOT changed: " + lastUrl )
     }
@@ -477,23 +473,49 @@ function openNewTab( url ) {
      "url": url
    });
 }
-function zoomIn( tabId ) {
+function zoomInOut( tabId, zoom ) {
 
-    console.log( "zoomIn( " + tabId + " ) called..." )
-    console.log( "window.tabs" + JSON.stringify( window.tabs ) );
+    console.log( "zoomInOut( tab.id: " + tabId + ", zoom: " + zoom+ " ) called..." )
 
     let gettingZoom = browser.tabs.getZoom( tabId );
-    gettingZoom.then((zoomFactor) => {
-        //the maximum zoomFactor is 5, it can't go higher
-        if (zoomFactor >= MAX_ZOOM) {
-            // alert("Tab zoom factor is already at max!");
+    gettingZoom.then( ( zoomFactor ) => {
+
+        // If the zoom factor is 0, then reset to the default value.
+        if ( zoom == 0 ) {
+            newZoomFactor = DEFAULT_ZOOM;
         } else {
-            let newZoomFactor = zoomFactor + ZOOM_INCREMENT;
-            //if the newZoomFactor is set to higher than the max accepted
-            //it won't change, and will never alert that it's at maximum
-            newZoomFactor = newZoomFactor > MAX_ZOOM ? MAX_ZOOM : newZoomFactor;
-            browser.tabs.setZoom( tabId, newZoomFactor);
+            let incrementing = zoom > 0;
+            newZoomFactor    = zoomFactor;
+
+            // If we're zooming out, we need to make the zoom factor negative
+            if ( !incrementing ) {
+                zoom = zoom * -1;
+            }
+            for ( let i = 0; i < zoom; i++ ) {
+
+                console.log( "Zooming... " + i );
+
+                if ( newZoomFactor >= MAX_ZOOM || newZoomFactor <= MIN_ZOOM ) {
+                    console.log( "Tab zoom factor is already at max/min!" );
+                } else {
+                    if ( incrementing ) {
+                        newZoomFactor += ZOOM_INCREMENT;
+                        //if the newZoomFactor is set to higher than the max accepted
+                        //it won't change, and will never alert that it's at maximum
+                        newZoomFactor = newZoomFactor > MAX_ZOOM ? MAX_ZOOM : newZoomFactor;
+                    } else {
+                        // We must be decrementing
+                        newZoomFactor -= ZOOM_INCREMENT;
+                        //if the newZoomFactor is set to lower than the min accepted
+                        //it won't change, and will never alert that it's at minimum
+                        newZoomFactor = newZoomFactor < MIN_ZOOM ? MIN_ZOOM : newZoomFactor;
+                    }
+                }
+                console.log( "newZoomFactor: " + newZoomFactor )
+            }
         }
+        console.log( "FINAL newZoomFactor: " + newZoomFactor )
+        browser.tabs.setZoom( tabId, newZoomFactor );
     });
 }
 browser.runtime.onMessage.addListener((message) => {
