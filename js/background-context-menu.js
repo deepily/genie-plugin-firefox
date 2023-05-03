@@ -518,23 +518,24 @@ function zoomInOut( tabId, zoom ) {
         browser.tabs.setZoom( tabId, newZoomFactor );
     });
 }
-browser.runtime.onMessage.addListener((message) => {
+browser.runtime.onMessage.addListener(async (message) => {
 
-    console.log( "background-context-menu.js: Message.command received: " + JSON.stringify( message ) ) ;
+    console.log("background-context-menu.js: Message.command received: " + JSON.stringify(message));
 
-    if ( message.command === "command-proofread" ) {
+    if (message.command === "command-proofread") {
 
-        console.log( "background-context-menu.js: command-proofread received" ) ;
-        proofread( message.selectedText );
+        console.log("background-context-menu.js: command-proofread received");
+        const rawText = await navigator.clipboard.readText()
+        proofread( rawText );
 
-    } else if ( message.command === "command-copy" ) {
+    } else if (message.command === "command-copy") {
 
-        doTextToSpeech( "Copied to clipboard." );
+        doTextToSpeech("Copied to clipboard.");
 
-    } else if ( message.command === "command-open-new-tab" ) {
+    } else if (message.command === "command-open-new-tab") {
 
-        console.log( "background-context-menu.js: command-open-new-tab received" ) ;
-        browser.tabs.create( { url: message.url } );
+        console.log("background-context-menu.js: command-open-new-tab received");
+        browser.tabs.create({url: message.url});
     }
 
     // if (message.command === "transcribe" ) {
