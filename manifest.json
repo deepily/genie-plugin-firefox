@@ -1,8 +1,8 @@
 {
 
   "manifest_version": 2,
-  "name": "Genie Multiplexer for Firefox",
-  "version": "0.4.6",
+  "name": "Genie in the Box for Firefox",
+  "version": "0.4.7",
   "homepage_url": "https://github.com/deepily/genie-plugin-firefox",
   "description": "Records, transcribes and proofreads your voice, pasting it to the clipboard and/or into your browser.",
 
@@ -44,12 +44,7 @@
     }
   },
   "background": {
-        "scripts": [
-            "js/background-context-menu.js",
-            "js/background.js"
-        ],
-        "type": "classic",
-        "persistent": true
+        "page": "html/background.html"
   },
   "content_scripts": [
     {
