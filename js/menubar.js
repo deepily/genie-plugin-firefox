@@ -1,21 +1,26 @@
-// import "genie-utils.js"
-const ZOOM_INCREMENT = 0.075;
-const MAX_ZOOM = 5;
-const MIN_ZOOM = 0.3;
-const DEFAULT_ZOOM = 1;
-
-const ttsServer = "http://127.0.0.1:5002";
-const genieInTheBoxServer = "http://127.0.0.1:7999";
+import {
+    ZOOM_INCREMENT,
+    MAX_ZOOM,
+    MIN_ZOOM,
+    DEFAULT_ZOOM,
+    TTS_SERVER,
+    GIB_SERVER
+} from "/js/constants.js";
 
 let titleMode = "Transcription"
 let popupRecorderWindowId = null;
+let command             = "";
+var mode                = "";
+var currentMode         = "";
+var prefix              = "";
+var transcription       = "";
 
 // Set focus after the DOM is loaded
 window.addEventListener( "DOMContentLoaded", (event) => {
 
     console.log( "DOM fully loaded and parsed, Setting up form event listeners..." );
 
-    document.getElementById( "transcription" ).focus();
+    // document.getElementById( "transcription" ).focus();
 
     loadContentScript();
     // console.log( "Loading content script..." );
@@ -109,7 +114,7 @@ document.addEventListener( "click", async (e) => {
 
     } else if (e.target.id === "command-cut" || e.target.id === "command-copy" || e.target.id === "command-paste" || e.target.id === "command-delete") {
 
-        response = await sendMessage( e.target.id )
+        let response = await sendMessage( e.target.id )
 
     } else if (e.target.id === "command-mode") {
 
@@ -137,20 +142,20 @@ document.addEventListener( "click", async (e) => {
     } else if (e.target.id === "command-search-duck-duck-go-clipboard" ) {
 
         const rawText = await navigator.clipboard.readText()
-        url = "https://www.duckduckgo.com/?q=" + rawText + "&ts=" + Date.now();
+        let url = "https://www.duckduckgo.com/?q=" + rawText + "&ts=" + Date.now();
         console.log("Updating lastUrl to [" + url + "]");
         updateLocalStorageLastUrl(url);
 
     } else if (e.target.id === "command-search-google-clipboard" ) {
 
         const rawText = await navigator.clipboard.readText()
-        url = "https://www.google.com/search?q=" + rawText + "&ts=" + Date.now();
+        let url = "https://www.google.com/search?q=" + rawText + "&ts=" + Date.now();
         console.log("Updating lastUrl to [" + url + "]");
         updateLocalStorageLastUrl(url);
 
     } else if (e.target.id === "command-proofread") {
 
-        response = await sendMessage( e.target.id )
+        let response = await sendMessage( e.target.id )
         // popupRecorder( "multimodal editor proofread" );
 
     } else if (e.target.id === "command-whats-this") {
@@ -168,19 +173,19 @@ document.addEventListener( "click", async (e) => {
     } else if ( e.target.id === "tabs-back" ) {
 
         // Kluge to force a reload of the content script just in case we've already toggled forward or backwards and the script has not been reloaded.
-        response = await sendMessage( e.target.id )
+        let response = await sendMessage( e.target.id )
         await loadContentScript();
 
     } else if ( e.target.id === "tabs-forward" ) {
 
         // Kluge to force a reload of the content script just in case we've already toggled forward or backwards and the script has not been reloaded.
-        response = await sendMessage( e.target.id )
+        let response = await sendMessage( e.target.id )
         await loadContentScript();
 
     } else if (e.target.id === "tabs-reload") {
 
         // window.location.reload();
-        response = await sendMessage( e.target.id )
+        let response = await sendMessage( e.target.id )
         // await loadContentScript();
 
         let searchingHistory = browser.history.search({text: "", maxResults: 5});
@@ -263,55 +268,17 @@ async function updateLocalStorageLastUrl( url ) {
 //     } );
 //     return true;
 // }
-async function popupRecorder(mode="transcription", prefix="", command="", debug=false, tabId=-1) {
+async function popupRecorder( mode="transcription", prefix="", command="", debug=false, tabId=-1) {
 
     // console.log( `popupRecorder() Mode [${mode}], prefix [${prefix}], command [${command}], debug [${debug}] tabId [${tabId}]...` )
 
-    lastTabId = await browser.tabs.query({currentWindow: true, active: true}).then(async (tabs) => {
+    let lastTabId = await browser.tabs.query({currentWindow: true, active: true}).then(async (tabs) => {
         return tabs[0].id;
-    // }
-    //
-    //     let tab = tabs[0];
-    //     console.log( "tab: " + JSON.stringify( tab ) );
-    //     console.log( "tab.id: " + tab.id );
-    //     console.log( "tab.url: " + tab.url );
-    //     console.log( "tab.title: " + tab.title );
-    //     console.log( "tab.windowId: " + tab.windowId );
-    //     console.log( "tab.index: " + tab.index );
-    //     console.log( "tab.active: " + tab.active );
-    //     console.log( "tab.pinned: " + tab.pinned );
-    //     console.log( "tab.audible: " + tab.audible );
-    //     console.log( "tab.discarded: " + tab.discarded );
-    //     console.log( "tab.favIconUrl: " + tab.favIconUrl );
-    //     console.log( "tab.height: " + tab.height );
-    //     console.log( "tab.hidden: " + tab.hidden );
-    //     console.log( "tab.incognito: " + tab.incognito );
-    //     console.log( "tab.isArticle: " + tab.isArticle );
-    //     console.log( "tab.isInReaderMode: " + tab.isInReaderMode );
-    //     console.log( "tab.lastAccessed: " + tab.lastAccessed );
-    //     console.log( "tab.mutedInfo: " + tab.mutedInfo );
-    //     console.log( "tab.openerTabId: " + tab.openerTabId );
-    //     console.log( "tab.pinned: " + tab.pinned );
-    //     console.log( "tab.selected: " + tab.selected );
-    //     console.log( "tab.status: " + tab.status );
-    //     console.log( "tab.successorTabId: " + tab.successorTabId );
-    //     console.log( "tab.width: " + tab.width );
-    //     console.log( "tab.windowId: " + tab.windowId );
-
-        // browser.tabs.sendMessage(tab.id, {
-        //     command: "popupRecorder",
-        //     mode: mode,
-        //     prefix: prefix,
-        //     command: command,
-        //     debug: debug
-        // } );
-        // Go forward.
     });
     console.log( "lastTabId: " + lastTabId );
 
     const result = await updateLocalStorage( mode, prefix, command, debug, lastTabId );
     console.log( "result: " + result );
-    // await updateLocalStorageLastTabId( lastTabId );
 
     console.log( "popupRecorder() titleMode [" + titleMode + "]" );
 
@@ -321,12 +288,11 @@ async function popupRecorder(mode="transcription", prefix="", command="", debug=
         height: 320,
         width: 256,
         allowScriptsToClose: true,
-        type: "panel",
         titlePreface: "Genie in The Box",
         // callerFunction: messageToParentWindow
     };
     let creating = browser.windows.create( createData );
-    popupRecorderWindow = (await creating)
+    let popupRecorderWindow = (await creating)
     // popupRecorderWindow.callerFunction = messageToParentWindow
     popupRecorderWindowId = popupRecorderWindow.id;
     console.log( "popupRecorderWindow  : " + JSON.stringify( popupRecorderWindow ) );
@@ -361,13 +327,14 @@ async function updateLocalStorage( mode, prefix, command, debug, lastTabId ) {
 //     console.error(`Failed to execute content script: ${error.message}`);
 // }
 
+let fetchWhatsThisMean;
 fetchWhatsThisMean = async () => {
 
     console.log( "fetchWhatsThisMean() called..." )
 
     const clipboardText = await navigator.clipboard.readText();
 
-    let url = genieInTheBoxServer + "/api/ask-ai-text?question=" + clipboardText
+    let url = GIB_SERVER + "/api/ask-ai-text?question=" + clipboardText
     const encodedUrl = encodeURI(url);
     console.log( "encoded: " + encodedUrl);
 
@@ -387,11 +354,11 @@ fetchWhatsThisMean = async () => {
     } )
 }
 
-doTextToSpeech = async (text) => {
+let doTextToSpeech = async (text) => {
 
     console.log( "doTextToSpeech() called..." )
 
-    let url = ttsServer + "/api/tts?text=" + text
+    let url = TTS_SERVER + "/api/tts?text=" + text
     const encodedUrl = encodeURI(url);
     console.log( "encoded: " + encodedUrl);
 

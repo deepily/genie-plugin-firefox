@@ -1,16 +1,18 @@
-// import { readLocalStorage } from "./recorder.js";
-// These values are duplicates from menubar.js!!!
-const ZOOM_INCREMENT = 0.075;
-const MAX_ZOOM = 5;
-const MIN_ZOOM = 0.3;
-const DEFAULT_ZOOM = 1;
+import {
+    ZOOM_INCREMENT,
+    MAX_ZOOM,
+    MIN_ZOOM,
+    DEFAULT_ZOOM,
+    TTS_SERVER,
+    GIB_SERVER
+} from "/js/constants.js";
+
+let lastUrl = "";
+let lastZoom = "";
+let lastTabId = -1;
 
 console.log( "background-context-menu.js loading..." );
 
-// ¡OJO! TODO: These constants should be declared globally and ultimately in a runtime configurable configuration service provided by the browser.
-// ¡OJO! TODO: background-context-menu.js and recorder.js both make duplicate declarations of these constants.
-const genieInTheBoxServer = "http://127.0.0.1:7999";
-const ttsServer = "http://127.0.0.1:5002";
 var currentFocus = null;
 
 console.log( "NEW! background-context-menu.js loading... Done!" );
@@ -26,9 +28,6 @@ const readLocalStorage = async (key, defaultValue ) => {
         } );
     } );
 }
-let lastUrl = "";
-lastZoom = "";
-lastTabId = -1;
 
 let titleMode = "Transcription"
 window.addEventListener( "DOMContentLoaded", async (event) => {
@@ -93,9 +92,9 @@ function onError() {
 //   contexts: ["all"],
 //   checked: false
 // }, onCreated);
-
-var makeItBlue = 'document.body.style.border = "5px solid blue"';
-var makeItGreen = 'document.body.style.border = "5px solid green"';
+//
+// var makeItBlue = 'document.body.style.border = "5px solid blue"';
+// var makeItGreen = 'document.body.style.border = "5px solid green"';
 
 // window.addEventListener('load', function ()  {
 //     document.addEventListener('keypress', function (e) {
@@ -349,9 +348,9 @@ async function proofread( rawText ) {
     console.log( "proofread() rawText [" + rawText + "]" );
     try {
         await doTextToSpeech( "Proofreading..." )
-        let url = genieInTheBoxServer + "/api/proofread?question=" + rawText
+        let url = GIB_SERVER + "/api/proofread?question=" + rawText
 
-        console.log( "Calling genieInTheBoxServer [" + genieInTheBoxServer + "]..." );
+        console.log( "Calling GIB_SERVER [" + GIB_SERVER + "]..." );
 
         const response = await fetch( url, {
             method: 'GET',
@@ -377,11 +376,11 @@ async function proofread( rawText ) {
     }
 }
 
-fetchWhatsThisMean = async (info) => {
+let fetchWhatsThisMean = async (info) => {
 
     console.log( "fetchWhatsThisMean() called..." )
 
-    let url = genieInTheBoxServer + "/api/ask-ai-text?question=" + info.selectionText
+    let url = GIB_SERVER + "/api/ask-ai-text?question=" + info.selectionText
     const encodedUrl = encodeURI(url);
     console.log( "encoded: " + encodedUrl);
 
@@ -401,11 +400,11 @@ fetchWhatsThisMean = async (info) => {
     })
 }
 
-doTextToSpeech = async (text) => {
+let doTextToSpeech = async (text) => {
 
     console.log( "doTextToSpeech() called..." )
 
-    let url = ttsServer + "/api/tts?text=" + text
+    let url = TTS_SERVER + "/api/tts?text=" + text
     const encodedUrl = encodeURI(url);
     console.log( "encoded: " + encodedUrl);
 
@@ -433,7 +432,7 @@ browser.storage.onChanged.addListener( ( changes, areaName ) => {
         console.log( "lastUrl NOT changed: " + lastUrl )
     } else if ( areaName === "local" && lastUrl !== changes.lastUrl.newValue ) {
         // Remove time stamp from URL
-        url = changes.lastUrl.newValue.split( "?ts=" )[ 0 ];
+        let url = changes.lastUrl.newValue.split( "?ts=" )[ 0 ];
         openNewTab( url );
         lastUrl = changes.lastUrl.newValue;
     } else {
@@ -454,7 +453,7 @@ browser.storage.onChanged.addListener( ( changes, areaName ) => {
 
         lastZoom = changes.lastZoom.newValue;
         // Remove time stamp from URL
-        zoom = lastZoom.split( "?ts=" )[ 0 ];
+        const zoom = lastZoom.split( "?ts=" )[ 0 ];
         console.log( "Zoom: " + zoom );
         console.log( "lastTabId: " + lastTabId );
 
@@ -477,13 +476,15 @@ function zoomInOut( tabId, zoom ) {
 
     console.log( "zoomInOut( tab.id: " + tabId + ", zoom: " + zoom+ " ) called..." )
 
+    let newZoomFactor = DEFAULT_ZOOM;
     let gettingZoom = browser.tabs.getZoom( tabId );
     gettingZoom.then( ( zoomFactor ) => {
 
         // If the zoom factor is 0, then reset to the default value.
-        if ( zoom == 0 ) {
-            newZoomFactor = DEFAULT_ZOOM;
-        } else {
+        // if ( zoom = 0 ) {
+        //     newZoomFactor = DEFAULT_ZOOM;
+        // } else {
+        if ( zoom != 0 ) {
             let incrementing = zoom > 0;
             newZoomFactor    = zoomFactor;
 

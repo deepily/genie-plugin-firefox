@@ -1,14 +1,19 @@
+import {
+    CMD_SEARCH_DDG,
+    CMD_SEARCH_GOOGLE,
+    CMD_OPEN_NEW_TAB,
+    MULTIMODAL_EDITOR,
+    COMMAND_MODE,
+    TRANSCRIPTION_MODE,
+    TTS_SERVER,
+    GIB_SERVER
+} from "/js/constants.js";
+
 console.log( "recorder.js loading..." );
 
-const searchDuckDuckGo  = "search duck duck go";
-const searchGoogle      = "search google";
-const openNewTab        = "open new tab";
-const multimodalEditor  = "multimodal editor";
-const commandMode       = "command"
-const transcriptionMode = "transcription"
-
 let debug               = false;
-
+var refreshWindow       = false;
+var mode                = "";
 var currentMode         = "";
 var prefix              = "";
 var transcription       = "";
@@ -29,7 +34,7 @@ async function initializeStartupParameters() {
 
     console.log( "initializeStartupParameters()..." );
     
-    currentMode   = await readLocalStorage( "mode", transcriptionMode );
+    currentMode   = await readLocalStorage( "mode", TRANSCRIPTION_MODE );
     prefix        = await readLocalStorage( "prefix", "" );
     // TODO: Command should be renamed transcription!
     transcription = await readLocalStorage( "command", "" );
@@ -80,41 +85,12 @@ function updateLocalStorageLastZoom( value ) {
     return true;
 }
 
-// ¡OJO! TODO: These constants should be declared globally and ultimately in a runtime configurable configuration service provided by the browser.
-// ¡OJO! TODO: background-context-menu.js and recorder.js both make duplicate declarations of these constants.
-const ttsServer = "http://127.0.0.1:5002";
-const genieInTheBoxServer = "http://127.0.0.1:7999";
-
-// function setModeIndicators( state ) {
-//
-//     if ( state == "processing" ) {
-//
-//         // document.body.style.backgroundColor = "pink";
-//         // document.body.style.border = "2px dotted red";
-//         document.body.style.padding = "8px";
-//
-//     } else {
-//
-//         // document.body.style.backgroundColor = "white";
-//         // document.body.style.border = "2px dotted white";
-//         document.body.style.padding = "8px";
-//     }
-// }
-//
-// document.getElementById( "record" ).addEventListener( "click", setModeIndicators( "processing" ) );
-
 window.addEventListener( "DOMContentLoaded", async (event) => {
 
-    // console.log( "DOM fully loaded and parsed, Calling opener...." );
-    // // window.callerFunction( "Hello whirled peas, come up from recorder.js!" );
-    // console.log( "parent" + window.parent );
-    // // window.parent.messageToParentWindow( "Hello whirled peas, come up from recorder.js!" );
-    // window.parent.postMessage( { "message": "I'll be back for you in a bit. Good looking...", "type": "recorder", "mode": currentMode, "prefix": prefix, "transcription": transcription, "debug": debug }, "*" );
-
-    console.log( "DOM fully loaded and parsed, Getting startup parameters...." );
+   console.log( "DOM fully loaded and parsed, Getting startup parameters...." );
     await initializeStartupParameters();
 
-    modeImg = document.getElementById( "mode-img" )
+    const modeImg = document.getElementById( "mode-img" )
     modeImg.title = "Mode: " + titleMode;
     if ( titleMode == "Transcription" ) {
         modeImg.src = "../icons/mode-transcription-24.png";
@@ -196,7 +172,7 @@ const recordAudio = () =>
         audioChunks = [];
         mediaRecorder.start();
         document.getElementById( "record" ).hidden = true;
-        btnStop = document.getElementById( "stop" );
+        const btnStop = document.getElementById( "stop" );
         btnStop.focus();
         btnStop.className = "";
       };
@@ -232,10 +208,10 @@ let audio;
 
 modeImage.addEventListener( "click", async () => {
 
-    if ( currentMode == commandMode ) {
-        mode = transcriptionMode;
+    if ( currentMode == COMMAND_MODE ) {
+        mode = TRANSCRIPTION_MODE;
         modeImage.src = "../icons/mode-transcription-24.png";
-        modeImage.title = "Mode: " + transcriptionMode[ 0 ].toUpperCase() + transcriptionMode.slice( 1 );
+        modeImage.title = "Mode: " + TRANSCRIPTION_MODE[ 0 ].toUpperCase() + TRANSCRIPTION_MODE.slice( 1 );
         transcription = "exit";
         handleCommand( prefix, transcription )
     }
@@ -276,7 +252,7 @@ playButton.addEventListener( "click", () => {
 
 saveButton.addEventListener( "click", async () => {
 
-    const url = genieInTheBoxServer + "/api/upload-and-transcribe-mp3?prefix=" + prefix;
+    const url = GIB_SERVER + "/api/upload-and-transcribe-mp3?prefix=" + prefix;
     console.log( "Attempting to upload and transcribe to url [" + url + "]" )
 
     try {
@@ -290,7 +266,7 @@ saveButton.addEventListener( "click", async () => {
         // document.body.innerText = "Processing audio...";
         document.getElementById( "recorder-body" ).className = "thinking";
 
-        response = await fetch( url, {
+        const response = await fetch( url, {
             method: "POST",
             headers: {"Content-Type": mimeType},
             body: audioMessage
@@ -307,7 +283,7 @@ saveButton.addEventListener( "click", async () => {
         let prefix        = transcriptionJson[ "prefix" ]
 
         // are we in command mode?
-        if ( prefix.startsWith( multimodalEditor) || transcription.startsWith( multimodalEditor ) ) {
+        if ( prefix.startsWith( MULTIMODAL_EDITOR) || transcription.startsWith( MULTIMODAL_EDITOR ) ) {
 
             handleCommand( prefix, transcription );
 
@@ -333,16 +309,16 @@ async function handleCommand( prefix, transcription ) {
 
     console.log( "handleCommands( transcription ) called with prefix [" + prefix + "] transcription [" + transcription + "]" );
 
-    if ( ( prefix == multimodalEditor && ( transcription === "mode" || transcription === "help" )  ) ||
-         ( prefix == "" && transcription === multimodalEditor ) ) {
+    if ( ( prefix == MULTIMODAL_EDITOR && ( transcription === "mode" || transcription === "help" )  ) ||
+         ( prefix == "" && transcription === MULTIMODAL_EDITOR ) ) {
 
         // Remove whatever commands were sent.
         transcription = "";
-        prefix        = multimodalEditor;
-        currentMode   = commandMode;
+        prefix        = MULTIMODAL_EDITOR;
+        currentMode   = COMMAND_MODE;
         document.getElementById( "stop" ).className = "disabled";
 
-        modeImg = document.getElementById( "mode-img" )
+        const modeImg = document.getElementById( "mode-img" )
         modeImg.title = "Mode: Command";
         modeImg.src = "../icons/mode-command-24.png";
 
@@ -354,16 +330,16 @@ async function handleCommand( prefix, transcription ) {
         updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
         proofreadFromClipboard();
 
-    } else if ( transcription === "toggle" || transcription === "reset" || transcription === transcriptionMode || transcription === "exit" ) {
+    } else if ( transcription === "toggle" || transcription === "reset" || transcription === TRANSCRIPTION_MODE || transcription === "exit" ) {
 
-        currentMode   = transcriptionMode;
+        currentMode   = TRANSCRIPTION_MODE;
                prefix = "";
         transcription = "";
         updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
 
         await doTextToSpeech( "Switching to " + currentMode + " mode", closeWindow = false, refreshWindow = true);
 
-    } else if ( transcription == openNewTab || transcription == searchGoogle || transcription == searchDuckDuckGo ) {
+    } else if ( transcription == CMD_OPEN_NEW_TAB || transcription == CMD_SEARCH_GOOGLE || transcription == CMD_SEARCH_DDG ) {
 
         // Push transcription into the prefix so that we can capture where we want to go/do in the next conditional blocks below.
         prefix        = prefix + " " + transcription;
@@ -376,51 +352,56 @@ async function handleCommand( prefix, transcription ) {
         updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
         window.location.reload();
 
-    } else if ( transcription.startsWith( openNewTab ) || prefix === multimodalEditor + " " + openNewTab ) {
+    } else if ( transcription.startsWith( CMD_OPEN_NEW_TAB ) || prefix === MULTIMODAL_EDITOR + " " + CMD_OPEN_NEW_TAB ) {
 
-        if ( prefix === multimodalEditor + " " + openNewTab ) {
+        let url = "";
+        if ( prefix === MULTIMODAL_EDITOR + " " + CMD_OPEN_NEW_TAB ) {
             url = "https://" + transcription + "?ts=" + Date.now();
         } else {
-            url = "https://" + transcription.replace( openNewTab, "" ).trim() + "?ts=" + Date.now();
+            url = "https://" + transcription.replace( CMD_OPEN_NEW_TAB, "" ).trim() + "?ts=" + Date.now();
         }
 
         console.log( "Updating lastUrl to [" + url + "]" );
         updateLocalStorageLastUrl( url );
         closeWindow();
 
-    } else if ( transcription.startsWith( searchGoogle ) || prefix === multimodalEditor + " " + searchGoogle ) {
+    } else if ( transcription.startsWith( CMD_SEARCH_GOOGLE ) || prefix === MULTIMODAL_EDITOR + " " + CMD_SEARCH_GOOGLE ) {
 
-        if ( prefix === multimodalEditor + " " + searchGoogle ) {
+        let searchTerms = "";
+
+        if ( prefix === MULTIMODAL_EDITOR + " " + CMD_SEARCH_GOOGLE ) {
             searchTerms = transcription;
         } else {
-            searchTerms = transcription.replace( searchGoogle, "" ).trim()
+            searchTerms = transcription.replace( CMD_SEARCH_GOOGLE, "" ).trim()
         }
-        url = "https://www.google.com/search?q=" + searchTerms + "&ts=" + Date.now();
+        const url = "https://www.google.com/search?q=" + searchTerms + "&ts=" + Date.now();
 
         console.log( "Updating lastUrl to [" + url + "]" );
         updateLocalStorageLastUrl( url )
         closeWindow();
 
-    } else if ( transcription.startsWith( searchDuckDuckGo ) || prefix === multimodalEditor + " " + searchDuckDuckGo ) {
+    } else if ( transcription.startsWith( CMD_SEARCH_DDG ) || prefix === MULTIMODAL_EDITOR + " " + CMD_SEARCH_DDG ) {
 
-        if ( prefix === multimodalEditor + " " + searchDuckDuckGo ) {
+        let searchTerms = "";
+
+        if ( prefix === MULTIMODAL_EDITOR + " " + CMD_SEARCH_DDG ) {
             searchTerms = transcription;
         } else {
-            searchTerms = transcription.replace( searchDuckDuckGo, "" ).trim()
+            searchTerms = transcription.replace( CMD_SEARCH_DDG, "" ).trim()
         }
-        url = "https://www.duckduckgo.com/?q=" + searchTerms + "&ts=" + Date.now();
+        const url = "https://www.duckduckgo.com/?q=" + searchTerms + "&ts=" + Date.now();
 
         console.log( "Updating lastUrl to [" + url + "]" );
         updateLocalStorageLastUrl( url )
         closeWindow();
 
-    } else if ( transcription.startsWith( "zoom reset" ) || transcription.startsWith( multimodalEditor + " zoom reset" ) ) {
+    } else if ( transcription.startsWith( "zoom reset" ) || transcription.startsWith( MULTIMODAL_EDITOR + " zoom reset" ) ) {
 
         console.log( "Zoom reset..." );
         updateLocalStorageLastZoom( "0?ts=" + Date.now() );
         closeWindow();
 
-    } else if ( transcription.startsWith( "zoom out" ) || transcription.startsWith( multimodalEditor + " zoom out" ) ) {
+    } else if ( transcription.startsWith( "zoom out" ) || transcription.startsWith( MULTIMODAL_EDITOR + " zoom out" ) ) {
 
         console.log( "Zooming out..." );
         let zoomCount = ( transcription.split( "zoom out" ).length - 1 ) * -1;
@@ -428,7 +409,7 @@ async function handleCommand( prefix, transcription ) {
         updateLocalStorageLastZoom( zoomCount + "?ts=" + Date.now() );
         closeWindow();
 
-    } else if ( transcription.startsWith( "zoom" ) || transcription.startsWith( multimodalEditor + " zoom" ) ) {
+    } else if ( transcription.startsWith( "zoom" ) || transcription.startsWith( MULTIMODAL_EDITOR + " zoom" ) ) {
 
         console.log( "Zooming in..." );
         let zoomCount = transcription.split( "zoom" ).length - 1;
@@ -450,7 +431,7 @@ async function proofreadFromClipboard() {
         const rawText = await navigator.clipboard.readText()
         console.log( "rawText [" + rawText + "]" );
 
-        let url = genieInTheBoxServer + "/api/proofread?question=" + rawText
+        let url = GIB_SERVER + "/api/proofread?question=" + rawText
         const response = await fetch( url, {
             method: "GET",
             headers: {"Access-Control-Allow-Origin": "*"}
@@ -497,7 +478,7 @@ async function doTextToSpeech( text, closeWindow=true, refreshWindow=false ) {
 
     console.log( "doTextToSpeech() called..." )
 
-    let url = ttsServer + "/api/tts?text=" + text
+    let url = TTS_SERVER + "/api/tts?text=" + text
     const encodedUrl = encodeURI( url );
     console.log( "encoded: " + encodedUrl );
 
@@ -543,7 +524,7 @@ async function doTextToSpeech( text, closeWindow=true, refreshWindow=false ) {
 // }
 
 
-pushToClipboardAndClose = ( text ) => {
+let pushToClipboardAndClose = ( text ) => {
 
   // console.log( "Pushing 'transcription' part of this response object to clipboard [" + JSON.stringify( response ) + "]..." );
   // console.log( "transcription [" + response[ "transcription" ] + "]" );

@@ -2,8 +2,8 @@ console.log( "background.js loading..." );
 //
 // // ¡OJO! TODO: These constants should be declared globally and ultimately in a runtime configurable configuration service provided by the browser.
 // // ¡OJO! TODO: background-context-menu.js and recorder.js both make duplicate declarations of these constants.
-// const genieInTheBoxServer = "http://127.0.0.1:7999";
-// const ttsServer = "http://127.0.0.1:5002";
+// const GIB_SERVER = "http://127.0.0.1:7999";
+// const TTS_SERVER = "http://127.0.0.1:5002";
 
 
 
