@@ -51,23 +51,21 @@
     // } )
 
 
-    browser.runtime.onMessage.addListener(async ( message) => {
+    browser.runtime.onMessage.addListener(async ( request, sender, sendResponse ) => {
 
-        console.log( "content.js: Message.command received: " + message.command);
+        console.log( "content.js: Message.command received: " + request.command);
 
-        console.log( "content.js: active element: " + document.activeElement );
-
-        if ( message.command === "command-copy" ) {
+        if ( request.command === "command-copy" ) {
 
             selectedText = document.getSelection().toString()
 
             await copyToClipboard( selectedText );
             browser.runtime.sendMessage( {
                 "text": selectedText,
-                "command": message.command
+                "command": request.command
             } );
 
-        } else if ( message.command === "command-cut" ) {
+        } else if ( request.command === "command-cut" ) {
 
             selection = document.getSelection()
             
@@ -76,38 +74,41 @@
             
             browser.runtime.sendMessage( {
                 "text": selectedText,
-                "command": message.command
+                "command": request.command
             } );
             
-        } else if ( message.command === "command-delete" ) {
+        } else if ( request.command === "command-delete" ) {
 
             document.getSelection().deleteFromDocument()
             
-        } else if ( message.command === "command-paste" ) {
+        } else if ( request.command === "command-paste" ) {
 
             console.log( "content.js: Pasting from clipboard?" );
             const clipboardText = await navigator.clipboard.readText()
             console.log( "content.js: clipboardText: " + clipboardText );
             paste( clipboardText );
 
-        } else if ( message.command === "command-proofread" ) {
+        } else if ( request.command === "command-proofread" ) {
 
+            console.log( JSON.stringify( request ) );
             selectedText = document.getSelection().toString()
-            // console.log( "content.js: selectedText: " + selectedText);
             await copyToClipboard( selectedText );
-            browser.runtime.sendMessage( {
-                "selectedText": selectedText,
-                "command": message.command
-            } );
+            sendResponse( "Hi from content script! Text copied to clipboard" );
+            // let response = Promise.resolve({ response: "Hi from content script! Text copied to clipboard" } );
+            // return response;
+            // browser.runtime.sendMessage( {
+            //     "selectedText": selectedText,
+            //     "command": message.command
+            // } );
 
-        } else if ( message.command === "command-open-new-tab" ) {
+        } else if ( request.command === "command-open-new-tab" ) {
 
             console.log( "content.js: Opening new tab..." );
             // browser.tabs.create( {url: message.url } );
             let backgroundPage = await window.runtime.getBackgroundPage();
             backgroundPage.createNewTab();
 
-        } else if ( message.command === "tabs-back" ) {
+        } else if ( request.command === "tabs-back" ) {
 
             console.log( "tabs-back" )
             //
@@ -133,7 +134,7 @@
                 console.log( "tabs-back: Can't go back any further: " + e );
             }
 
-        } else if ( message.command === "tabs-forward" ) {
+        } else if ( request.command === "tabs-forward" ) {
 
             console.log( "tabs-forward" )
             try {
@@ -145,13 +146,13 @@
                 console.log( "tabs-forward: Can't go forward any further: " + e );
             }
         // Reload page
-        } else if ( message.command === "tabs-reload" ) {
+        } else if ( request.command === "tabs-reload" ) {
 
             console.log( "tabs-reload" )
             window.location.reload();
 
         } else {
-            console.log( "content.js: Unknown command: " + message.command );
+            console.log( "content.js: Unknown command: " + request.command );
         }
     } );
 
