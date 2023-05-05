@@ -11,11 +11,11 @@ let lastUrl = "";
 let lastZoom = "";
 let lastTabId = -1;
 
-console.log( "background-context-menu.js loading..." );
+console.log( "background.js loading..." );
 
 var currentFocus = null;
 
-console.log( "NEW! background-context-menu.js loading... Done!" );
+console.log( "NEW! background.js loading... Done!" );
 
 const readLocalStorage = async (key, defaultValue ) => {
     return new Promise(( resolve, reject ) => {
@@ -117,7 +117,7 @@ function onError() {
 //     // do something
 //     console.log( "Key pressed [" + event.key + "]" );
 // });
-// console.log( "background-context-menu.js loading input event listeners..." );
+// console.log( "background.js loading input event listeners..." );
 // document.querySelector( "input" ).addEventListener( "focus", (event) => {
 //
 //     console.log( "Focus event [" + event + "]" );
@@ -126,7 +126,7 @@ function onError() {
 //
 //     console.log( "Blur event [" + event + "]" );
 // } );
-// console.log( "background-context-menu.js loading input event listeners... Done!" );
+// console.log( "background.js loading input event listeners... Done!" );
 
 // const form = document.getElementById( "form" );
 //
@@ -275,7 +275,7 @@ browser.contextMenus.create({
 //
 //         let tab = tabs[0]; // Safe to assume there will only be one result
 //
-//         console.log( "background-context-menu.js inserting CSS...[" + tab + "]" );
+//         console.log( "background.js inserting CSS...[" + tab + "]" );
 //         try {
 //             // Insert CSS from a file:
 //             browser.tabs.insertCSS( tab.id, { file: "../css/modal.css" } )
@@ -286,7 +286,7 @@ browser.contextMenus.create({
 //         } catch (err) {
 //             console.error(`failed to insert CSS: ${err}`);
 //         }
-//         console.log( "background-context-menu.js inserting CSS... Done!" );
+//         console.log( "background.js inserting CSS... Done!" );
 //     }, console.error )
 // }
 browser.contextMenus.onClicked.addListener(async (info, tab) => {
@@ -421,7 +421,7 @@ function createNewTab( url ) {
 }
 browser.storage.onChanged.addListener( ( changes, areaName ) => {
 
-    console.log( "background-context-menu.js: storage.onChanged() called..." )
+    console.log( "background.js: storage.onChanged() called..." )
     console.log( "changes: " + JSON.stringify( changes ) );
     console.log( "areaName: " + areaName );
     console.log( "lastUrl: " + lastUrl );
@@ -521,11 +521,11 @@ function zoomInOut( tabId, zoom ) {
 }
 browser.runtime.onMessage.addListener(async (message) => {
 
-    console.log("background-context-menu.js: Message.command received: " + JSON.stringify(message));
+    console.log("background.js: Message.command received: " + JSON.stringify(message));
 
     if (message.command === "command-proofread") {
 
-        console.log("background-context-menu.js: command-proofread received");
+        console.log("background.js: command-proofread received");
         const rawText = await navigator.clipboard.readText()
         proofread( rawText );
 
@@ -535,7 +535,7 @@ browser.runtime.onMessage.addListener(async (message) => {
 
     } else if (message.command === "command-open-new-tab") {
 
-        console.log("background-context-menu.js: command-open-new-tab received");
+        console.log("background.js: command-open-new-tab received");
         browser.tabs.create({url: message.url});
     }
 
@@ -544,4 +544,4 @@ browser.runtime.onMessage.addListener(async (message) => {
     // }
 } );
 
-console.log( "NEW!  background-context-menu.js loading... Done!" );
+console.log( "NEW!  background.js loading... Done!" );

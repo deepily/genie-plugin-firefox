@@ -572,9 +572,9 @@ let pushToClipboardAndClose = ( text ) => {
 //   .then( console.log( "JS injector script loading... done!" ) )
 //   .catch( console.log( "Unable to load JS injector script." ) );
 
-// console.log( "Injecting background-context-menu.js..." )
-// browser.tabs.executeScript( {file: "../js/background-context-menu.js" } )
-// .then( () => { console.log( "Injecting background-context-menu.js... done!" ) } )
+// console.log( "Injecting background.js..." )
+// browser.tabs.executeScript( {file: "../js/background.js" } )
+// .then( () => { console.log( "Injecting background.js... done!" ) } )
 // .catch(reportExecuteScriptError);
 
 function reportExecuteScriptError( error) {
