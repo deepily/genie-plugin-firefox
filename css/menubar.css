@@ -2,19 +2,12 @@
     /*box-sizing: border-box;*/
     background-color: white;
 }
-
-/*.hr {*/
-/*    width: 90%;*/
-/*    margin: 20px;*/
-/*    border-style: dotted;*/
-/*    border-color: red;*/
-/*    border-width: 1px;*/
-/*}*/
 .button {
     display: inline-block;
     background-color: white;
     /*width: 20%;*/
     width: 110px;
+    /*height: 16px;*/
     text-align: left;
     padding: 8px;
     transition-duration: 0.4s;
