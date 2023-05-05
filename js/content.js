@@ -90,12 +90,6 @@
             console.log( "content.js: clipboardText: " + clipboardText );
             paste( clipboardText );
 
-            // selection = document.getSelection()
-            // if ( selection.rangeCount ) {
-            //     selection.deleteFromDocument()
-            // }
-            // selection.getRangeAt(0).insertNode(document.createTextNode(clipboardText) )
-
         } else if ( message.command === "command-proofread" ) {
 
             selectedText = document.getSelection().toString()
