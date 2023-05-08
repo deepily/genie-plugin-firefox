@@ -8,6 +8,10 @@ import {
     TTS_SERVER,
     GIB_SERVER
 } from "/js/constants.js";
+import {
+    updateLocalStorageLastPaste,
+    readLocalStorage
+} from "/js/util.js";
 
 console.log( "recorder.js loading..." );
 
@@ -19,17 +23,17 @@ var prefix              = "";
 var transcription       = "";
 var titleMode           = "Transcription";
 
-const readLocalStorage = async (key, defaultValue ) => {
-    return new Promise(( resolve, reject ) => {
-        browser.storage.local.get( [ key ], function ( result ) {
-            if (result[ key ] === undefined) {
-                reject( defaultValue );
-            } else {
-                resolve( result[ key ] );
-            }
-        } );
-    } );
-}
+// const readLocalStorage = async (key, defaultValue ) => {
+//     return new Promise(( resolve, reject ) => {
+//         browser.storage.local.get( [ key ], function ( result ) {
+//             if (result[ key ] === undefined) {
+//                 reject( defaultValue );
+//             } else {
+//                 resolve( result[ key ] );
+//             }
+//         } );
+//     } );
+// }
 async function initializeStartupParameters() {
 
     console.log( "initializeStartupParameters()..." );
@@ -294,6 +298,8 @@ saveButton.addEventListener( "click", async () => {
             updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
 
             const writeCmd = navigator.clipboard.writeText( transcription )
+            updateLocalStorageLastPaste( Date.now() );
+
             if ( debug ) { console.log( "Success!" ); }
             // document.body.innerText = "Processing audio... Done!";
             window.setTimeout( () => {
@@ -529,9 +535,9 @@ let pushToClipboardAndClose = ( text ) => {
   // console.log( "Pushing 'transcription' part of this response object to clipboard [" + JSON.stringify( response ) + "]..." );
   // console.log( "transcription [" + response[ "transcription" ] + "]" );
     console.log( "pushToClipboard( text ) [" + text + "]" );
-  // navigator.clipboard.writeText( response[ "transcription" ] ).then(() => {
   navigator.clipboard.writeText( text ).then(() => {
-    console.log( "Success!" );
+    console.log( "Success! updating last paste..." );
+    updateLocalStorageLastPaste( Date.now() );
   }, () => {
     console.log( "Failed to write to clipboard!" );
   }).then( () => {
@@ -540,21 +546,6 @@ let pushToClipboardAndClose = ( text ) => {
         window.close();
     }, 250 );
   } );
-  // console.log( "document.hasFocus() " + document.hasFocus());
-  // console.log( "document.activeElement " + document.activeElement.id);
-  // document.activeElement.value = msg;
-  // typeInTextarea( msg );
-
-  // I want to refer to the currently opened tab but don't really know of a good way to do this yet. I want to refer to the currently opened tab but don't really know of a good way to do this yet.
-  // window.tabs.query({active: true, currentWindow: true}, function(tabs) {
-  // window.Window.tabs
-  //     .executeScript({
-  //       code: "document.getSelection().toString()"
-  //     })
-  //     .then(results => {
-  //       console.log(results[0])
-  //     } );
-  // window.close()
 }
 // const typeInTextarea = ( newText, el = document.activeElement) => {
 //     const [start, end] = [el.selectionStart, el.selectionEnd];

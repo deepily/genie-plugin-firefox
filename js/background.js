@@ -9,46 +9,32 @@ import {
 import {
     popupRecorder
 } from "/js/menu-and-side-bar.js";
+import {
+    readLocalStorage
+} from "/js/util.js";
 
+let lastPaste = "";
 let lastUrl   = "";
 let lastZoom  = "";
 let lastTabId = -1;
-// let lastKey   = "";
-// let lastCode  = "";
 var mode      = "";
 
 console.log( "NOT NEW! background.js loading..." );
 
 var currentFocus = null;
 
-// window.addEventListener( "keydown", (event) => {
-//
-//     console.log( "Background keydown.key is [" + event.key + "] and the code is [" + event.code + "]" );
-//     // console.log( "lastKey is [" + lastKey + "] and the lastCode is [" + lastCode + "]" );
-//
-//     if ( event.key === "Meta" && event.code === "OSRight" && lastKey === "Meta" && lastCode === "OSRight" ) {
-//       console.log( "Background: Double OSRight keydown detected" );
-//       lastKey = "";
-//       lastCode = "";
-//       popupRecorder( mode = "transcription" );
-//     } else {
-//       console.log( "Not a double MetaRight keydown" );
-//       lastKey = event.key;
-//       lastCode = event.code;
-//     }
-// });
 
-const readLocalStorage = async (key, defaultValue ) => {
-    return new Promise(( resolve, reject ) => {
-        browser.storage.local.get( [ key ], function ( result ) {
-            if ( result[ key ] === undefined || result[ key ] === null ) {
-                resolve( defaultValue );
-            } else {
-                resolve( result[ key ] );
-            }
-        } );
-    } );
-}
+// const readLocalStorage = async (key, defaultValue ) => {
+//     return new Promise(( resolve, reject ) => {
+//         browser.storage.local.get( [ key ], function ( result ) {
+//             if ( result[ key ] === undefined || result[ key ] === null ) {
+//                 resolve( defaultValue );
+//             } else {
+//                 resolve( result[ key ] );
+//             }
+//         } );
+//     } );
+// }
 
 let titleMode = "Transcription"
 window.addEventListener( "DOMContentLoaded", async (event) => {
@@ -69,8 +55,10 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
         return value[ 0 ].toUpperCase() + value.slice( 1 );
     } );
     console.log( "lastUrl [" + lastUrl + "]" );
-
-    currentFocus = document.fo
+    //
+    // lastPaste = await readLocalStorage( "lastPaste", "" ).then( (value) => {
+    //     return value;
+    // } );
 } );
 
 function onCreated() {
@@ -417,9 +405,10 @@ browser.storage.onChanged.addListener( ( changes, areaName ) => {
     console.log( "lastUrl: " + lastUrl );
     console.log( "lastZoom: " + lastZoom );
     console.log( "lastTabId: " + lastTabId );
+    console.log( "lastPaste: " + lastPaste );
 
     if ( changes.lastUrl === undefined || changes.lastUrl === null ) {
-        console.log( "lastUrl NOT changed: " + lastUrl )
+        console.log( "lastUrl NOT defined: " + lastUrl )
     } else if ( areaName === "local" && lastUrl !== changes.lastUrl.newValue ) {
         // Remove time stamp from URL
         let url = changes.lastUrl.newValue.split( "?ts=" )[ 0 ];
@@ -430,7 +419,7 @@ browser.storage.onChanged.addListener( ( changes, areaName ) => {
     }
 
     if ( changes.lastTabId === undefined ) {
-         console.log( "lastTabId NOT changed: " + lastTabId )
+         console.log( "lastTabId NOT defined: " + lastTabId )
     } else if ( areaName === "local" && lastTabId !== parseInt( changes.lastTabId.newValue ) ) {
         lastTabId = parseInt( changes.lastTabId.newValue );
     } else {
@@ -438,7 +427,7 @@ browser.storage.onChanged.addListener( ( changes, areaName ) => {
     }
 
      if ( changes.lastZoom === undefined ) {
-         console.log( "lastZoom NOT changed: " + lastZoom )
+         console.log( "lastZoom NOT defined: " + lastZoom )
      } else if ( areaName === "local" && lastZoom !== changes.lastZoom.newValue ) {
 
         lastZoom = changes.lastZoom.newValue;
@@ -452,9 +441,23 @@ browser.storage.onChanged.addListener( ( changes, areaName ) => {
         console.log( "lastZoom NOT changed: " + lastUrl )
     }
 
+    if ( changes.lastPaste === undefined ) {
+         console.log( "lastPaste NOT defined: " + lastPaste )
+    } else if ( areaName === "local" && lastPaste != changes.lastPaste.newValue ) {
+
+        lastPaste = changes.lastPaste.newValue;
+        console.log( "lastPaste updated, sending message to paste from clipboard..." );
+        browser.runtime.sendMessage( {
+            "command": "command-paste"
+        } );
+
+    } else {
+        console.log( "lastPaste NOT changed: " + lastUrl )
+    }
     console.log( "lastUrl: " + lastUrl );
     console.log( "lastZoom: " + lastZoom );
     console.log( "lastTabId: " + lastTabId );
+    console.log( "lastPaste: " + lastPaste );
 } );
 function openNewTab( url ) {
   console.log( "Opening new tab: " + url );
