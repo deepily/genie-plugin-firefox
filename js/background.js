@@ -6,16 +6,37 @@ import {
     TTS_SERVER,
     GIB_SERVER
 } from "/js/constants.js";
+import {
+    popupRecorder
+} from "/js/menu-and-side-bar.js";
 
-let lastUrl = "";
-let lastZoom = "";
+let lastUrl   = "";
+let lastZoom  = "";
 let lastTabId = -1;
+// let lastKey   = "";
+// let lastCode  = "";
+var mode      = "";
 
-console.log( "background.js loading..." );
+console.log( "NOT NEW! background.js loading..." );
 
 var currentFocus = null;
 
-console.log( "NEW! background.js loading... Done!" );
+// window.addEventListener( "keydown", (event) => {
+//
+//     console.log( "Background keydown.key is [" + event.key + "] and the code is [" + event.code + "]" );
+//     // console.log( "lastKey is [" + lastKey + "] and the lastCode is [" + lastCode + "]" );
+//
+//     if ( event.key === "Meta" && event.code === "OSRight" && lastKey === "Meta" && lastCode === "OSRight" ) {
+//       console.log( "Background: Double OSRight keydown detected" );
+//       lastKey = "";
+//       lastCode = "";
+//       popupRecorder( mode = "transcription" );
+//     } else {
+//       console.log( "Not a double MetaRight keydown" );
+//       lastKey = event.key;
+//       lastCode = event.code;
+//     }
+// });
 
 const readLocalStorage = async (key, defaultValue ) => {
     return new Promise(( resolve, reject ) => {
@@ -52,16 +73,6 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
     currentFocus = document.fo
 } );
 
-// browser.runtime.onMessage.addListener( notify );
-//
-// function notify( message ) {
-//     browser.notifications.create({
-//         "type": "basic",
-//         "iconUrl": browser.extension.getURL( "../icons/border-48.png" ),
-//         "title": "You did something.!",
-//         "message": message.text
-//     });
-// }
 function onCreated() {
   if (browser.runtime.lastError) {
     console.log( "error creating item:" + browser.runtime.lastError);
@@ -183,20 +194,6 @@ function onError() {
 //     console.log( "DOM fully loaded and parsed, Setting up event listeners... Done!" );
 // });
 
-function showRecorderPopup (info ){
-
-    console.log( "showRecorderPopup() titleMode [" + titleMode + "]" );
-    var popupURL = browser.runtime.getURL( "../html/recorder.html" );
-
-    let creating = browser.windows.create({
-        url: popupURL,
-        type: "popup",
-        height: 320,
-        width: 256,
-        titlePreface: titleMode
-    });
-    creating.then(onCreated, onError);
-};
 browser.contextMenus.onClicked.addListener(function(info, tab) {
     // if (info.menuItemId == "radio-blue" ) {
     //   browser.tabs.executeScript(tab.id, {
@@ -206,28 +203,21 @@ browser.contextMenus.onClicked.addListener(function(info, tab) {
     //   browser.tabs.executeScript(tab.id, {
     //     code: makeItGreen
     //   });
-    // } else
-    if (info.menuItemId == "radio-popup" ) {
-
-        let selection = window.getSelection();
-        console.log( "Menu clicked. selection [" + selection + "]" );
-        selection.deleteFromDocument();
-
-        browser.tabs.executeScript(tab.id, {
-            code: showRecorderPopup( info )
-        });
-    }
+    // }
 });
 
 console.log( "browser.commands.onCommand.addListener ..." )
-browser.commands.onCommand.addListener((command) => {
+browser.commands.onCommand.addListener( ( command) => {
 
     // console.log( "command [" + command + "]" )
 
-    if (command === "popup-vox-to-text" ) {
-        // console.log( "Popping up recorder.html..." );
-        showRecorderPopup( null )
+    if ( command === "popup-vox-to-text" ) {
+        popupRecorder( mode = "transcription" );
     }
+    // else if ( command === "load-editor" ) {
+    //
+    //     openNewTab( "html/editor-quill.html" )
+    // }
 });
 console.log( "browser.commands.onCommand.addListener ... Done?" )
 
@@ -523,20 +513,28 @@ browser.runtime.onMessage.addListener(async (message) => {
 
     console.log("background.js: Message.command received: " + JSON.stringify(message));
 
-    if (message.command === "command-proofread") {
+    if (message.command === "command-proofread" ) {
 
-        console.log("background.js: command-proofread received");
+        console.log("background.js: command-proofread received" );
         const rawText = await navigator.clipboard.readText()
         proofread( rawText );
 
-    } else if (message.command === "command-copy") {
+    } else if (message.command === "command-copy" ) {
 
-        doTextToSpeech("Copied to clipboard.");
+        doTextToSpeech("Copied to clipboard" );
 
-    } else if (message.command === "command-open-new-tab") {
+    } else if (message.command === "command-open-new-tab" ) {
 
-        console.log("background.js: command-open-new-tab received");
+        console.log( "background.js: command-open-new-tab received" );
         browser.tabs.create({url: message.url});
+
+    } else if ( message.command === "command-transcription" ) {
+
+        console.log( "background.js: command-open-new-tab received" );
+        popupRecorder( mode="transcription" );
+
+    } else{
+        console.log( "background.js: command NOT recognized: " + message.command );
     }
 
     // if (message.command === "transcribe" ) {
@@ -544,4 +542,4 @@ browser.runtime.onMessage.addListener(async (message) => {
     // }
 } );
 
-console.log( "NEW!  background.js loading... Done!" );
+console.log( "NOT NEW! background.js loading... Done!" );
