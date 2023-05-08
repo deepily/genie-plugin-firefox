@@ -1,3 +1,10 @@
+// import {
+//     popupRecorder
+// } from "./menu-and-side-bar.js";
+
+let lastKey   = "";
+let lastCode  = "";
+
 (function() {
     console.log( "content.js loading..." );
 
@@ -20,6 +27,25 @@
         // } else {
             console.log( "Auto copying to the clipboard [" + document.getSelection().toString() + "]" );
             copyToClipboard( document.getSelection().toString() );
+        }
+    });
+
+    document.body.addEventListener( "keydown", (event) => {
+
+        // console.log( "keydown.key is [" + event.key + "] and the code is [" + event.code + "]" );
+        // console.log( "lastKey is [" + lastKey + "] and the lastCode is [" + lastCode + "]" );
+
+        if ( event.key === "Meta" && event.code === "OSRight" && lastKey === "Meta" && lastCode === "OSRight" ) {
+            console.log( "Background: Double OSRight keydown detected" );
+            lastKey = "";
+            lastCode = "";
+            browser.runtime.sendMessage( {
+                "command": "command-transcription"
+            } );
+        } else {
+            // console.log( "Not a double MetaRight keydown" );
+            lastKey = event.key;
+            lastCode = event.code;
         }
     });
 
