@@ -99,7 +99,10 @@ document.addEventListener( "click", async (e) => {
             }
         });
     }
-    if ( e.target.id === "transcription") {
+    if ( e.target.id === "editor") {
+
+
+    } else if ( e.target.id === "transcription") {
 
         // await doTextToSpeech( "Transcription mode" )
         popupRecorder(mode = "transcription");
@@ -254,10 +257,16 @@ document.addEventListener( "click", async (e) => {
             });
         });
         
-    } else if ( e.target.id === "tabs-current-tab" ) {
+    } else if ( e.target.id === "tabs-close-current-tab" ) {
         callOnActiveTab(( tab ) => {
             browser.tabs.remove( tab.id );
         });
+
+    } else if ( e.target.id === "load-editor" ) {
+
+        var url = "http://127.0.0.1:8080/genie-plugin-firefox/html/editor-quill.html?ts=" + Date.now()
+        updateLocalStorageLastUrl( url )
+
     } else {
         console.log("Unknown button clicked: " + e.target.id);
     }
@@ -279,19 +288,19 @@ async function updateLocalStorageLastUrl( url ) {
 //     } );
 //     return true;
 // }
-async function popupRecorder( mode="transcription", prefix="", command="", debug=false, tabId=-1) {
+export async function popupRecorder(mode = "transcription", prefix = "", command = "", debug = false, tabId = -1) {
 
     // console.log( `popupRecorder() Mode [${mode}], prefix [${prefix}], command [${command}], debug [${debug}] tabId [${tabId}]...` )
 
     let lastTabId = await browser.tabs.query({currentWindow: true, active: true}).then(async (tabs) => {
         return tabs[0].id;
     });
-    console.log( "lastTabId: " + lastTabId );
+    console.log("lastTabId: " + lastTabId);
 
-    const result = await updateLocalStorage( mode, prefix, command, debug, lastTabId );
-    console.log( "result: " + result );
+    const result = await updateLocalStorage(mode, prefix, command, debug, lastTabId);
+    console.log("result: " + result);
 
-    console.log( "popupRecorder() titleMode [" + titleMode + "]" );
+    console.log("popupRecorder() titleMode [" + titleMode + "]");
 
     let createData = {
         url: "../html/recorder.html",
@@ -302,12 +311,12 @@ async function popupRecorder( mode="transcription", prefix="", command="", debug
         titlePreface: "Genie in The Box",
         // callerFunction: messageToParentWindow
     };
-    let creating = browser.windows.create( createData );
+    let creating = browser.windows.create(createData);
     let popupRecorderWindow = (await creating)
     // popupRecorderWindow.callerFunction = messageToParentWindow
     popupRecorderWindowId = popupRecorderWindow.id;
-    console.log( "popupRecorderWindow  : " + JSON.stringify( popupRecorderWindow ) );
-    console.log( "popupRecorderWindowId: " + popupRecorderWindowId );
+    console.log("popupRecorderWindow  : " + JSON.stringify(popupRecorderWindow));
+    console.log("popupRecorderWindowId: " + popupRecorderWindowId);
 }
 // function messageToParentWindow( foo ) {
 //     alert( "messageToParentWindow()... " + foo );
