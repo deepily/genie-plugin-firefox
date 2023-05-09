@@ -88,18 +88,18 @@ let lastPaste = "";
             console.log( "content.js: clipboardText: " + clipboardText );
             paste( clipboardText );
 
-        } else if ( request.command === "command-proofread" ) {
-
-            console.log( JSON.stringify( request ) );
-            selectedText = document.getSelection().toString()
-            await copyToClipboard( selectedText );
-            sendResponse( "Hi from content script! Text copied to clipboard" );
-            // let response = Promise.resolve({ response: "Hi from content script! Text copied to clipboard" } );
-            // return response;
-            // browser.runtime.sendMessage( {
-            //     "selectedText": selectedText,
-            //     "command": message.command
-            // } );
+        // } else if ( request.command === "command-proofread" ) {
+        //
+        //     console.log( JSON.stringify( request ) );
+        //     selectedText = document.getSelection().toString()
+        //     await copyToClipboard( selectedText );
+        //     sendResponse( "Hi from content script! Text copied to clipboard" );
+        //     // let response = Promise.resolve({ response: "Hi from content script! Text copied to clipboard" } );
+        //     // return response;
+        //     // browser.runtime.sendMessage( {
+        //     //     "selectedText": selectedText,
+        //     //     "command": message.command
+        //     // } );
 
         } else if ( request.command === "command-open-new-tab" ) {
 
