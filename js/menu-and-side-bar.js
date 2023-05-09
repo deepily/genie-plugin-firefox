@@ -67,8 +67,9 @@ function reportExecuteScriptError( error) {
 }
 // capture key events
 
-async function sendMessage( command ) {
+async function sendMessageToContentScripts( command ) {
 
+    // sends to content scripts
     await browser.tabs.query( {currentWindow: true, active: true} ).then(async (tabs) => {
         let tab = tabs[0];
         await browser.tabs.sendMessage( tab.id, {
@@ -78,6 +79,13 @@ async function sendMessage( command ) {
     } );
 }
 
+async function sendMessageToBackgroundScripts( command ) {
+
+    // sends to background scripts
+    let sending = browser.runtime.sendMessage( {
+        command: command
+    } );
+}
 function getCurrentWindowTabs() {
   return browser.tabs.query({currentWindow: true});
 }
@@ -99,77 +107,73 @@ document.addEventListener( "click", async (e) => {
             }
         });
     }
-    if ( e.target.id === "editor") {
+    if ( e.target.id === "editor" ) {
 
 
-    } else if ( e.target.id === "transcription") {
+    } else if ( e.target.id === "transcription" ) {
 
         // await doTextToSpeech( "Transcription mode" )
-        popupRecorder(mode = "transcription");
+        popupRecorder(mode = "transcription" );
 
-    } else if ( e.target.id === "transcription-python") {
+    } else if ( e.target.id === "transcription-python" ) {
 
-        popupRecorder(mode = "transcription", prefix = "multimodal python punctuation");
+        popupRecorder(mode = "transcription", prefix = "multimodal python punctuation" );
 
-    } else if ( e.target.id === "transcription-email") {
+    } else if ( e.target.id === "transcription-email" ) {
 
-        popupRecorder(mode = "transcription", prefix = "multimodal text email");
+        popupRecorder(mode = "transcription", prefix = "multimodal text email" );
 
-    } else if ( e.target.id === "transcription-debug") {
+    } else if ( e.target.id === "transcription-debug" ) {
 
         // await doTextToSpeech( "Debug mode" )
         popupRecorder(mode = "transcription", debug = true);
 
-    } else if ( e.target.id === "command-cut" || e.target.id === "command-copy" || e.target.id === "command-paste" || e.target.id === "command-delete") {
+    } else if ( e.target.id === "command-cut" || e.target.id === "command-copy" || e.target.id === "command-paste" || e.target.id === "command-delete" ) {
 
-        let response = await sendMessage( e.target.id )
+        let response = await sendMessageToContentScripts( e.target.id )
 
-    } else if ( e.target.id === "command-mode") {
-
-        // await doTextToSpeech( "Command mode" )
-        popupRecorder(mode = "command", prefix = "multimodal editor", command = "mode");
-
-    } else if ( e.target.id === "command-open-new-tab") {
+    } else if ( e.target.id === "command-mode" ) {
 
         // await doTextToSpeech( "Command mode" )
-        console.log("command-new-tab");
-        popupRecorder(mode = "command", prefix = "multimodal editor", command = "open new tab");
-        // browser.tabs.create()
-        // sendMessage( e.target.id )
+        popupRecorder(mode = "command", prefix = "multimodal editor", command = "mode" );
 
-    } else if ( e.target.id === "command-search-duck-duck-go") {
+    } else if ( e.target.id === "command-open-new-tab" ) {
 
         // await doTextToSpeech( "Command mode" )
-        popupRecorder(mode = "command", prefix = "multimodal editor", command = "search duck duck go");
+        console.log("command-new-tab" );
+        popupRecorder(mode = "command", prefix = "multimodal editor", command = "open new tab" );
 
-    } else if ( e.target.id === "command-search-google") {
+    } else if ( e.target.id === "command-search-duck-duck-go" ) {
 
         // await doTextToSpeech( "Command mode" )
-        popupRecorder(mode = "command", prefix = "multimodal editor", command = "search google");
+        popupRecorder(mode = "command", prefix = "multimodal editor", command = "search duck duck go" );
+
+    } else if ( e.target.id === "command-search-google" ) {
+
+        // await doTextToSpeech( "Command mode" )
+        popupRecorder(mode = "command", prefix = "multimodal editor", command = "search google" );
 
     } else if ( e.target.id === "command-search-duck-duck-go-clipboard" ) {
 
         const rawText = await navigator.clipboard.readText()
         let url = "https://www.duckduckgo.com/?q=" + rawText + "&ts=" + Date.now();
-        console.log("Updating lastUrl to [" + url + "]");
+        console.log("Updating lastUrl to [" + url + "]" );
         updateLocalStorageLastUrl(url);
 
     } else if ( e.target.id === "command-search-google-clipboard" ) {
 
         const rawText = await navigator.clipboard.readText()
         let url = "https://www.google.com/search?q=" + rawText + "&ts=" + Date.now();
-        console.log("Updating lastUrl to [" + url + "]");
+        console.log("Updating lastUrl to [" + url + "]" );
         updateLocalStorageLastUrl(url);
 
-    } else if ( e.target.id === "command-proofread") {
+    } else if ( e.target.id === "command-proofread" ) {
 
-        let response = await sendMessage( e.target.id, "menu-and-side-bar.js", foo )
-        // let foo = await response.json();
-        // console.log( "response.response: " + foo )
+        let response = await sendMessageToBackgroundScripts( e.target.id )
 
-    } else if ( e.target.id === "command-whats-this") {
+    } else if ( e.target.id === "command-whats-this" ) {
 
-        doTextToSpeech("TODO: Implement what's this?")
+        doTextToSpeech("TODO: Implement what's this?" )
         // fetchWhatsThisMean();
         //
         // browser.tabs.query( {currentWindow: true, active: true} ).then(async (tabs) => {
@@ -182,19 +186,19 @@ document.addEventListener( "click", async (e) => {
     } else if ( e.target.id === "tabs-back" ) {
 
         // Kluge to force a reload of the content script just in case we've already toggled forward or backwards and the script has not been reloaded.
-        let response = await sendMessage( e.target.id )
+        let response = await sendMessageToContentScripts( e.target.id )
         await loadContentScript();
 
     } else if ( e.target.id === "tabs-forward" ) {
 
         // Kluge to force a reload of the content script just in case we've already toggled forward or backwards and the script has not been reloaded.
-        let response = await sendMessage( e.target.id )
+        let response = await sendMessageToContentScripts( e.target.id )
         await loadContentScript();
 
-    } else if ( e.target.id === "tabs-reload") {
+    } else if ( e.target.id === "tabs-reload" ) {
 
         // window.location.reload();
-        let response = await sendMessage( e.target.id )
+        let response = await sendMessageToContentScripts( e.target.id )
         // await loadContentScript();
 
         let searchingHistory = browser.history.search({text: "", maxResults: 5});
@@ -211,7 +215,7 @@ document.addEventListener( "click", async (e) => {
         });
 
     // verbatim copy and paste from web extension example tabs tabs tabs
-    } else if ( e.target.id === "tabs-add-zoom") {
+    } else if ( e.target.id === "tabs-add-zoom" ) {
         callOnActiveTab(( tab ) => {
             // console.log("tabs-add-zoom, tab: " + JSON.stringify( tab ) );
             console.log( "tabs-add-zoom, tab.id: " + tab.id );
@@ -219,7 +223,7 @@ document.addEventListener( "click", async (e) => {
             gettingZoom.then((zoomFactor) => {
                 //the maximum zoomFactor is 5, it can't go higher
                 if (zoomFactor >= MAX_ZOOM) {
-                    // alert("Tab zoom factor is already at max!");
+                    // alert("Tab zoom factor is already at max!" );
                 } else {
                     let newZoomFactor = zoomFactor + ZOOM_INCREMENT;
                     //if the newZoomFactor is set to higher than the max accepted
@@ -229,13 +233,13 @@ document.addEventListener( "click", async (e) => {
                 }
             });
         });
-    } else if ( e.target.id === "tabs-decrease-zoom") {
+    } else if ( e.target.id === "tabs-decrease-zoom" ) {
         callOnActiveTab(( tab ) => {
             let gettingZoom = browser.tabs.getZoom(tab.id);
             gettingZoom.then((zoomFactor) => {
                 //the minimum zoomFactor is 0.3, it can't go lower
                 if (zoomFactor <= MIN_ZOOM) {
-                    // alert("Tab zoom factor is already at minimum!");
+                    // alert("Tab zoom factor is already at minimum!" );
                 } else {
                     let newZoomFactor = zoomFactor - ZOOM_INCREMENT;
                     //if the newZoomFactor is set to lower than the min accepted
@@ -245,12 +249,12 @@ document.addEventListener( "click", async (e) => {
                 }
             });
         });
-    } else if ( e.target.id === "tabs-default-zoom") {
+    } else if ( e.target.id === "tabs-default-zoom" ) {
         callOnActiveTab(( tab ) => {
             let gettingZoom = browser.tabs.getZoom(tab.id);
             gettingZoom.then((zoomFactor) => {
                 if (zoomFactor == DEFAULT_ZOOM) {
-                    // alert("Tab zoom is already at the default zoom factor");
+                    // alert("Tab zoom is already at the default zoom factor" );
                 } else {
                     browser.tabs.setZoom(tab.id, DEFAULT_ZOOM);
                 }
@@ -300,7 +304,7 @@ export async function popupRecorder(mode = "transcription", prefix = "", command
     const result = await updateLocalStorage(mode, prefix, command, debug, lastTabId);
     console.log("result: " + result);
 
-    console.log("popupRecorder() titleMode [" + titleMode + "]");
+    console.log("popupRecorder() titleMode [" + titleMode + "]" );
 
     let createData = {
         url: "../html/recorder.html",
