@@ -397,73 +397,92 @@ function createNewTab( url ) {
     console.log( "createNewTab() called..." )
     browser.tabs.create( { url: url } );
 }
-browser.storage.onChanged.addListener( ( changes, areaName ) => {
+browser.storage.onChanged.addListener( async (changes, areaName) => {
 
     console.log( "background.js: storage.onChanged() called..." )
-    console.log( "changes: " + JSON.stringify( changes ) );
-    console.log( "areaName: " + areaName );
-    console.log( "lastUrl: " + lastUrl );
-    console.log( "lastZoom: " + lastZoom );
-    console.log( "lastTabId: " + lastTabId );
-    console.log( "lastPaste: " + lastPaste );
+    console.log( "changes: " + JSON.stringify(changes));
+    console.log( "areaName: " + areaName);
+    console.log( "lastUrl: " + lastUrl);
+    console.log( "lastZoom: " + lastZoom);
+    console.log( "lastTabId: " + lastTabId);
+    console.log( "lastPaste: " + lastPaste);
 
-    if ( changes.lastUrl === undefined || changes.lastUrl === null ) {
-        console.log( "lastUrl NOT defined: " + lastUrl )
-    } else if ( areaName === "local" && lastUrl !== changes.lastUrl.newValue ) {
+    if (changes.lastUrl === undefined || changes.lastUrl === null) {
+        console.log( "lastUrl NOT defined: " + lastUrl)
+    } else if (areaName === "local" && lastUrl !== changes.lastUrl.newValue) {
         // Remove time stamp from URL
-        let url = changes.lastUrl.newValue.split( "?ts=" )[ 0 ];
-        openNewTab( url );
+        let url = changes.lastUrl.newValue.split( "?ts=" )[0];
+        openNewTab(url);
         lastUrl = changes.lastUrl.newValue;
     } else {
-        console.log( "lastUrl NOT changed: " + lastUrl )
+        console.log( "lastUrl NOT changed: " + lastUrl)
     }
 
-    if ( changes.lastTabId === undefined ) {
-         console.log( "lastTabId NOT defined: " + lastTabId )
-    } else if ( areaName === "local" && lastTabId !== parseInt( changes.lastTabId.newValue ) ) {
-        lastTabId = parseInt( changes.lastTabId.newValue );
+    if (changes.lastTabId === undefined) {
+        console.log( "lastTabId NOT defined: " + lastTabId)
+    } else if (areaName === "local" && lastTabId !== parseInt(changes.lastTabId.newValue)) {
+        lastTabId = parseInt(changes.lastTabId.newValue);
     } else {
-        console.log( "lastTabId NOT changed: " + lastUrl )
+        console.log( "lastTabId NOT changed: " + lastUrl)
     }
 
-     if ( changes.lastZoom === undefined ) {
-         console.log( "lastZoom NOT defined: " + lastZoom )
-     } else if ( areaName === "local" && lastZoom !== changes.lastZoom.newValue ) {
+    if (changes.lastZoom === undefined) {
+        console.log( "lastZoom NOT defined: " + lastZoom)
+    } else if (areaName === "local" && lastZoom !== changes.lastZoom.newValue) {
 
         lastZoom = changes.lastZoom.newValue;
         // Remove time stamp from URL
-        const zoom = lastZoom.split( "?ts=" )[ 0 ];
-        console.log( "Zoom: " + zoom );
-        console.log( "lastTabId: " + lastTabId );
+        const zoom = lastZoom.split( "?ts=" )[0];
+        console.log( "Zoom: " + zoom);
+        console.log( "lastTabId: " + lastTabId);
 
-        zoomInOut( lastTabId, zoom );
+        zoomInOut(lastTabId, zoom);
     } else {
-        console.log( "lastZoom NOT changed: " + lastUrl )
+        console.log( "lastZoom NOT changed: " + lastUrl)
     }
 
-    if ( changes.lastPaste === undefined ) {
-         console.log( "lastPaste NOT defined: " + lastPaste )
-    } else if ( areaName === "local" && lastPaste != changes.lastPaste.newValue ) {
-
-        lastPaste = changes.lastPaste.newValue;
-        console.log( "lastPaste updated, sending message to paste from clipboard..." );
-        browser.runtime.sendMessage( {
-            "command": "command-paste"
-        } );
-
-    } else {
-        console.log( "lastPaste NOT changed: " + lastUrl )
-    }
+    // if (changes.lastPaste === undefined) {
+    //     console.log( "lastPaste NOT defined: " + lastPaste)
+    // } else if (areaName === "local" && lastPaste != changes.lastPaste.newValue) {
+    //
+    //     lastPaste = changes.lastPaste.newValue;
+    //     console.log( "lastPaste updated, sending message to paste from clipboard..." );
+    //
+    //     // let currentTabId = await browser.tabs.query( { currentWindow: true, active: true } ).then( async ( tabs ) => {
+    //     //     return tabs[0].id;
+    //     // });
+    //     // console.log( "currentTabId: " + currentTabId );
+    //     // browser.tabs.sendMessage( currentTabId, {
+    //     //     "command": "command-paste"
+    //     // });
+    //     // sendMessage( "command-paste" );
+    //
+    // } else {
+    //     console.log( "lastPaste NOT changed: " + lastUrl)
+    // }
     console.log( "lastUrl: " + lastUrl );
     console.log( "lastZoom: " + lastZoom );
     console.log( "lastTabId: " + lastTabId );
-    console.log( "lastPaste: " + lastPaste );
 } );
 function openNewTab( url ) {
   console.log( "Opening new tab: " + url );
    browser.tabs.create({
      "url": url
    });
+}
+
+async function sendMessage( command ) {
+
+    console.log( "sendMessage( command: " + command + " ) called..." )
+
+    await browser.tabs.query( {currentWindow: true, active: true} ).then(async (tabs) => {
+        let tab = tabs[0];
+        console.log( "tab.id: " + tab.id );
+        await browser.tabs.sendMessage( tab.id, {
+            command: command
+        } );
+        return true;
+    } );
 }
 function zoomInOut( tabId, zoom ) {
 
@@ -514,17 +533,17 @@ function zoomInOut( tabId, zoom ) {
 }
 browser.runtime.onMessage.addListener(async (message) => {
 
-    console.log("background.js: Message.command received: " + JSON.stringify(message));
+    console.log( "background.js: Message.command received: " + JSON.stringify(message));
 
     if (message.command === "command-proofread" ) {
 
-        console.log("background.js: command-proofread received" );
+        console.log( "background.js: command-proofread received" );
         const rawText = await navigator.clipboard.readText()
         proofread( rawText );
 
     } else if (message.command === "command-copy" ) {
 
-        doTextToSpeech("Copied to clipboard" );
+        doTextToSpeech( "Copied to clipboard" );
 
     } else if (message.command === "command-open-new-tab" ) {
 

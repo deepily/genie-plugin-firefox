@@ -4,6 +4,7 @@
 
 let lastKey   = "";
 let lastCode  = "";
+let lastPaste = "";
 
 (function() {
     console.log( "content.js loading..." );
@@ -49,34 +50,7 @@ let lastCode  = "";
         }
     });
 
-    // console.log( "content.js loading... Adding event listeners..." );
-    // document.addEventListener( "focus", (event) => {
-    //     console.log( "focus event detected: " + JSON.stringify( event ) );
-    //     console.log( "content.js: FOCUS event.target: " + JSON.stringify( event.target ) ) ;
-    //     console.log( "content.js: FOCUS active element: " + JSON.stringify( document.activeElement ) ) ;
-    // } );
-    // document.addEventListener( "blur", (event) => {
-    //     console.log( "blur event detected: " + JSON.stringify( event ) );
-    //     console.log( "content.js: BLUR event.target: " + JSON.stringify( event.target ) ) ;
-    //     console.log( "content.js: BLUR active element: " + JSON.stringify( document.activeElement ) );
-    // } );
-    // console.log( "content.js loading... Adding event listeners... Done!" );
-
-    // var inputs, index;
-    //
-    // console.log( "content.js: Inputs..." );
-    // inputs = document.getElementsByTagName('input');
-    // for ( index = 0; index < inputs.length; ++index ) {
-    //     console.log( "input: " + inputs[ index ].id + " has focus " + ( inputs[ index ] === document.activeElement ) );
-    // }
-    // console.log( "content.js: Inputs... done!" );
-    //
-    // document.addEventListener( "click", async (e) => {
-    //    console.log( "click detected: " + e.target );
-    //    console.log( "click detected: " + e.target.id );
-    // } )
-
-
+    console.log( "content.js loading... onMessage event listener..." );
     browser.runtime.onMessage.addListener(async ( request, sender, sendResponse ) => {
 
         console.log( "content.js: Message.command received: " + request.command);
@@ -137,20 +111,6 @@ let lastCode  = "";
         } else if ( request.command === "tabs-back" ) {
 
             console.log( "tabs-back" )
-            //
-            // function onGot(historyItems) {
-            //     for (const item of historyItems) {
-            //         console.log(item.url);
-            //         console.log(new Date(item.lastVisitTime));
-            //     }
-            // }
-            //
-            // history.search({ text: "" }).then( onGot );
-            //
-            // let searching = await history.search( "" );
-            // console.log( "tabs-back: searching: " + searching );
-            // console.log( "tabs-back: history: " + history.length )
-            // console.log( JSON.stringify( history ) );
             try {
                 console.log( "tabs-back: history: " + history.length )
                 console.log( JSON.stringify( history ) );
@@ -181,15 +141,84 @@ let lastCode  = "";
             console.log( "content.js: Unknown command: " + request.command );
         }
     } );
+    console.log( "content.js loading... onMessage event listener... Done!" );
+
+    console.log( "content.js loading... onChanged event listener..." );
+    browser.storage.onChanged.addListener( async (changes, areaName ) => {
+
+        console.log( "content.js: storage.onChanged() called..." )
+        // console.log( "changes: " + JSON.stringify(changes));
+        // console.log( "areaName: " + areaName);
+        // console.log( "lastPaste: " + lastPaste );
+
+        if (changes.lastPaste === undefined) {
+            console.log( "lastPaste NOT defined: " + lastPaste)
+        } else if (areaName === "local" && lastPaste != changes.lastPaste.newValue) {
+
+            lastPaste = changes.lastPaste.newValue;
+            console.log( "lastPaste updated, sending message to paste from clipboard..." );
+
+            const clipboardText = await navigator.clipboard.readText()
+            paste( clipboardText )
+            // const tabId = await browser.tabs.query( {currentWindow: true, active: true} ).then(async (tabs) => {
+            //     return tabs[ 0 ].id;
+            // } );
+            // pasteIntoTab( clipboardText, tabId )
+
+        } else {
+            console.log( "lastPaste NOT changed: " + lastUrl)
+        }
+        // console.log( "lastPaste: " + lastPaste);
+    } );
+    console.log( "content.js loading... onChanged event listener... Done!" );
 
     function paste( text ) {
 
         console.log( "paste() called..." );
         selection = document.getSelection()
+
+        // test for selection before attempting to delete it
+        if ( selection.rangeCount ) {
+            console.log( "selection.rangeCount: " + JSON.stringify( selection.rangeCount ) );
+            selection.deleteFromDocument()
+        }
+        // Test to make sure we can insert: https://stackoverflow.com/questions/22935320/uncaught-indexsizeerror-failed-to-execute-getrangeat-on-selection-0-is-not
+        // if ( selection.rangeCount > 0 ) {
+        try {
+
+            // TODO 1: Find a way to move the cursor to the end of the paste
+            // TODO 2: This paste command attempts to paste in all documents, not just the current document. The problem
+            //  Is you can't access a reference to the current tab within a content tab, which is kind of weird...
+            selection = document.getSelection()
+            selection.getRangeAt(0 ).insertNode( document.createTextNode( text ) )
+            // selection.setSelectionRange( selection.focusNode.length, selection.focusNode.length )
+            selection.removeAllRanges()
+            // document.getSelection().setPosition( null, text.length );
+
+            console.log( "paste() successful!" );
+        } catch ( e ) {
+            // console.log( "paste() failed: " + e );
+        }
+        // } else {
+        //     console.log( "CANNOT paste() in this document, selection.rangeCount: " + selection.rangeCount );
+        // }
+    }
+    function pasteIntoTab( text, tabId ) {
+
+        console.log( "pasteIntoTab() called..." );
+        const activeDocument = browser.tabs[ tabId ].document
+        selection = activeDocument.getSelection()
+
+        // test for selection before attempting to delete it
         if ( selection.rangeCount ) {
             selection.deleteFromDocument()
         }
-        selection.getRangeAt(0).insertNode(document.createTextNode( text ) )
+        // Test to make sure we can insert: https://stackoverflow.com/questions/22935320/uncaught-indexsizeerror-failed-to-execute-getrangeat-on-selection-0-is-not
+        if ( selection.rangeCount > 0 ) {
+            selection.getRangeAt(0).insertNode(activeDocument.createTextNode(text))
+        } else {
+            console.log( "pasteIntoTab() failed: selection.rangeCount: " + selection.rangeCount );
+        }
     }
     //
     // create a function that copies the parameter text to the clipboard
