@@ -10,7 +10,8 @@ import {
     popupRecorder
 } from "/js/menu-and-side-bar.js";
 import {
-    readLocalStorage
+    readLocalStorage,
+    updateLocalStorageLastPaste
 } from "/js/util.js";
 
 let lastPaste = "";
@@ -297,21 +298,6 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
         });
     } else if ( info.menuItemId === "proofread" ) {
 
-        // Getting selected text in Firefox is supremely fucked up.\!
-        // console.log( "info: " + JSON.stringify(info));
-        // console.log( document.getSelection().toString() );
-        // // window.getSelection().deleteFromDocument();
-        // document.execCommand( "copy" )
-        // var activeElement = document.activeElement;
-        // console.log( "activeElement [" + JSON.stringify(activeElement ) + "]" );
-        // console.log( "activeElement.value [" + activeElement.value + "]" );
-        //
-        // if (activeElement && activeElement.value) {
-        //     // firefox bug https://bugzilla.mozilla.org/show_bug.cgi?id=85686
-        //     console.log( "FF BUG? " + activeElement.value.substring(activeElement.selectionStart, activeElement.selectionEnd) );
-        // } else {
-        //     console.log( document.getSelection().toString() );
-        // }
         proofread( info.selectionText );
     }
 });
@@ -345,7 +331,8 @@ async function proofread( rawText ) {
         console.log( "Pushing proofreadText to clipboard..." );
         const pasteCmd = await navigator.clipboard.writeText( proofreadText );
 
-        doTextToSpeech( "Done! Copied to clipboard." );
+        doTextToSpeech( "Done!" );
+        updateLocalStorageLastPaste( Date.now() );
 
     } catch ( e ) {
 
@@ -531,6 +518,8 @@ function zoomInOut( tabId, zoom ) {
         browser.tabs.setZoom( tabId, newZoomFactor );
     });
 }
+
+console.log( "background.js: adding listener for messages..." );
 browser.runtime.onMessage.addListener(async (message) => {
 
     console.log( "background.js: Message.command received: " + JSON.stringify(message));
@@ -558,10 +547,7 @@ browser.runtime.onMessage.addListener(async (message) => {
     } else{
         console.log( "background.js: command NOT recognized: " + message.command );
     }
-
-    // if (message.command === "transcribe" ) {
-    //     // showRecorderPopup();
-    // }
 } );
+console.log( "background.js: adding listener for messages... Done!" );
 
 console.log( "NOT NEW! background.js loading... Done!" );
