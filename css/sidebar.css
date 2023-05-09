@@ -38,6 +38,11 @@ div {
     margin: 4px;
     border-radius: 4px;
 }
+.icon-button {
+    padding-left: 32px;
+    background-repeat: no-repeat;
+    background-position: top 4px left 4px
+}
 .button:hover {
     background-color: pink;
     color: black;
@@ -69,6 +74,26 @@ div {
     border-radius: 4px;
 }
 .third-width-button:hover {
+    background-color: pink;
+    color: black;
+    border-style: dotted;
+    border-color: red;
+    border-width: 1px;
+    cursor: pointer;
+}
+
+.two-third-width-button {
+    width: 60%;
+    text-align: center;
+    transition-duration: 0.4s;
+    color: darkslategray;
+    border-color: darkslategray;
+    border-style: solid;
+    border-width: 1px;
+    margin: 2px;
+    border-radius: 4px;
+}
+.two-third-width-button:hover {
     background-color: pink;
     color: black;
     border-style: dotted;
