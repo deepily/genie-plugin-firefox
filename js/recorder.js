@@ -300,7 +300,8 @@ async function handleCommand( prefix, transcription ) {
         // modeImg.className = "image-strober";
 
         updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
-        doTextToSpeech( "Command", closeWindow=false, refreshWindow=true );
+        window.location.reload();
+        // doTextToSpeech( "Command", closeWindow=false, refreshWindow=true );
 
     } else if ( transcription.startsWith( "proof" ) ) {
 
@@ -402,7 +403,7 @@ async function handleCommand( prefix, transcription ) {
 
     } else {
         console.log( "Unknown command [" + transcription + "]" );
-        await doTextToSpeech( "Unknown command " + transcription + ", please try again", closeWindow=false, refreshWindow=true );
+        await doTextToSpeech( "Unknown command " + transcription, closeWindow=false, refreshWindow=true );
     }
 }
 async function proofreadFromClipboard() {
