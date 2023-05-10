@@ -23,17 +23,6 @@ var prefix              = "";
 var transcription       = "";
 var titleMode           = "Transcription";
 
-// const readLocalStorage = async (key, defaultValue ) => {
-//     return new Promise(( resolve, reject ) => {
-//         browser.storage.local.get( [ key ], function ( result ) {
-//             if (result[ key ] === undefined) {
-//                 reject( defaultValue );
-//             } else {
-//                 resolve( result[ key ] );
-//             }
-//         } );
-//     } );
-// }
 async function initializeStartupParameters() {
 
     console.log( "initializeStartupParameters()..." );
@@ -140,26 +129,10 @@ window.addEventListener( "keydown", function (event) {
     console.log( "event.key [" + event.key + "]" );
     if ( event.key == "Escape" ) {
         console.log( "Escape pressed" );
-        // document.body.style.backgroundColor
-        // document.body.innerText = "Exiting...";
         window.setTimeout( () => {
             window.close();
         }, 250 );
     }
-    // if ( event.ctrlKey && event.key == "r" ) {
-    //   console.log( "'Ctrl r' pressed" );
-    //   document.getElementById( "record" ).click();
-    // } else if ( event.ctrlKey && event.key == "s" ) {
-    //   console.log( "'Ctrl s' pressed" );
-    //   document.getElementById( "stop" ).click();
-    //   console.log( "Key pressed [" + event.key + "]" );
-    // } else if ( event.ctrlKey && event.key == "p" ) {
-    //   console.log( "Ctrl 'p' pressed" );
-    //   document.getElementById( "play" ).click();
-    // } else if ( event.ctrlKey && event.key == "t" ) {
-    //   console.log( "'Ctrl t' pressed" );
-    //   document.getElementById( "save" ).click();
-    // }
 } );
 
 const recordAudio = () =>
@@ -509,65 +482,21 @@ async function doTextToSpeech( text, closeWindow=true, refreshWindow=false ) {
 
     console.log( "doTextToSpeech() called... done!" )
 }
-// pushToCurrentTab = ( msg ) => {
-//
-//     browser.tabs.sendMessage( tabs[0].id, {
-//         command: "insert-text",
-//         transcribedText: msg
-//     } );
-// }
-
-// async function getFromClipboard() {
-//
-//     console.log( "Getting from clipboard..." );
-//
-//     await navigator.clipboard.readText().then( ( clipText) => {
-//         console.log( "clipText [" + clipText + "]" );
-//         return clipText;
-//     }, () => {
-//         console.log( "Nothing read from clipboard!" );
-//         return "";
-//     } );
-// }
-
 
 let pushToClipboardAndClose = ( text ) => {
 
-  // console.log( "Pushing 'transcription' part of this response object to clipboard [" + JSON.stringify( response ) + "]..." );
-  // console.log( "transcription [" + response[ "transcription" ] + "]" );
     console.log( "pushToClipboard( text ) [" + text + "]" );
-  navigator.clipboard.writeText( text ).then(() => {
-    console.log( "Success! updating last paste..." );
-    updateLocalStorageLastPaste( Date.now() );
-  }, () => {
-    console.log( "Failed to write to clipboard!" );
-  }).then( () => {
-    // document.body.innerText = "Processing... Done!";
-    window.setTimeout( () => {
-        window.close();
-    }, 250 );
-  } );
+    navigator.clipboard.writeText( text ).then(() => {
+        console.log( "Success! updating last paste..." );
+        updateLocalStorageLastPaste( Date.now() );
+    }, () => {
+        console.log( "Failed to write to clipboard!" );
+    }).then( () => {
+        window.setTimeout( () => {
+            window.close();
+        }, 250 );
+    } );
 }
-// const typeInTextarea = ( newText, el = document.activeElement) => {
-//     const [start, end] = [el.selectionStart, el.selectionEnd];
-//     el.setRangeText(newText, start, end, "select" );
-// }
-
-
-/**
- * When the popup loads, inject a content script into the active tab,
- * and add a click handler.
- * If we couldn't inject the script, handle the error.
- */
-// console.log( "JS injector script loading... " )
-// browser.tabs.executeScript({ file: "/js/js-injector.js"})
-//   .then( console.log( "JS injector script loading... done!" ) )
-//   .catch( console.log( "Unable to load JS injector script." ) );
-
-// console.log( "Injecting background.js..." )
-// browser.tabs.executeScript( {file: "../js/background.js" } )
-// .then( () => { console.log( "Injecting background.js... done!" ) } )
-// .catch(reportExecuteScriptError);
 
 function reportExecuteScriptError( error) {
     console.error( `Failed to execute content script: ${error.message}` );
@@ -585,4 +514,3 @@ function reportExecuteScriptError( error) {
 //     } );
 // }
 console.log( "recorder.js loaded" );
-// document.body.style.border = "5px solid green";
