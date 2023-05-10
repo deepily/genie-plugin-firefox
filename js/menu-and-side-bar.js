@@ -4,7 +4,7 @@ import {
     MIN_ZOOM,
     DEFAULT_ZOOM,
     TTS_SERVER,
-    GIB_SERVER
+    GIB_SERVER, TRANSCRIPTION_MODE, CMD_SEARCH_DDG, CMD_OPEN_NEW_TAB
 } from "/js/constants.js";
 
 let command             = "";
@@ -113,45 +113,44 @@ document.addEventListener( "click", async (e) => {
     } else if ( e.target.id === "transcription" ) {
 
         // await doTextToSpeech( "Transcription mode" )
-        popupRecorder(mode = "transcription" );
+        popupRecorder(mode=TRANSCRIPTION_MODE );
 
     } else if ( e.target.id === "transcription-python" ) {
 
-        popupRecorder(mode = "transcription", prefix = "multimodal python punctuation" );
+        popupRecorder(mode=TRANSCRIPTION_MODE, prefix = "multimodal python punctuation" );
 
     } else if ( e.target.id === "transcription-email" ) {
 
-        popupRecorder(mode = "transcription", prefix = "multimodal text email" );
+        popupRecorder(mode=TRANSCRIPTION_MODE, prefix = "multimodal text email" );
 
     } else if ( e.target.id === "transcription-debug" ) {
 
         // await doTextToSpeech( "Debug mode" )
-        popupRecorder(mode = "transcription", debug = true);
+        popupRecorder(mode=TRANSCRIPTION_MODE, debug = true);
 
-    } else if ( e.target.id === "command-cut" || e.target.id === "command-copy" || e.target.id === "command-paste" || e.target.id === "command-delete" ) {
+    } else if ( e.target.id === "command-cut" || e.target.id === "command-copy" || e.target.id === "command-paste" || e.target.id === "command-delete" || e.target.id === "command-select-all" ) {
 
         let response = await sendMessageToContentScripts( e.target.id )
 
     } else if ( e.target.id === "command-mode" ) {
 
-        // await doTextToSpeech( "Command mode" )
-        popupRecorder(mode = "command", prefix = "multimodal editor", command = "mode" );
+        popupRecorder(mode=COMMAND_MODE, prefix = "multimodal editor", command = "mode" );
 
     } else if ( e.target.id === "command-open-new-tab" ) {
 
         // await doTextToSpeech( "Command mode" )
         console.log("command-new-tab" );
-        popupRecorder(mode = "command", prefix = "multimodal editor", command = "open new tab" );
+        popupRecorder(mode=COMMAND_MODE, prefix = "multimodal editor", command = CMD_OPEN_NEW_TAB );
 
     } else if ( e.target.id === "command-search-duck-duck-go" ) {
 
         // await doTextToSpeech( "Command mode" )
-        popupRecorder(mode = "command", prefix = "multimodal editor", command = "search duck duck go" );
+        popupRecorder(mode=COMMAND_MODE, prefix = "multimodal editor", command=CMD_SEARCH_DDG );
 
     } else if ( e.target.id === "command-search-google" ) {
 
         // await doTextToSpeech( "Command mode" )
-        popupRecorder(mode = "command", prefix = "multimodal editor", command = "search google" );
+        popupRecorder(mode=COMMAND_MODE, prefix = "multimodal editor", command=CMD_SEARCH_GOOGLE );
 
     } else if ( e.target.id === "command-search-duck-duck-go-clipboard" ) {
 
@@ -292,7 +291,7 @@ async function updateLocalStorageLastUrl( url ) {
 //     } );
 //     return true;
 // }
-export async function popupRecorder(mode = "transcription", prefix = "", command = "", debug = false, tabId = -1) {
+export async function popupRecorder( mode=TRANSCRIPTION_MODE, prefix = "", command = "", debug = false, tabId = -1) {
 
     // console.log( `popupRecorder() Mode [${mode}], prefix [${prefix}], command [${command}], debug [${debug}] tabId [${tabId}]...` )
 
