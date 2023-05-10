@@ -141,7 +141,7 @@ document.addEventListener( "click", async (e) => {
 
     } else if ( e.target.id === "command-open-new-tab" ) {
 
-        console.log("command-new-tab" );
+        console.log( "command-new-tab" );
         popupRecorder(mode=COMMAND_MODE, prefix=MULTIMODAL_EDITOR, command=CMD_OPEN_NEW_TAB );
 
     } else if ( e.target.id === "command-search-duck-duck-go" ) {
@@ -156,14 +156,14 @@ document.addEventListener( "click", async (e) => {
 
         const rawText = await navigator.clipboard.readText()
         let url = "https://www.duckduckgo.com/?q=" + rawText + "&ts=" + Date.now();
-        console.log("Updating lastUrl to [" + url + "]" );
+        console.log( "Updating lastUrl to [" + url + "]" );
         updateLocalStorageLastUrl(url);
 
     } else if ( e.target.id === "command-search-google-clipboard" ) {
 
         const rawText = await navigator.clipboard.readText()
         let url = "https://www.google.com/search?q=" + rawText + "&ts=" + Date.now();
-        console.log("Updating lastUrl to [" + url + "]" );
+        console.log( "Updating lastUrl to [" + url + "]" );
         updateLocalStorageLastUrl(url);
 
     } else if ( e.target.id === "command-proofread" ) {
@@ -172,7 +172,7 @@ document.addEventListener( "click", async (e) => {
 
     } else if ( e.target.id === "command-whats-this" ) {
 
-        doTextToSpeech("TODO: Implement what's this?" )
+        doTextToSpeech( "TODO: Implement what's this?" )
         // fetchWhatsThisMean();
         //
         // browser.tabs.query( {currentWindow: true, active: true} ).then(async (tabs) => {
@@ -216,20 +216,20 @@ document.addEventListener( "click", async (e) => {
     // verbatim copy and paste from web extension example "tabs tabs tabs": https://github.com/mdn/webextensions-examples/tree/main/tabs-tabs-tabs
     } else if ( e.target.id === "tabs-add-zoom" ) {
         callOnActiveTab(( tab ) => {
-            // console.log("tabs-add-zoom, tab: " + JSON.stringify( tab ) );
+            // console.log( "tabs-add-zoom, tab: " + JSON.stringify( tab ) );
             console.log( "tabs-add-zoom, tab.id: " + tab.id );
             let gettingZoom = browser.tabs.getZoom( tab.id);
             gettingZoom.then((zoomFactor) => {
-                //the maximum zoomFactor is 5, it can't go higher
-                if (zoomFactor >= MAX_ZOOM) {
-                    // alert("Tab zoom factor is already at max!" );
-                } else {
-                    let newZoomFactor = zoomFactor + ZOOM_INCREMENT;
-                    //if the newZoomFactor is set to higher than the max accepted
-                    //it won't change, and will never alert that it's at maximum
-                    newZoomFactor = newZoomFactor > MAX_ZOOM ? MAX_ZOOM : newZoomFactor;
-                    browser.tabs.setZoom(tab.id, newZoomFactor);
-                }
+                // //the maximum zoomFactor is 5, it can't go higher
+                // if (zoomFactor >= MAX_ZOOM) {
+                //     // alert( "Tab zoom factor is already at max!" );
+                // } else {
+                let newZoomFactor = zoomFactor + ZOOM_INCREMENT;
+                //if the newZoomFactor is set to higher than the max accepted
+                //it won't change, and will never alert that it's at maximum
+                newZoomFactor = newZoomFactor > MAX_ZOOM ? MAX_ZOOM : newZoomFactor;
+                browser.tabs.setZoom(tab.id, newZoomFactor);
+                // }
             });
         });
     } else if ( e.target.id === "tabs-decrease-zoom" ) {
@@ -237,24 +237,22 @@ document.addEventListener( "click", async (e) => {
             let gettingZoom = browser.tabs.getZoom(tab.id);
             gettingZoom.then((zoomFactor) => {
                 //the minimum zoomFactor is 0.3, it can't go lower
-                if (zoomFactor <= MIN_ZOOM) {
-                    // alert("Tab zoom factor is already at minimum!" );
-                } else {
-                    let newZoomFactor = zoomFactor - ZOOM_INCREMENT;
-                    //if the newZoomFactor is set to lower than the min accepted
-                    //it won't change, and will never alert that it's at minimum
-                    newZoomFactor = newZoomFactor < MIN_ZOOM ? MIN_ZOOM : newZoomFactor;
-                    browser.tabs.setZoom(tab.id, newZoomFactor);
-                }
+                // if (zoomFactor <= MIN_ZOOM) {
+                //     // alert( "Tab zoom factor is already at minimum!" );
+                // } else {
+                let newZoomFactor = zoomFactor - ZOOM_INCREMENT;
+                //if the newZoomFactor is set to lower than the min accepted
+                //it won't change, and will never alert that it's at minimum
+                newZoomFactor = newZoomFactor < MIN_ZOOM ? MIN_ZOOM : newZoomFactor;
+                browser.tabs.setZoom(tab.id, newZoomFactor);
+                // }
             });
         });
     } else if ( e.target.id === "tabs-default-zoom" ) {
         callOnActiveTab(( tab ) => {
             let gettingZoom = browser.tabs.getZoom(tab.id);
             gettingZoom.then((zoomFactor) => {
-                if (zoomFactor == DEFAULT_ZOOM) {
-                    // alert("Tab zoom is already at the default zoom factor" );
-                } else {
+                if (zoomFactor != DEFAULT_ZOOM) {
                     browser.tabs.setZoom(tab.id, DEFAULT_ZOOM);
                 }
             });
@@ -271,7 +269,7 @@ document.addEventListener( "click", async (e) => {
         updateLocalStorageLastUrl( url )
 
     } else {
-        console.log("Unknown button clicked: " + e.target.id);
+        console.log( "Unknown button clicked: " + e.target.id);
     }
     e.preventDefault()
 } );
@@ -298,12 +296,12 @@ export async function popupRecorder( mode=TRANSCRIPTION_MODE, prefix = "", comma
     let lastTabId = await browser.tabs.query({currentWindow: true, active: true}).then(async (tabs) => {
         return tabs[0].id;
     });
-    console.log("lastTabId: " + lastTabId);
+    console.log( "lastTabId: " + lastTabId);
 
     const result = await updateLocalStorage(mode, prefix, command, debug, lastTabId);
-    console.log("result: " + result);
+    console.log( "result: " + result);
 
-    console.log("popupRecorder() titleMode [" + titleMode + "]" );
+    console.log( "popupRecorder() titleMode [" + titleMode + "]" );
 
     let createData = {
         url: "../html/recorder.html",
@@ -318,8 +316,8 @@ export async function popupRecorder( mode=TRANSCRIPTION_MODE, prefix = "", comma
     let popupRecorderWindow = (await creating)
     // popupRecorderWindow.callerFunction = messageToParentWindow
     popupRecorderWindowId = popupRecorderWindow.id;
-    console.log("popupRecorderWindow  : " + JSON.stringify(popupRecorderWindow));
-    console.log("popupRecorderWindowId: " + popupRecorderWindowId);
+    console.log( "popupRecorderWindow  : " + JSON.stringify(popupRecorderWindow));
+    console.log( "popupRecorderWindowId: " + popupRecorderWindowId);
 }
 // function messageToParentWindow( foo ) {
 //     alert( "messageToParentWindow()... " + foo );
