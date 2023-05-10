@@ -195,9 +195,6 @@ modeImage.addEventListener( "click", async () => {
 } );
 recordButton.addEventListener( "click", async () => {
 
-    // // document.body.style.backgroundColor = "pink";
-    // document.body.style.border = "2px dotted red";
-    // ``
     recordButton.setAttribute( "disabled", true);
     stopButton.removeAttribute( "disabled" );
     stopButton.focus();
@@ -210,9 +207,6 @@ recordButton.addEventListener( "click", async () => {
 } );
 
 stopButton.addEventListener( "click", async () => {
-
-    // document.body.style.backgroundColor
-    // document.body.style.border = "2px solid white";
 
     document.body.className = "recording-disabled";
     recordButton.removeAttribute( "disabled" );
@@ -240,7 +234,6 @@ saveButton.addEventListener( "click", async () => {
         const audioMessage = result.split( "," )[1];
         const mimeType = result.split( "," )[0];
 
-        // document.body.innerText = "Processing audio...";
         document.getElementById( "recorder-body" ).className = "thinking";
 
         const response = await fetch( url, {
@@ -252,8 +245,6 @@ saveButton.addEventListener( "click", async () => {
         if ( !response.ok ) {
             throw new Error( `HTTP error: ${response.status}` );
         }
-        // document.body.innerText = "Processing audio... Done!";
-
         const transcriptionJson = await response.json();
         console.log( "transcriptionJson [" + JSON.stringify( transcriptionJson ) + "]..." );
         let transcription = transcriptionJson[ "transcription" ]
@@ -274,7 +265,6 @@ saveButton.addEventListener( "click", async () => {
             updateLocalStorageLastPaste( Date.now() );
 
             if ( debug ) { console.log( "Success!" ); }
-            // document.body.innerText = "Processing audio... Done!";
             window.setTimeout( () => {
                 window.close();
             }, 250 );
@@ -427,7 +417,6 @@ async function proofreadFromClipboard() {
         console.log( "Pushing proofreadText [" + proofreadText + "] to clipboard..." );
         const pasteCmd = await navigator.clipboard.writeText( proofreadText );
 
-        // document.body.innerText = "Proofreading... Done!";
         doTextToSpeech( "Done!", closeWindow=true, refreshWindow=false );
 
     } catch ( e ) {
@@ -449,7 +438,7 @@ async function readBlobAsDataURL( file ) {
         fileReader.onload = (e) => resolve(fileReader.result);
         fileReader.readAsDataURL( file );
     } );
-    console.log(result_base64.split( "," )[ 0 ]); // aGV5IHRoZXJl...
+    console.log(result_base64.split( "," )[ 0 ]);
 
     return result_base64;
 }
@@ -463,15 +452,10 @@ async function doTextToSpeech( text, closeWindow=true, refreshWindow=false ) {
     console.log( "encoded: " + encodedUrl );
 
     let audioResult = await new Promise((resolve) => {
-        // document.body.innerText = "Playing audio...";
         let audio = new Audio(encodedUrl);
         audio.onload = (e) => resolve( audio.result );
         audio.play();
         audio.addEventListener( "ended", () => {
-            // document.body.innerText = "Playing audio... Done!";
-            // if ( closeWindow ) {
-            //     closeWindow();
-            // } else if
             if ( refreshWindow ) {
                 window.location.reload();
             }
@@ -483,20 +467,20 @@ async function doTextToSpeech( text, closeWindow=true, refreshWindow=false ) {
     console.log( "doTextToSpeech() called... done!" )
 }
 
-let pushToClipboardAndClose = ( text ) => {
-
-    console.log( "pushToClipboard( text ) [" + text + "]" );
-    navigator.clipboard.writeText( text ).then(() => {
-        console.log( "Success! updating last paste..." );
-        updateLocalStorageLastPaste( Date.now() );
-    }, () => {
-        console.log( "Failed to write to clipboard!" );
-    }).then( () => {
-        window.setTimeout( () => {
-            window.close();
-        }, 250 );
-    } );
-}
+// let pushToClipboardAndClose = ( text ) => {
+//
+//     console.log( "pushToClipboard( text ) [" + text + "]" );
+//     navigator.clipboard.writeText( text ).then(() => {
+//         console.log( "Success! updating last paste..." );
+//         updateLocalStorageLastPaste( Date.now() );
+//     }, () => {
+//         console.log( "Failed to write to clipboard!" );
+//     }).then( () => {
+//         window.setTimeout( () => {
+//             window.close();
+//         }, 250 );
+//     } );
+// }
 
 function reportExecuteScriptError( error) {
     console.error( `Failed to execute content script: ${error.message}` );
