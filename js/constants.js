@@ -9,6 +9,13 @@ export const DEFAULT_ZOOM = 1;
 export const CMD_SEARCH_DDG     = "search duck duck go";
 export const CMD_SEARCH_GOOGLE  = "search google";
 export const CMD_OPEN_NEW_TAB   = "open new tab";
+
+export const CMD_CUT            = "cut";
+export const CMD_COPY           = "copy";
+export const CMD_PASTE          = "paste";
+export const CMD_DELETE         = "delete";
+export const CMD_SELECT_ALL     = "select all";
+
 export const MULTIMODAL_EDITOR  = "multimodal editor";
 export const COMMAND_MODE       = "command"
 export const TRANSCRIPTION_MODE = "transcription"
