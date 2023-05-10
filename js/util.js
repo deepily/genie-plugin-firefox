@@ -7,6 +7,18 @@ export async function sendMessageToBackgroundScripts( command ) {
         command: command
     } );
 }
+export async function sendMessageToContentScripts( command ) {
+
+    // sends to content scripts
+    await browser.tabs.query( {currentWindow: true, active: true} ).then(async (tabs) => {
+        let tab = tabs[0];
+        await browser.tabs.sendMessage( tab.id, {
+            command: command
+        } );
+        return true;
+    } );
+}
+
 export function updateLocalStorageLastPaste( ts ) {
 
     console.log( "updateLocalStorageLastPaste()..." + ts  );
