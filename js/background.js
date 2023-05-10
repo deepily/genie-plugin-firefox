@@ -6,7 +6,8 @@ import {
     TTS_SERVER,
     GIB_SERVER,
     TRANSCRIPTION_MODE,
-    COMMAND_MODE
+    COMMAND_MODE,
+    EDIT_COMMANDS
 } from "/js/constants.js";
 import {
     popupRecorder
@@ -14,6 +15,7 @@ import {
 import {
     readLocalStorage,
     updateLocalStorageLastPaste
+    // sendMessageToContentScripts
 } from "/js/util.js";
 
 let lastPaste = "";
@@ -553,10 +555,27 @@ browser.runtime.onMessage.addListener(async ( message) => {
         console.log( "background.js: command-mode received" );
         popupRecorder(mode=COMMAND_MODE, prefix="multimodal editor", command="mode" );
 
+    } else if ( EDIT_COMMANDS.includes( message.command ) ) {
+
+        console.log( "background.js: EDIT_COMMANDS received: " + message.command );
+        // replacementAll turns spoken transcription into the IDs that correspond to the editing buttons
+        sendMessageToContentScripts( "command-" + message.command.replaceAll( " ", "-" ) );
+
     } else{
         console.log( "background.js: command NOT recognized: " + message.command );
     }
 } );
 console.log( "background.js: adding listener for messages... Done!" );
 
+export async function sendMessageToContentScripts( command ) {
+
+    // sends to content scripts
+    await browser.tabs.query( {currentWindow: true, active: true} ).then(async (tabs) => {
+        let tab = tabs[0];
+        await browser.tabs.sendMessage( tab.id, {
+            command: command
+        } );
+        return true;
+    } );
+}
 console.log( "NOT NEW! background.js loading... Done!" );
