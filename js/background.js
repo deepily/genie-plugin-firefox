@@ -277,7 +277,7 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
 //     if (info.menuItemId === "insert-modal" ) {
 //
 //         console.log( "insert-modal clicked [" + info.selectionText + "]" );
-//         console.log( "info: " + JSON.stringify(info));
+//         console.log( "info: " + JSON.stringify(info) );
 //
 //         insertModal(info);
 //
@@ -285,7 +285,7 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
     if (info.menuItemId === "whats-this-mean" ) {
 
         console.log( "whats-this-mean clicked [" + info.selectionText + "]" );
-        console.log( "info: " + JSON.stringify(info));
+        console.log( "info: " + JSON.stringify(info) );
 
         console.log( "calling fetchWhatsThisMean()..." )
         new Promise(function (resolve, reject) {
@@ -391,7 +391,7 @@ function createNewTab( url ) {
 browser.storage.onChanged.addListener( async (changes, areaName) => {
 
     console.log( "background.js: storage.onChanged() called..." )
-    console.log( "changes: " + JSON.stringify(changes));
+    console.log( "changes: " + JSON.stringify(changes) );
     console.log( "areaName: " + areaName);
     console.log( "lastUrl: " + lastUrl);
     console.log( "lastZoom: " + lastZoom);
@@ -411,7 +411,7 @@ browser.storage.onChanged.addListener( async (changes, areaName) => {
 
     if (changes.lastTabId === undefined) {
         console.log( "lastTabId NOT defined: " + lastTabId)
-    } else if (areaName === "local" && lastTabId !== parseInt(changes.lastTabId.newValue)) {
+    } else if (areaName === "local" && lastTabId !== parseInt(changes.lastTabId.newValue) ) {
         lastTabId = parseInt(changes.lastTabId.newValue);
     } else {
         console.log( "lastTabId NOT changed: " + lastUrl)
@@ -524,21 +524,21 @@ function zoomInOut( tabId, zoom ) {
 }
 
 console.log( "background.js: adding listener for messages..." );
-browser.runtime.onMessage.addListener(async (message) => {
+browser.runtime.onMessage.addListener(async ( message) => {
 
-    console.log( "background.js: Message.command received: " + JSON.stringify(message));
+    console.log( "background.js: Message.command received: " + JSON.stringify( message ) );
 
-    if (message.command === "command-proofread" ) {
+    if ( message.command === "command-proofread" ) {
 
         console.log( "background.js: command-proofread received" );
         const rawText = await navigator.clipboard.readText()
         proofread( rawText );
 
-    } else if (message.command === "command-copy" ) {
+    } else if ( message.command === "command-copy" ) {
 
         doTextToSpeech( "Copied to clipboard" );
 
-    } else if (message.command === "command-open-new-tab" ) {
+    } else if ( message.command === "command-open-new-tab" ) {
 
         console.log( "background.js: command-open-new-tab received" );
         browser.tabs.create({url: message.url});
