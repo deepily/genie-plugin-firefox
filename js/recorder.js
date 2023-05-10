@@ -324,12 +324,13 @@ async function handleCommand( prefix, transcription ) {
         currentMode   = COMMAND_MODE;
         document.getElementById( "stop" ).className = "disabled";
 
-        const modeImg = document.getElementById( "mode-img" )
-        modeImg.title = "Mode: Command";
-        modeImg.src = "../icons/mode-command-24.png";
+        const modeImg     = document.getElementById( "mode-img" )
+        modeImg.title     = "Mode: Command";
+        modeImg.src       = "../icons/mode-command-24.png";
+        // modeImg.className = "image-strober";
 
         updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
-        await doTextToSpeech( "Command mode", closeWindow=false, refreshWindow=true );
+        doTextToSpeech( "Command", closeWindow=false, refreshWindow=true );
 
     } else if ( transcription.startsWith( "proof" ) ) {
 
