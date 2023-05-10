@@ -12,6 +12,11 @@ import {
     MULTIMODAL_EDITOR
 } from "/js/constants.js";
 
+import {
+    sendMessageToBackgroundScripts,
+    sendMessageToContentScripts
+} from "/js/util.js";
+
 let command             = "";
 var mode                = "";
 var currentMode         = "";
@@ -70,27 +75,28 @@ document.addEventListener( "keypress", (event) => {
 function reportExecuteScriptError( error) {
     console.error(`Failed to execute content script: ${error.message}`);
 }
-// capture key events
+//
+// replaced, I mean moved into the util module
+// async function sendMessageToContentScripts( command ) {
+//
+//     // sends to content scripts
+//     await browser.tabs.query( {currentWindow: true, active: true} ).then(async (tabs) => {
+//         let tab = tabs[0];
+//         await browser.tabs.sendMessage( tab.id, {
+//             command: command
+//         } );
+//         return true;
+//     } );
+// }
 
-async function sendMessageToContentScripts( command ) {
-
-    // sends to content scripts
-    await browser.tabs.query( {currentWindow: true, active: true} ).then(async (tabs) => {
-        let tab = tabs[0];
-        await browser.tabs.sendMessage( tab.id, {
-            command: command
-        } );
-        return true;
-    } );
-}
-
-async function sendMessageToBackgroundScripts( command ) {
-
-    // sends to background scripts
-    let sending = browser.runtime.sendMessage( {
-        command: command
-    } );
-}
+// replaced by calls to the same function within the utility module.
+// async function sendMessageToBackgroundScripts( command ) {
+//
+//     // sends to background scripts
+//     let sending = browser.runtime.sendMessage( {
+//         command: command
+//     } );
+// }
 function getCurrentWindowTabs() {
   return browser.tabs.query({currentWindow: true});
 }
@@ -99,9 +105,6 @@ function foo( bar ) {
     console.log( "foo: " + bar );
 }
 document.addEventListener( "click", async (e) => {
-
-    console.log( "click detected: " + e.target.id);
-    // e.preventDefault()
 
     function callOnActiveTab(callback) {
         getCurrentWindowTabs().then((tabs) => {
@@ -334,7 +337,7 @@ async function updateLocalStorage( mode, prefix, command, debug, lastTabId ) {
         // TODO: Command should be renamed transcription!
         "command": command,
           "debug": debug,
-        "lastTabId": lastTabId
+      "lastTabId": lastTabId
     } );
     return true;
 }
