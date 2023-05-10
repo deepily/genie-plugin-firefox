@@ -1,4 +1,12 @@
 console.log( "util.js: Loading..." );
+
+export async function sendMessageToBackgroundScripts( command ) {
+
+    // sends to background scripts
+    let sending = browser.runtime.sendMessage( {
+        command: command
+    } );
+}
 export function updateLocalStorageLastPaste( ts ) {
 
     console.log( "updateLocalStorageLastPaste()..." + ts  );
