@@ -1,6 +1,4 @@
-// import {
-//     popupRecorder
-// } from "./menu-and-side-bar.js";
+// import { TRANSCRIPTION_MODE, COMMAND_MODE } from "./constants";
 
 let lastKey   = "";
 let lastCode  = "";
@@ -33,18 +31,25 @@ let lastPaste = "";
 
     document.body.addEventListener( "keydown", (event) => {
 
-        // console.log( "keydown.key is [" + event.key + "] and the code is [" + event.code + "]" );
+        console.log( "keydown.key is [" + event.key + "] and the code is [" + event.code + "]" );
         // console.log( "lastKey is [" + lastKey + "] and the lastCode is [" + lastCode + "]" );
 
         if ( event.key === "Meta" && event.code === "OSRight" && lastKey === "Meta" && lastCode === "OSRight" ) {
-            console.log( "Background: Double OSRight keydown detected" );
+            console.log("Background: Double OSRight keydown detected");
+            lastKey = "";
+            lastCode = "";
+            browser.runtime.sendMessage({
+                "command": "command-transcription"
+            });
+        } else if ( event.key === "Alt" && event.code === "AltRight" && lastKey === "Alt" && lastCode === "AltRight" ) {
+            console.log( "Background: Double AltRight keydown detected" );
             lastKey = "";
             lastCode = "";
             browser.runtime.sendMessage( {
-                "command": "command-transcription"
+                "command": "command-mode"
             } );
         } else {
-            // console.log( "Not a double MetaRight keydown" );
+            // console.log( "Not a double MetaRight nor AltRight keydown" );
             lastKey = event.key;
             lastCode = event.code;
         }
@@ -55,7 +60,11 @@ let lastPaste = "";
 
         console.log( "content.js: Message.command received: " + request.command);
 
-        if ( request.command === "command-copy" ) {
+        if ( request.command === "command-select-all" ) {
+
+            document.execCommand( "selectAll" );
+
+        } else if ( request.command === "command-copy" ) {
 
             selectedText = document.getSelection().toString()
 
@@ -87,19 +96,6 @@ let lastPaste = "";
             const clipboardText = await navigator.clipboard.readText()
             console.log( "content.js: clipboardText: " + clipboardText );
             paste( clipboardText );
-
-        // } else if ( request.command === "command-proofread" ) {
-        //
-        //     console.log( JSON.stringify( request ) );
-        //     selectedText = document.getSelection().toString()
-        //     await copyToClipboard( selectedText );
-        //     sendResponse( "Hi from content script! Text copied to clipboard" );
-        //     // let response = Promise.resolve({ response: "Hi from content script! Text copied to clipboard" } );
-        //     // return response;
-        //     // browser.runtime.sendMessage( {
-        //     //     "selectedText": selectedText,
-        //     //     "command": message.command
-        //     // } );
 
         } else if ( request.command === "command-open-new-tab" ) {
 
