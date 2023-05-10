@@ -2,6 +2,12 @@ import {
     CMD_SEARCH_DDG,
     CMD_SEARCH_GOOGLE,
     CMD_OPEN_NEW_TAB,
+    CMD_CUT,
+    CMD_COPY,
+    CMD_PASTE,
+    CMD_DELETE,
+    CMD_SELECT_ALL,
+    EDIT_COMMANDS,
     MULTIMODAL_EDITOR,
     COMMAND_MODE,
     TRANSCRIPTION_MODE,
@@ -10,7 +16,8 @@ import {
 } from "/js/constants.js";
 import {
     updateLocalStorageLastPaste,
-    readLocalStorage
+    readLocalStorage,
+    sendMessageToBackgroundScripts
 } from "/js/util.js";
 
 console.log( "recorder.js loading..." );
@@ -312,15 +319,21 @@ async function handleCommand( prefix, transcription ) {
     } else if ( transcription == CMD_OPEN_NEW_TAB || transcription == CMD_SEARCH_GOOGLE || transcription == CMD_SEARCH_DDG ) {
 
         // Push transcription into the prefix so that we can capture where we want to go/do in the next conditional blocks below.
-        prefix        = prefix + " " + transcription;
+        prefix = prefix + " " + transcription;
         transcription = "";
 
         // await doTextToSpeech( "Url or search terms", closeWindow=false, refreshWindow=false );
 
-        console.log( transcription )
-        console.log( "We know what you want (a new tab/search), but we don't know where you want to go or what you want to search." )
-        updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
+        console.log(transcription)
+        console.log("We know what you want (a new tab/search), but we don't know where you want to go or what you want to search.")
+        updateLastKnownRecorderState(currentMode, prefix, transcription, debug);
         window.location.reload();
+
+    } else if ( EDIT_COMMANDS.includes( transcription ) ) {
+
+        console.log( "Editing command found: " + transcription );
+        sendMessageToBackgroundScripts( transcription );
+        closeWindow();
 
     } else if ( transcription.startsWith( CMD_OPEN_NEW_TAB ) || prefix === MULTIMODAL_EDITOR + " " + CMD_OPEN_NEW_TAB ) {
 
