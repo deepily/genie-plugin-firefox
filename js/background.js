@@ -4,7 +4,9 @@ import {
     MIN_ZOOM,
     DEFAULT_ZOOM,
     TTS_SERVER,
-    GIB_SERVER
+    GIB_SERVER,
+    TRANSCRIPTION_MODE,
+    COMMAND_MODE
 } from "/js/constants.js";
 import {
     popupRecorder
@@ -19,6 +21,8 @@ let lastUrl   = "";
 let lastZoom  = "";
 let lastTabId = -1;
 var mode      = "";
+var prefix    = "";
+var command   = "";
 
 console.log( "NOT NEW! background.js loading..." );
 
@@ -542,7 +546,12 @@ browser.runtime.onMessage.addListener(async (message) => {
     } else if ( message.command === "command-transcription" ) {
 
         console.log( "background.js: command-open-new-tab received" );
-        popupRecorder( mode="transcription" );
+        popupRecorder( mode=TRANSCRIPTION_MODE );
+
+    } else if ( message.command === "command-mode" ) {
+
+        console.log( "background.js: command-mode received" );
+        popupRecorder(mode=COMMAND_MODE, prefix="multimodal editor", command="mode" );
 
     } else{
         console.log( "background.js: command NOT recognized: " + message.command );
