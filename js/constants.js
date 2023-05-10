@@ -16,6 +16,8 @@ export const CMD_PASTE          = "paste";
 export const CMD_DELETE         = "delete";
 export const CMD_SELECT_ALL     = "select all";
 
+export const EDIT_COMMANDS      = [ CMD_CUT, CMD_COPY, CMD_PASTE, CMD_DELETE, CMD_SELECT_ALL ];
+
 export const MULTIMODAL_EDITOR  = "multimodal editor";
 export const COMMAND_MODE       = "command"
 export const TRANSCRIPTION_MODE = "transcription"
