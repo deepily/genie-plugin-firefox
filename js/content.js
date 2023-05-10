@@ -100,7 +100,6 @@ let lastPaste = "";
         } else if ( request.command === "command-open-new-tab" ) {
 
             console.log( "content.js: Opening new tab..." );
-            // browser.tabs.create( {url: message.url } );
             let backgroundPage = await window.runtime.getBackgroundPage();
             backgroundPage.createNewTab();
 
