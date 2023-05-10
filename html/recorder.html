@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <title>Recorder</title>
   <style >
-    .elementToFadeInAndOut {
+    .image-strober {
       /*width:200px;*/
       /*height: 200px;*/
-      /*border: red 2px dotted;*/
-      -webkit-animation: fadeinout 4s linear forwards;
-      animation: fadeinout 4s linear forwards;
+      /*border: red px dotted;*/
+      -webkit-animation: fadeinout 2s linear forwards infinite;
+      animation: fadeinout 2s linear forwards infinite;
       opacity: 0;
     }
 
@@ -86,12 +86,12 @@
       left: 226px;
       /*border: 1px solid darkslategray;*/
       /*border-radius: 40px;*/
-      opacity: 50%;
+      /*opacity: 50%;*/
     }
   </style>
 </head>
 <body id="recorder-body" class="recording">
-  <img id="mode-img" src="../icons/mode-transcription-24.png" title="Mode: Transcription">
+  <img id="mode-img" class="image-strober" src="../icons/mode-transcription-24.png" title="Mode: Transcription">
   <div id="button-bar">
     <button id="record"></button>
     <button id="stop" disabled></button>
