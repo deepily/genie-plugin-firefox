@@ -4,7 +4,12 @@ import {
     MIN_ZOOM,
     DEFAULT_ZOOM,
     TTS_SERVER,
-    GIB_SERVER, TRANSCRIPTION_MODE, CMD_SEARCH_DDG, CMD_OPEN_NEW_TAB
+    GIB_SERVER,
+    TRANSCRIPTION_MODE,
+    COMMAND_MODE,
+    CMD_SEARCH_DDG,
+    CMD_OPEN_NEW_TAB,
+    MULTIMODAL_EDITOR
 } from "/js/constants.js";
 
 let command             = "";
@@ -112,7 +117,6 @@ document.addEventListener( "click", async (e) => {
 
     } else if ( e.target.id === "transcription" ) {
 
-        // await doTextToSpeech( "Transcription mode" )
         popupRecorder(mode=TRANSCRIPTION_MODE );
 
     } else if ( e.target.id === "transcription-python" ) {
@@ -125,7 +129,6 @@ document.addEventListener( "click", async (e) => {
 
     } else if ( e.target.id === "transcription-debug" ) {
 
-        // await doTextToSpeech( "Debug mode" )
         popupRecorder(mode=TRANSCRIPTION_MODE, debug = true);
 
     } else if ( e.target.id === "command-cut" || e.target.id === "command-copy" || e.target.id === "command-paste" || e.target.id === "command-delete" || e.target.id === "command-select-all" ) {
@@ -134,23 +137,20 @@ document.addEventListener( "click", async (e) => {
 
     } else if ( e.target.id === "command-mode" ) {
 
-        popupRecorder(mode=COMMAND_MODE, prefix = "multimodal editor", command = "mode" );
+        popupRecorder(mode=COMMAND_MODE, prefix=MULTIMODAL_EDITOR, command = "mode" );
 
     } else if ( e.target.id === "command-open-new-tab" ) {
 
-        // await doTextToSpeech( "Command mode" )
         console.log("command-new-tab" );
-        popupRecorder(mode=COMMAND_MODE, prefix = "multimodal editor", command = CMD_OPEN_NEW_TAB );
+        popupRecorder(mode=COMMAND_MODE, prefix=MULTIMODAL_EDITOR, command=CMD_OPEN_NEW_TAB );
 
     } else if ( e.target.id === "command-search-duck-duck-go" ) {
 
-        // await doTextToSpeech( "Command mode" )
-        popupRecorder(mode=COMMAND_MODE, prefix = "multimodal editor", command=CMD_SEARCH_DDG );
+        popupRecorder(mode=COMMAND_MODE, prefix=MULTIMODAL_EDITOR, command=CMD_SEARCH_DDG );
 
     } else if ( e.target.id === "command-search-google" ) {
 
-        // await doTextToSpeech( "Command mode" )
-        popupRecorder(mode=COMMAND_MODE, prefix = "multimodal editor", command=CMD_SEARCH_GOOGLE );
+        popupRecorder(mode=COMMAND_MODE, prefix=MULTIMODAL_EDITOR, command=CMD_SEARCH_GOOGLE );
 
     } else if ( e.target.id === "command-search-duck-duck-go-clipboard" ) {
 
@@ -213,7 +213,7 @@ document.addEventListener( "click", async (e) => {
             }
         });
 
-    // verbatim copy and paste from web extension example tabs tabs tabs
+    // verbatim copy and paste from web extension example "tabs tabs tabs": https://github.com/mdn/webextensions-examples/tree/main/tabs-tabs-tabs
     } else if ( e.target.id === "tabs-add-zoom" ) {
         callOnActiveTab(( tab ) => {
             // console.log("tabs-add-zoom, tab: " + JSON.stringify( tab ) );
