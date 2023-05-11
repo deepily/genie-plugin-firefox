@@ -19,6 +19,20 @@ export async function sendMessageToContentScripts( command ) {
     } );
 }
 
+function getCurrentWindowTabs() {
+  return browser.tabs.query({currentWindow: true});
+}
+export function callOnActiveTab(callback) {
+
+    console.log( "callOnActiveTab()..." );
+    getCurrentWindowTabs().then((tabs) => {
+        for (let tab of tabs) {
+            if (tab.active) {
+                callback(tab, tabs);
+            }
+        }
+    });
+}
 export function updateLocalStorageLastPaste( ts ) {
 
     console.log( "updateLocalStorageLastPaste()..." + ts  );

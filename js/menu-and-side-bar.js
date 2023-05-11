@@ -14,7 +14,8 @@ import {
 
 import {
     sendMessageToBackgroundScripts,
-    sendMessageToContentScripts
+    sendMessageToContentScripts,
+    callOnActiveTab
 } from "/js/util.js";
 
 let command             = "";
@@ -97,24 +98,12 @@ function reportExecuteScriptError( error) {
 //         command: command
 //     } );
 // }
-function getCurrentWindowTabs() {
-  return browser.tabs.query({currentWindow: true});
-}
 
 function foo( bar ) {
     console.log( "foo: " + bar );
 }
 document.addEventListener( "click", async (e) => {
 
-    function callOnActiveTab(callback) {
-        getCurrentWindowTabs().then((tabs) => {
-            for (let tab of tabs) {
-                if (tab.active) {
-                    callback(tab, tabs);
-                }
-            }
-        });
-    }
     if ( e.target.id === "editor" ) {
 
 
@@ -262,6 +251,7 @@ document.addEventListener( "click", async (e) => {
         });
         
     } else if ( e.target.id === "tabs-close-current-tab" ) {
+
         callOnActiveTab(( tab ) => {
             browser.tabs.remove( tab.id );
         });
