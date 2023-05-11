@@ -18,7 +18,13 @@ import {
     VOX_CMD_TAB_REFRESH,
     VOX_CMD_TAB_BACK,
     VOX_CMD_TAB_FORWARD,
-    VOX_TAB_COMMANDS, EDITOR_URL, VOX_CMD_OPEN_EDITOR
+    VOX_TAB_COMMANDS,
+    EDITOR_URL,
+    VOX_CMD_OPEN_EDITOR,
+    VOX_CMD_SEARCH_DDG_CLIPBOARD,
+    VOX_CMD_SEARCH_GOOGLE_CLIPBOARD,
+    DDG_SEARCH_URL,
+    GOOGLE_SEARCH_URL
 } from "/js/constants.js";
 import {
     sendMessageToBackgroundScripts,
@@ -136,7 +142,9 @@ window.addEventListener( "keydown", function (event) {
     console.log( "event.key [" + event.key + "]" );
     if ( event.key == "Escape" ) {
         console.log( "Escape pressed" );
-        closeWindow();
+        window.setTimeout( () => {
+            window.close();
+        }, 250 );
     }
 } );
 
@@ -301,7 +309,8 @@ async function handleCommand( prefix, transcription ) {
 
         updateLastKnownRecorderState(currentMode, prefix, transcription, debug);
         await proofreadFromClipboard();
-        closeWindow();
+        // closeWindow(); // Why does this not work?
+        window.close();
 
     } else if ( VOX_TAB_COMMANDS.includes( transcription ) ) {
 
@@ -343,6 +352,18 @@ async function handleCommand( prefix, transcription ) {
         updateLastKnownRecorderState(currentMode, prefix, transcription, debug);
         window.location.reload();
 
+    } else if ( transcription === VOX_CMD_SEARCH_DDG_CLIPBOARD ) {
+
+        const clipboardText = await navigator.clipboard.readText()
+        updateLocalStorageLastUrl( DDG_SEARCH_URL, "&q=" + clipboardText )
+        closeWindow();
+
+    } else if ( transcription === VOX_CMD_SEARCH_GOOGLE_CLIPBOARD ) {
+
+        const clipboardText = await navigator.clipboard.readText()
+        updateLocalStorageLastUrl( GOOGLE_SEARCH_URL, "&q=" + clipboardText )
+        closeWindow();
+
     } else if ( VOX_EDIT_COMMANDS.includes( transcription ) ) {
 
         console.log( "Editing command found: " + transcription );
@@ -371,10 +392,7 @@ async function handleCommand( prefix, transcription ) {
         } else {
             searchTerms = transcription.replace( CMD_SEARCH_GOOGLE, "" ).trim()
         }
-        const url = "https://www.google.com/search"
-
-        console.log( "Updating lastUrl to [" + url + "]" );
-        updateLocalStorageLastUrl( url, "&q=" + searchTerms )
+        updateLocalStorageLastUrl( GOOGLE_SEARCH_URL, "&q=" + searchTerms )
         closeWindow();
 
     } else if ( transcription.startsWith( CMD_SEARCH_DDG ) || prefix === MULTIMODAL_EDITOR + " " + CMD_SEARCH_DDG ) {
