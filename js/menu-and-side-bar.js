@@ -175,19 +175,19 @@ document.addEventListener( "click", async (e) => {
         //     } );
         // } );
         // Go forward.
-    } else if ( e.target.id === "tabs-back" ) {
+    } else if ( e.target.id === "tab-back" ) {
 
         // Kluge to force a reload of the content script just in case we've already toggled forward or backwards and the script has not been reloaded.
         let response = await sendMessageToContentScripts( e.target.id )
         await loadContentScript();
 
-    } else if ( e.target.id === "tabs-forward" ) {
+    } else if ( e.target.id === "tab-forward" ) {
 
         // Kluge to force a reload of the content script just in case we've already toggled forward or backwards and the script has not been reloaded.
         let response = await sendMessageToContentScripts( e.target.id )
         await loadContentScript();
 
-    } else if ( e.target.id === "tabs-reload" ) {
+    } else if ( e.target.id === "tab-reload" ) {
 
         // window.location.reload();
         let response = await sendMessageToContentScripts( e.target.id )

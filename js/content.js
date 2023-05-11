@@ -103,9 +103,9 @@ let lastPaste = "";
             let backgroundPage = await window.runtime.getBackgroundPage();
             backgroundPage.createNewTab();
 
-        } else if ( request.command === "tabs-back" ) {
+        } else if ( request.command === "tab-back" ) {
 
-            console.log( "tabs-back" )
+            console.log( "tab-back" )
             try {
                 console.log( "tabs-back: history: " + history.length )
                 console.log( JSON.stringify( history ) );
@@ -115,9 +115,9 @@ let lastPaste = "";
                 console.log( "tabs-back: Can't go back any further: " + e );
             }
 
-        } else if ( request.command === "tabs-forward" ) {
+        } else if ( request.command === "tab-forward" ) {
 
-            console.log( "tabs-forward" )
+            console.log( "tab-forward" )
             try {
                 console.log( "tabs-forward: history: " + history.length )
                 console.log( JSON.stringify( history ) );
@@ -127,9 +127,9 @@ let lastPaste = "";
                 console.log( "tabs-forward: Can't go forward any further: " + e );
             }
         // Reload page
-        } else if ( request.command === "tabs-reload" ) {
+        } else if ( request.command === "tab-reload" ) {
 
-            console.log( "tabs-reload" )
+            console.log( "tab-reload" )
             window.location.reload();
 
         } else {
