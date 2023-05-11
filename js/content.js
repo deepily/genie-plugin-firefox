@@ -39,14 +39,14 @@ let lastPaste = "";
             lastKey = "";
             lastCode = "";
             browser.runtime.sendMessage({
-                "command": "command-transcription"
+                "transcription": "command-transcription"
             });
         } else if ( event.key === "Alt" && event.code === "AltRight" && lastKey === "Alt" && lastCode === "AltRight" ) {
             console.log( "Background: Double AltRight keydown detected" );
             lastKey = "";
             lastCode = "";
             browser.runtime.sendMessage( {
-                "command": "command-mode"
+                "transcription": "command-mode"
             } );
         } else {
             // console.log( "Not a double MetaRight nor AltRight keydown" );

@@ -22,13 +22,13 @@ import {
 
 console.log( "recorder.js loading..." );
 
-let debug               = false;
-var refreshWindow       = false;
-var mode                = "";
-var currentMode         = "";
-var prefix              = "";
-var transcription       = "";
-var titleMode           = "Transcription";
+let debug         = false;
+var refreshWindow = false;
+var mode          = "";
+var currentMode   = "";
+var prefix        = "";
+var transcription = "";
+var titleMode     = "Transcription";
 
 async function initializeStartupParameters() {
 
@@ -37,7 +37,7 @@ async function initializeStartupParameters() {
     currentMode   = await readLocalStorage( "mode", TRANSCRIPTION_MODE );
     prefix        = await readLocalStorage( "prefix", "" );
     // TODO: Command should be renamed transcription!
-    transcription = await readLocalStorage( "command", "" );
+    transcription = await readLocalStorage( "transcription", "" );
     debug         = await readLocalStorage( "debug", false );
     titleMode     = currentMode[ 0 ].toUpperCase() + currentMode.slice( 1 );
 
@@ -61,10 +61,10 @@ function updateLastKnownRecorderState( currentMode, prefix, transcription, debug
     console.log( "        debug [" + debug + "]" );
 
     browser.storage.local.set( {
-           "mode": currentMode,
-         "prefix": prefix,
-        "command": transcription,
-          "debug": debug
+                 "mode": currentMode,
+               "prefix": prefix,
+        "transcription": transcription,
+                "debug": debug
     } );
     console.log( "updateLastKnownRecorderState()... Done!" );
 }
@@ -79,6 +79,7 @@ function updateLocalStorageLastUrl( url ) {
 function updateLocalStorageLastZoom( value ) {
 
     console.log( "updateLocalStorageLastZoom()... " + value );
+    value = value + "?ts=" + Date.now();
     browser.storage.local.set( {
         "lastZoom": value
     } );
@@ -98,7 +99,6 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
         modeImg.src = "../icons/mode-command-24.png";
     }
 
-    // parent.postMessage( { "type": "recorder", "mode": currentMode, "prefix": prefix, "transcription": transcription, "debug": debug }, "*" );
     document.getElementById( "record" ).hidden = true;
     document.getElementById( "stop" ).focus();
 
@@ -294,14 +294,12 @@ async function handleCommand( prefix, transcription ) {
         currentMode   = COMMAND_MODE;
         document.getElementById( "stop" ).className = "disabled";
 
-        const modeImg     = document.getElementById( "mode-img" )
-        modeImg.title     = "Mode: Command";
-        modeImg.src       = "../icons/mode-command-24.png";
-        // modeImg.className = "image-strober";
+        const modeImg = document.getElementById( "mode-img" )
+        modeImg.title = "Mode: Command";
+        modeImg.src   = "../icons/mode-command-24.png";
 
         updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
         window.location.reload();
-        // doTextToSpeech( "Command", closeWindow=false, refreshWindow=true );
 
     } else if ( transcription.startsWith( "proof" ) ) {
 
@@ -322,8 +320,6 @@ async function handleCommand( prefix, transcription ) {
         // Push transcription into the prefix so that we can capture where we want to go/do in the next conditional blocks below.
         prefix = prefix + " " + transcription;
         transcription = "";
-
-        // await doTextToSpeech( "Url or search terms", closeWindow=false, refreshWindow=false );
 
         console.log(transcription)
         console.log("We know what you want (a new tab/search), but we don't know where you want to go or what you want to search.")
@@ -382,7 +378,7 @@ async function handleCommand( prefix, transcription ) {
     } else if ( transcription.startsWith( "zoom reset" ) || transcription.startsWith( MULTIMODAL_EDITOR + " zoom reset" ) ) {
 
         console.log( "Zoom reset..." );
-        updateLocalStorageLastZoom( "0?ts=" + Date.now() );
+        updateLocalStorageLastZoom( 0 );
         closeWindow();
 
     } else if ( transcription.startsWith( "zoom out" ) || transcription.startsWith( MULTIMODAL_EDITOR + " zoom out" ) ) {
@@ -390,7 +386,7 @@ async function handleCommand( prefix, transcription ) {
         console.log( "Zooming out..." );
         let zoomCount = ( transcription.split( "zoom out" ).length - 1 ) * -1;
         console.log( "zoom [" + zoomCount + "]" );
-        updateLocalStorageLastZoom( zoomCount + "?ts=" + Date.now() );
+        updateLocalStorageLastZoom( zoomCount );
         closeWindow();
 
     } else if ( transcription.startsWith( "zoom" ) || transcription.startsWith( MULTIMODAL_EDITOR + " zoom" ) ) {
@@ -398,7 +394,7 @@ async function handleCommand( prefix, transcription ) {
         console.log( "Zooming in..." );
         let zoomCount = transcription.split( "zoom" ).length - 1;
         console.log( "zoom [" + zoomCount + "]" );
-        updateLocalStorageLastZoom( zoomCount + "?ts=" + Date.now() );
+        updateLocalStorageLastZoom( zoomCount );
         closeWindow();
 
     } else {

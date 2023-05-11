@@ -446,7 +446,7 @@ browser.storage.onChanged.addListener( async (changes, areaName) => {
     //     // });
     //     // console.log( "currentTabId: " + currentTabId );
     //     // browser.tabs.sendMessage( currentTabId, {
-    //     //     "command": "command-paste"
+    //     //     "transcription": "command-paste"
     //     // });
     //     // sendMessage( "command-paste" );
     //

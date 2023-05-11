@@ -140,7 +140,7 @@ document.addEventListener( "click", async (e) => {
 
     } else if ( e.target.id === "command-mode" ) {
 
-        popupRecorder(mode=COMMAND_MODE, prefix=MULTIMODAL_EDITOR, command = "mode" );
+        popupRecorder(mode=COMMAND_MODE, prefix=MULTIMODAL_EDITOR, command="mode" );
 
     } else if ( e.target.id === "command-open-new-tab" ) {
 
@@ -292,7 +292,7 @@ async function updateLocalStorageLastUrl( url ) {
 //     } );
 //     return true;
 // }
-export async function popupRecorder( mode=TRANSCRIPTION_MODE, prefix = "", command = "", debug = false, tabId = -1) {
+export async function popupRecorder( mode=TRANSCRIPTION_MODE, prefix = "", transcription = "", debug = false, tabId = -1) {
 
     // console.log( `popupRecorder() Mode [${mode}], prefix [${prefix}], command [${command}], debug [${debug}] tabId [${tabId}]...` )
 
@@ -301,7 +301,7 @@ export async function popupRecorder( mode=TRANSCRIPTION_MODE, prefix = "", comma
     });
     console.log( "lastTabId: " + lastTabId);
 
-    const result = await updateLocalStorage(mode, prefix, command, debug, lastTabId);
+    const result = await updateLocalStorage(mode, prefix, transcription, debug, lastTabId);
     console.log( "result: " + result);
 
     console.log( "popupRecorder() titleMode [" + titleMode + "]" );
@@ -326,16 +326,16 @@ export async function popupRecorder( mode=TRANSCRIPTION_MODE, prefix = "", comma
 //     alert( "messageToParentWindow()... " + foo );
 // }
 // TODO: Command should be renamed transcription!
-async function updateLocalStorage( mode, prefix, command, debug, lastTabId ) {
+async function updateLocalStorage( mode, prefix, transcription, debug, lastTabId ) {
 
-    console.log( `updateLocalStorage() Mode [${mode}], prefix [${prefix}], command [${command}], debug [${debug}] lastTabId [${lastTabId}]...` )
+    console.log( `updateLocalStorage() Mode [${mode}], prefix [${prefix}], transcription [${transcription}], debug [${debug}] lastTabId [${lastTabId}]...` )
 
     await browser.storage.local.set( {
       alwaysOnTop: false,
            "mode": mode,
          "prefix": prefix,
         // TODO: Command should be renamed transcription!
-        "command": command,
+        "transcription": transcription,
           "debug": debug,
       "lastTabId": lastTabId
     } );
