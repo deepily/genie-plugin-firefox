@@ -31,18 +31,6 @@ console.log( "NOT NEW! background.js loading..." );
 var currentFocus = null;
 
 
-// const readLocalStorage = async (key, defaultValue ) => {
-//     return new Promise(( resolve, reject ) => {
-//         browser.storage.local.get( [ key ], function ( result ) {
-//             if ( result[ key ] === undefined || result[ key ] === null ) {
-//                 resolve( defaultValue );
-//             } else {
-//                 resolve( result[ key ] );
-//             }
-//         } );
-//     } );
-// }
-
 let titleMode = "Transcription"
 window.addEventListener( "DOMContentLoaded", async (event) => {
 
@@ -62,10 +50,6 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
         return value[ 0 ].toUpperCase() + value.slice( 1 );
     } );
     console.log( "lastUrl [" + lastUrl + "]" );
-    //
-    // lastPaste = await readLocalStorage( "lastPaste", "" ).then( (value) => {
-    //     return value;
-    // } );
 } );
 
 function onCreated() {
@@ -78,79 +62,6 @@ function onCreated() {
 function onError() {
     console.log( "Error:" + browser.runtime.lastError );
 }
-// browser.contextMenus.create({
-//   id: "radio-green",
-//   type: "radio",
-//   title: "Make it green",
-//   contexts: ["all"],
-//   checked: false
-// }, onCreated);
-// browser.contextMenus.create({
-//   id: "radio-blue",
-//   type: "radio",
-//   title: "Make it blue",
-//   contexts: ["all"],
-//   checked: false
-// }, onCreated);
-// browser.contextMenus.create({
-//   id: "radio-popup",
-//   title: "Popup",
-//   contexts: ["all"],
-//   checked: false
-// }, onCreated);
-//
-// var makeItBlue = 'document.body.style.border = "5px solid blue"';
-// var makeItGreen = 'document.body.style.border = "5px solid green"';
-
-// window.addEventListener('load', function ()  {
-//     document.addEventListener('keypress', function (e) {
-//         console.log( e );
-//     }, true);
-// }, false);
-
-// const input = document.querySelector( "input" );
-//
-// input.addEventListener( "keyup", logKey);
-//
-// function logKey(e) {
-//     console.log( e.code );
-// }
-
-// document.addEventListener( "keyup", (event) => {
-//     // if (event.isComposing || event.keyCode === 229) {
-//     //   return;
-//     // }
-//     // do something
-//     console.log( "Key pressed [" + event.key + "]" );
-// });
-// console.log( "background.js loading input event listeners..." );
-// document.querySelector( "input" ).addEventListener( "focus", (event) => {
-//
-//     console.log( "Focus event [" + event + "]" );
-// } );
-// document.querySelector( "input" ).addEventListener( "blur", (event) => {
-//
-//     console.log( "Blur event [" + event + "]" );
-// } );
-// console.log( "background.js loading input event listeners... Done!" );
-
-// const form = document.getElementById( "form" );
-//
-// form.addEventListener(
-//   "focus",
-//   (event) => {
-//     event.target.style.background = "pink";
-//   },
-//   true
-// );
-//
-// form.addEventListener(
-//   "blur",
-//   (event) => {
-//     event.target.style.background = "";
-//   },
-//   true
-// );
 
 // This always fails returns know for any queried known objects
 // window.addEventListener( "DOMContentLoaded", (event) => {
@@ -216,24 +127,6 @@ browser.commands.onCommand.addListener( ( command) => {
 });
 console.log( "browser.commands.onCommand.addListener ... Done?" )
 
-// browser.contextMenus.create({
-//         id: "insert-modal",
-//         title: "Insert Modal",
-//         contexts: ["selection"]
-//     },
-//     // See https://extensionworkshop.com/documentation/develop/manifest-v3-migration-guide/#event-pages-and-backward-compatibility
-//     // for information on the purpose of this error capture.
-//     () => void browser.runtime.lastError,
-// );
-// browser.contextMenus.create({
-//         id: "whats-this-mean",
-//         title: "What's this?",
-//         contexts: ["selection"]
-//     },
-//     // See https://extensionworkshop.com/documentation/develop/manifest-v3-migration-guide/#event-pages-and-backward-compatibility
-//     // for information on the purpose of this error capture.
-//     () => void browser.runtime.lastError,
-// );
 browser.contextMenus.create({
         id: "proofread",
         title: "Proofread",
