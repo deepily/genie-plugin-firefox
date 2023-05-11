@@ -15,9 +15,10 @@ import {
     GIB_SERVER
 } from "/js/constants.js";
 import {
-    updateLocalStorageLastPaste,
+    sendMessageToBackgroundScripts,
     readLocalStorage,
-    sendMessageToBackgroundScripts
+    updateLocalStorageLastPaste,
+    updateLocalStorageLastUrl
 } from "/js/util.js";
 
 console.log( "recorder.js loading..." );
@@ -68,14 +69,7 @@ function updateLastKnownRecorderState( currentMode, prefix, transcription, debug
     } );
     console.log( "updateLastKnownRecorderState()... Done!" );
 }
-function updateLocalStorageLastUrl( url ) {
 
-    console.log( "updateLocalStorageLastUrl()..." + url  );
-    browser.storage.local.set( {
-        "lastUrl": url
-    } );
-    return true;
-}
 function updateLocalStorageLastZoom( value ) {
 
     console.log( "updateLocalStorageLastZoom()... " + value );
@@ -336,9 +330,9 @@ async function handleCommand( prefix, transcription ) {
 
         let url = "";
         if ( prefix === MULTIMODAL_EDITOR + " " + CMD_OPEN_NEW_TAB ) {
-            url = "https://" + transcription + "?ts=" + Date.now();
+            url = "https://" + transcription
         } else {
-            url = "https://" + transcription.replace( CMD_OPEN_NEW_TAB, "" ).trim() + "?ts=" + Date.now();
+            url = "https://" + transcription.replace( CMD_OPEN_NEW_TAB, "" ).trim()
         }
 
         console.log( "Updating lastUrl to [" + url + "]" );
@@ -354,10 +348,10 @@ async function handleCommand( prefix, transcription ) {
         } else {
             searchTerms = transcription.replace( CMD_SEARCH_GOOGLE, "" ).trim()
         }
-        const url = "https://www.google.com/search?q=" + searchTerms + "&ts=" + Date.now();
+        const url = "https://www.google.com/search"
 
         console.log( "Updating lastUrl to [" + url + "]" );
-        updateLocalStorageLastUrl( url )
+        updateLocalStorageLastUrl( url, "&q=" + searchTerms )
         closeWindow();
 
     } else if ( transcription.startsWith( CMD_SEARCH_DDG ) || prefix === MULTIMODAL_EDITOR + " " + CMD_SEARCH_DDG ) {
@@ -369,10 +363,10 @@ async function handleCommand( prefix, transcription ) {
         } else {
             searchTerms = transcription.replace( CMD_SEARCH_DDG, "" ).trim()
         }
-        const url = "https://www.duckduckgo.com/?q=" + searchTerms + "&ts=" + Date.now();
+        const url = "https://www.duckduckgo.com/";
 
         console.log( "Updating lastUrl to [" + url + "]" );
-        updateLocalStorageLastUrl( url )
+        updateLocalStorageLastUrl( url, "&q=" + searchTerms )
         closeWindow();
 
     } else if ( transcription.startsWith( "zoom reset" ) || transcription.startsWith( MULTIMODAL_EDITOR + " zoom reset" ) ) {

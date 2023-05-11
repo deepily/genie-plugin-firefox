@@ -8,6 +8,7 @@ import {
     TRANSCRIPTION_MODE,
     COMMAND_MODE,
     CMD_SEARCH_DDG,
+    CMD_SEARCH_GOOGLE,
     CMD_OPEN_NEW_TAB,
     MULTIMODAL_EDITOR
 } from "/js/constants.js";
@@ -19,6 +20,7 @@ import {
     updateLocalStorageLastUrl,
 } from "/js/util.js";
 
+let args                = "";
 let command             = "";
 var mode                = "";
 var currentMode         = "";
@@ -147,17 +149,15 @@ document.addEventListener( "click", async (e) => {
 
     } else if ( e.target.id === "command-search-duck-duck-go-clipboard" ) {
 
-        const rawText = await navigator.clipboard.readText()
-        let url = "https://www.duckduckgo.com/?q=" + rawText + "&ts=" + Date.now();
-        console.log( "Updating lastUrl to [" + url + "]" );
-        updateLocalStorageLastUrl(url);
+        const clipboardText = await navigator.clipboard.readText()
+        let url = "https://www.duckduckgo.com/";
+        updateLocalStorageLastUrl( url, args="&q=" + clipboardText );
 
     } else if ( e.target.id === "command-search-google-clipboard" ) {
 
-        const rawText = await navigator.clipboard.readText()
-        let url = "https://www.google.com/search?q=" + rawText + "&ts=" + Date.now();
-        console.log( "Updating lastUrl to [" + url + "]" );
-        updateLocalStorageLastUrl(url);
+        const clipboardText = await navigator.clipboard.readText()
+        let url = "https://www.google.com/search";
+        updateLocalStorageLastUrl( url, args="&q=" + clipboardText );
 
     } else if ( e.target.id === "command-proofread" ) {
 
@@ -259,7 +259,7 @@ document.addEventListener( "click", async (e) => {
 
     } else if ( e.target.id === "load-editor" ) {
 
-        var url = "http://127.0.0.1:8080/genie-plugin-firefox/html/editor-quill.html?ts=" + Date.now()
+        var url = "http://127.0.0.1:8080/genie-plugin-firefox/html/editor-quill.html";
         updateLocalStorageLastUrl( url )
 
     } else {
@@ -267,22 +267,7 @@ document.addEventListener( "click", async (e) => {
     }
     e.preventDefault()
 } );
-// async function updateLocalStorageLastUrl( url ) {
-//
-//     console.log( "updateLocalStorageLastUrl()..." + url  );
-//     browser.storage.local.set( {
-//         "lastUrl": url
-//     } );
-//     return true;
-// }
-// async function updateLocalStorageLastTabId( value ) {
-//
-//     console.log( "updateLocalStorageLastTabId()... " + value );
-//     browser.storage.local.set( {
-//         "lastTabId": value
-//     } );
-//     return true;
-// }
+
 export async function popupRecorder( mode=TRANSCRIPTION_MODE, prefix = "", transcription = "", debug = false, tabId = -1) {
 
     // console.log( `popupRecorder() Mode [${mode}], prefix [${prefix}], command [${command}], debug [${debug}] tabId [${tabId}]...` )
@@ -350,7 +335,7 @@ fetchWhatsThisMean = async () => {
     const clipboardText = await navigator.clipboard.readText();
 
     let url = GIB_SERVER + "/api/ask-ai-text?question=" + clipboardText
-    const encodedUrl = encodeURI(url);
+    const encodedUrl = encodeURI( url );
     console.log( "encoded: " + encodedUrl);
 
     await fetch(url, {
@@ -374,7 +359,7 @@ let doTextToSpeech = async (text) => {
     console.log( "doTextToSpeech() called..." )
 
     let url = TTS_SERVER + "/api/tts?text=" + text
-    const encodedUrl = encodeURI(url);
+    const encodedUrl = encodeURI( url );
     console.log( "encoded: " + encodedUrl);
 
     const audio = new Audio( encodedUrl);

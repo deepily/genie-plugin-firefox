@@ -403,9 +403,7 @@ browser.storage.onChanged.addListener( async (changes, areaName) => {
     if (changes.lastUrl === undefined || changes.lastUrl === null) {
         console.log( "lastUrl NOT defined: " + lastUrl)
     } else if (areaName === "local" && lastUrl !== changes.lastUrl.newValue) {
-        // Remove time stamp from URL
-        let url = changes.lastUrl.newValue.split( "?ts=" )[0];
-        openNewTab(url);
+        openNewTab( changes.lastUrl.newValue );
         lastUrl = changes.lastUrl.newValue;
     } else {
         console.log( "lastUrl NOT changed: " + lastUrl)

@@ -42,9 +42,13 @@ export function updateLocalStorageLastPaste( ts ) {
     return true;
 }
 
-export async function updateLocalStorageLastUrl( url ) {
+export async function updateLocalStorageLastUrl( url, args="" ) {
+
+    // add timestamp to url to force reload
+    url = url + "?ts=" + Date.now() + args;
 
     console.log( "updateLocalStorageLastUrl()..." + url  );
+
     browser.storage.local.set( {
         "lastUrl": url
     } );
