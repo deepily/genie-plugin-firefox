@@ -19,6 +19,13 @@ export async function sendMessageToContentScripts( command ) {
     } );
 }
 
+export async function loadContentScript() {
+
+    console.log( "Loading content script..." );
+    browser.tabs.executeScript( {file: "../js/content.js" } )
+    .then( () => { console.log( "Loading content script... done!" ) } )
+    .catch( reportExecuteScriptError );
+}
 function getCurrentWindowTabs() {
   return browser.tabs.query({currentWindow: true});
 }

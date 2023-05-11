@@ -127,9 +127,9 @@ let lastPaste = "";
                 console.log( "tabs-forward: Can't go forward any further: " + e );
             }
         // Reload page
-        } else if ( request.command === "tab-reload" ) {
+        } else if ( request.command === "tab-refresh" ) {
 
-            console.log( "tab-reload" )
+            console.log( "tab-refresh" )
             window.location.reload();
 
         } else {

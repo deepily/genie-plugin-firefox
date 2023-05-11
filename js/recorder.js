@@ -8,14 +8,17 @@ import {
     VOX_CMD_DELETE,
     VOX_CMD_SELECT_ALL,
     VOX_CMD_PROOFREAD,
-    EDIT_COMMANDS,
+    VOX_EDIT_COMMANDS,
     MULTIMODAL_EDITOR,
     COMMAND_MODE,
     TRANSCRIPTION_MODE,
     TTS_SERVER,
     GIB_SERVER,
-    VOX_CMD_CLOSE_TAB,
-    VOX_CMD_RELOAD_TAB
+    VOX_CMD_TAB_CLOSE,
+    VOX_CMD_TAB_REFRESH,
+    VOX_CMD_TAB_BACK,
+    VOX_CMD_TAB_FORWARD,
+    VOX_TAB_COMMANDS
 } from "/js/constants.js";
 import {
     sendMessageToBackgroundScripts,
@@ -133,9 +136,7 @@ window.addEventListener( "keydown", function (event) {
     console.log( "event.key [" + event.key + "]" );
     if ( event.key == "Escape" ) {
         console.log( "Escape pressed" );
-        window.setTimeout( () => {
-            window.close();
-        }, 250 );
+        closeWindow();
     }
 } );
 
@@ -269,9 +270,7 @@ saveButton.addEventListener( "click", async () => {
             updateLocalStorageLastPaste( Date.now() );
 
             if ( debug ) { console.log( "Success!" ); }
-            window.setTimeout( () => {
-                window.close();
-            }, 250 );
+            closeWindow();
         }
     } catch (e) {
         console.log( "Error reading audio file [" + e + "]" );
@@ -302,17 +301,33 @@ async function handleCommand( prefix, transcription ) {
 
         updateLastKnownRecorderState(currentMode, prefix, transcription, debug);
         await proofreadFromClipboard();
-        window.close();
+        closeWindow();
 
-    } else if ( transcription == VOX_CMD_CLOSE_TAB ) {
+    } else if ( VOX_TAB_COMMANDS.includes( transcription ) ) {
 
-        sendMessageToBackgroundScripts( VOX_CMD_CLOSE_TAB );
-        window.close();
+        console.log( "Editing command found: " + transcription );
+        sendMessageToBackgroundScripts( transcription );
+        closeWindow();
 
-    } else if ( transcription == VOX_CMD_RELOAD_TAB ) {
-
-        sendMessageToBackgroundScripts( VOX_CMD_RELOAD_TAB );
-        window.close();
+    // } else if ( transcription == VOX_CMD_TAB_CLOSE ) {
+    //
+    //     sendMessageToBackgroundScripts( transcription );
+    //     closeWindow();
+    //
+    // } else if ( transcription == VOX_CMD_TAB_REFRESH ) {
+    //
+    //     sendMessageToBackgroundScripts( transcription );
+    //     closeWindow();
+    //
+    // } else if ( transcription == VOX_CMD_TAB_BACK ) {
+    //
+    //     // This fails: ncaught (in promise) Error: Incorrect argument types for tabs.sendMessage
+    //     // let tabId = readLocalStorage( "lastTabId", "-1" );
+    //     // browser.tabs.sendMessage( tabId, {
+    //     //     command: "tab-back"
+    //     // } );
+    //     sendMessageToBackgroundScripts( transcription );
+    //     closeWindow();
 
     } else if ( transcription === "toggle" || transcription === "reset" || transcription === TRANSCRIPTION_MODE || transcription === "exit" ) {
 
@@ -334,7 +349,7 @@ async function handleCommand( prefix, transcription ) {
         updateLastKnownRecorderState(currentMode, prefix, transcription, debug);
         window.location.reload();
 
-    } else if ( EDIT_COMMANDS.includes( transcription ) ) {
+    } else if ( VOX_EDIT_COMMANDS.includes( transcription ) ) {
 
         console.log( "Editing command found: " + transcription );
         sendMessageToBackgroundScripts( transcription );
@@ -485,21 +500,6 @@ async function doTextToSpeech( text, closeWindow=true, refreshWindow=false ) {
 
     console.log( "doTextToSpeech() called... done!" )
 }
-
-// let pushToClipboardAndClose = ( text ) => {
-//
-//     console.log( "pushToClipboard( text ) [" + text + "]" );
-//     navigator.clipboard.writeText( text ).then(() => {
-//         console.log( "Success! updating last paste..." );
-//         updateLocalStorageLastPaste( Date.now() );
-//     }, () => {
-//         console.log( "Failed to write to clipboard!" );
-//     }).then( () => {
-//         window.setTimeout( () => {
-//             window.close();
-//         }, 250 );
-//     } );
-// }
 
 function reportExecuteScriptError( error) {
     console.error( `Failed to execute content script: ${error.message}` );

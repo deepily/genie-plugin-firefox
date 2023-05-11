@@ -187,7 +187,7 @@ document.addEventListener( "click", async (e) => {
         let response = await sendMessageToContentScripts( e.target.id )
         await loadContentScript();
 
-    } else if ( e.target.id === "tab-reload" ) {
+    } else if ( e.target.id === "tab-refresh" ) {
 
         // window.location.reload();
         let response = await sendMessageToContentScripts( e.target.id )

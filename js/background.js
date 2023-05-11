@@ -7,13 +7,15 @@ import {
     GIB_SERVER,
     TRANSCRIPTION_MODE,
     COMMAND_MODE,
-    EDIT_COMMANDS, VOX_CMD_CLOSE_TAB, VOX_CMD_RELOAD_TAB
+    VOX_EDIT_COMMANDS,
+    VOX_CMD_TAB_CLOSE, VOX_CMD_TAB_REFRESH, VOX_CMD_TAB_BACK, VOX_CMD_TAB_FORWARD
 } from "/js/constants.js";
 import {
     popupRecorder
 } from "/js/menu-and-side-bar.js";
 import {
     callOnActiveTab,
+    loadContentScript,
     readLocalStorage,
     updateLocalStorageLastPaste,
     // sendMessageToContentScripts
@@ -456,23 +458,40 @@ browser.runtime.onMessage.addListener(async ( message) => {
         console.log( "background.js: 'command-mode' received" );
         popupRecorder(mode=COMMAND_MODE, prefix="multimodal editor", command="mode" );
 
-    } else if ( EDIT_COMMANDS.includes( message.command ) ) {
+    } else if ( VOX_EDIT_COMMANDS.includes( message.command ) ) {
 
         // TODO: This is a gigantic hack that needs to be replaced with a transcription to command dictionary
         console.log( `background.js: sending [${message.command}] message to content script in tab [${lastTabId}]` )
         await browser.tabs.sendMessage( lastTabId, {
             command: "command-" + message.command.replaceAll(" ", "-" )
         });
-    } else if ( message.command === VOX_CMD_CLOSE_TAB ) {
+    } else if ( message.command === VOX_CMD_TAB_CLOSE ) {
 
         browser.tabs.remove( lastTabId );
 
-    } else if ( message.command === VOX_CMD_RELOAD_TAB ) {
+    } else if ( message.command === VOX_CMD_TAB_REFRESH ) {
 
         // TODO: This is a gigantic hack that needs to be replaced with a transcription to command dictionary
         await browser.tabs.sendMessage( lastTabId, {
-            command: "tab-reload"
+            command: "tab-refresh"
         });
+    } else if ( message.command === VOX_CMD_TAB_BACK ) {
+
+        // TODO: This is a gigantic hack that needs to be replaced with a transcription to command dictionary
+        await browser.tabs.sendMessage( lastTabId, {
+            command: "tab-back"
+        });
+        // TODO/KLUDGE!
+        loadContentScript();
+
+    } else if ( message.command === VOX_CMD_TAB_FORWARD ) {
+
+        // TODO: This is a gigantic hack that needs to be replaced with a transcription to command dictionary
+        await browser.tabs.sendMessage( lastTabId, {
+            command: "tab-forward"
+        });
+        // TODO/KLUDGE!
+        loadContentScript();
 
     } else{
         console.log( "background.js: command NOT recognized: " + message.command );
