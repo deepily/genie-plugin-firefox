@@ -132,7 +132,7 @@ browser.commands.onCommand.addListener( ( command) => {
     if ( command === "popup-vox-to-text" ) {
         popupRecorder( mode = "transcription" );
     }
-    // else if ( command === "load-editor" ) {
+    // else if ( command === "open-editor" ) {
     //
     //     openNewTab( "html/editor-quill.html" )
     // }

@@ -18,7 +18,7 @@ import {
     VOX_CMD_TAB_REFRESH,
     VOX_CMD_TAB_BACK,
     VOX_CMD_TAB_FORWARD,
-    VOX_TAB_COMMANDS
+    VOX_TAB_COMMANDS, EDITOR_URL, VOX_CMD_OPEN_EDITOR
 } from "/js/constants.js";
 import {
     sendMessageToBackgroundScripts,
@@ -309,16 +309,6 @@ async function handleCommand( prefix, transcription ) {
         sendMessageToBackgroundScripts( transcription );
         closeWindow();
 
-    // } else if ( transcription == VOX_CMD_TAB_CLOSE ) {
-    //
-    //     sendMessageToBackgroundScripts( transcription );
-    //     closeWindow();
-    //
-    // } else if ( transcription == VOX_CMD_TAB_REFRESH ) {
-    //
-    //     sendMessageToBackgroundScripts( transcription );
-    //     closeWindow();
-    //
     // } else if ( transcription == VOX_CMD_TAB_BACK ) {
     //
     //     // This fails: ncaught (in promise) Error: Incorrect argument types for tabs.sendMessage
@@ -328,6 +318,10 @@ async function handleCommand( prefix, transcription ) {
     //     // } );
     //     sendMessageToBackgroundScripts( transcription );
     //     closeWindow();
+    } else if ( transcription === VOX_CMD_OPEN_EDITOR ) {
+
+        updateLocalStorageLastUrl( EDITOR_URL )
+        closeWindow();
 
     } else if ( transcription === "toggle" || transcription === "reset" || transcription === TRANSCRIPTION_MODE || transcription === "exit" ) {
 

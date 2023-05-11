@@ -11,6 +11,8 @@ var quill = new Quill('#editor-container', {
     theme: 'snow'
 });
 
+document.getElementById( "editor-container" ).focus();
+
 // document.body.addEventListener( "keydown", (event) => {
 //
 //     // console.log( "keydown.key is [" + event.key + "] and the code is [" + event.code + "]" );

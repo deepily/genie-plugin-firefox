@@ -10,7 +10,8 @@ import {
     CMD_SEARCH_DDG,
     CMD_SEARCH_GOOGLE,
     CMD_OPEN_NEW_TAB,
-    MULTIMODAL_EDITOR
+    MULTIMODAL_EDITOR,
+    EDITOR_URL
 } from "/js/constants.js";
 
 import {
@@ -257,10 +258,10 @@ document.addEventListener( "click", async (e) => {
             browser.tabs.remove( tab.id );
         });
 
-    } else if ( e.target.id === "load-editor" ) {
+    } else if ( e.target.id === "open-editor" ) {
 
-        var url = "http://127.0.0.1:8080/genie-plugin-firefox/html/editor-quill.html";
-        updateLocalStorageLastUrl( url )
+        // var url = "http://127.0.0.1:8080/genie-plugin-firefox/html/editor-quill.html";
+        updateLocalStorageLastUrl( EDITOR_URL )
 
     } else {
         console.log( "Unknown button clicked: " + e.target.id);
