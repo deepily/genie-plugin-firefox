@@ -15,7 +15,8 @@ import {
 import {
     sendMessageToBackgroundScripts,
     sendMessageToContentScripts,
-    callOnActiveTab
+    callOnActiveTab,
+    updateLocalStorageLastUrl,
 } from "/js/util.js";
 
 let command             = "";
@@ -266,14 +267,14 @@ document.addEventListener( "click", async (e) => {
     }
     e.preventDefault()
 } );
-async function updateLocalStorageLastUrl( url ) {
-
-    console.log( "updateLocalStorageLastUrl()..." + url  );
-    browser.storage.local.set( {
-        "lastUrl": url
-    } );
-    return true;
-}
+// async function updateLocalStorageLastUrl( url ) {
+//
+//     console.log( "updateLocalStorageLastUrl()..." + url  );
+//     browser.storage.local.set( {
+//         "lastUrl": url
+//     } );
+//     return true;
+// }
 // async function updateLocalStorageLastTabId( value ) {
 //
 //     console.log( "updateLocalStorageLastTabId()... " + value );

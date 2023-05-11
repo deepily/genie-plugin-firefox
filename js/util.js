@@ -42,6 +42,15 @@ export function updateLocalStorageLastPaste( ts ) {
     return true;
 }
 
+export async function updateLocalStorageLastUrl( url ) {
+
+    console.log( "updateLocalStorageLastUrl()..." + url  );
+    browser.storage.local.set( {
+        "lastUrl": url
+    } );
+    return true;
+}
+
 export const readLocalStorage = async (key, defaultValue ) => {
     return new Promise(( resolve, reject ) => {
         browser.storage.local.get( [ key ], function ( result ) {
