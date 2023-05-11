@@ -439,7 +439,7 @@ browser.runtime.onMessage.addListener(async ( message) => {
 
     } else if ( message.command === "command-copy" ) {
 
-        doTextToSpeech( "Copied to clipboard" );
+        doTextToSpeech( "Copied" );
 
     } else if ( message.command === "command-open-new-tab" ) {
 

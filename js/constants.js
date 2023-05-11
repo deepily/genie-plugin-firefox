@@ -10,13 +10,15 @@ export const CMD_SEARCH_DDG     = "search duck duck go";
 export const CMD_SEARCH_GOOGLE  = "search google";
 export const CMD_OPEN_NEW_TAB   = "open new tab";
 
-export const CMD_CUT            = "cut";
-export const CMD_COPY           = "copy";
-export const CMD_PASTE          = "paste";
-export const CMD_DELETE         = "delete";
-export const CMD_SELECT_ALL     = "select all";
+export const VOX_CMD_CUT            = "cut";
+export const VOX_CMD_COPY           = "copy";
+export const VOX_CMD_PASTE          = "paste";
+export const VOX_CMD_DELETE         = "delete";
+export const VOX_CMD_SELECT_ALL     = "select all";
 
-export const EDIT_COMMANDS      = [ CMD_CUT, CMD_COPY, CMD_PASTE, CMD_DELETE, CMD_SELECT_ALL ];
+export const VOX_CMD_PROOFREAD      = "proofread";
+
+export const EDIT_COMMANDS      = [ VOX_CMD_CUT, VOX_CMD_COPY, VOX_CMD_PASTE, VOX_CMD_DELETE, VOX_CMD_SELECT_ALL ];
 
 export const MULTIMODAL_EDITOR  = "multimodal editor";
 export const COMMAND_MODE       = "command"

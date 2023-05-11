@@ -2,17 +2,18 @@ import {
     CMD_SEARCH_DDG,
     CMD_SEARCH_GOOGLE,
     CMD_OPEN_NEW_TAB,
-    CMD_CUT,
-    CMD_COPY,
-    CMD_PASTE,
-    CMD_DELETE,
-    CMD_SELECT_ALL,
+    VOX_CMD_CUT,
+    VOX_CMD_COPY,
+    VOX_CMD_PASTE,
+    VOX_CMD_DELETE,
+    VOX_CMD_SELECT_ALL,
     EDIT_COMMANDS,
     MULTIMODAL_EDITOR,
     COMMAND_MODE,
     TRANSCRIPTION_MODE,
     TTS_SERVER,
-    GIB_SERVER
+    GIB_SERVER,
+    VOX_CMD_PROOFREAD
 } from "/js/constants.js";
 import {
     sendMessageToBackgroundScripts,
@@ -295,10 +296,11 @@ async function handleCommand( prefix, transcription ) {
         updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
         window.location.reload();
 
-    } else if ( transcription.startsWith( "proof" ) ) {
+    } else if ( transcription.startsWith( "proof" ) || transcription == VOX_CMD_PROOFREAD ) {
 
         updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
-        proofreadFromClipboard();
+        await proofreadFromClipboard();
+        window.close();
 
     } else if ( transcription === "toggle" || transcription === "reset" || transcription === TRANSCRIPTION_MODE || transcription === "exit" ) {
 
@@ -420,6 +422,7 @@ async function proofreadFromClipboard() {
 
         console.log( "Pushing proofreadText [" + proofreadText + "] to clipboard..." );
         const pasteCmd = await navigator.clipboard.writeText( proofreadText );
+        updateLocalStorageLastPaste( Date.now() );
 
         doTextToSpeech( "Done!", closeWindow=true, refreshWindow=false );
 
