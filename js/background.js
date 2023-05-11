@@ -7,7 +7,7 @@ import {
     GIB_SERVER,
     TRANSCRIPTION_MODE,
     COMMAND_MODE,
-    EDIT_COMMANDS, VOX_CMD_CLOSE_TAB
+    EDIT_COMMANDS, VOX_CMD_CLOSE_TAB, VOX_CMD_RELOAD_TAB
 } from "/js/constants.js";
 import {
     popupRecorder
@@ -466,6 +466,13 @@ browser.runtime.onMessage.addListener(async ( message) => {
     } else if ( message.command === VOX_CMD_CLOSE_TAB ) {
 
         browser.tabs.remove( lastTabId );
+
+    } else if ( message.command === VOX_CMD_RELOAD_TAB ) {
+
+        // TODO: This is a gigantic hack that needs to be replaced with a transcription to command dictionary
+        await browser.tabs.sendMessage( lastTabId, {
+            command: "tab-reload"
+        });
 
     } else{
         console.log( "background.js: command NOT recognized: " + message.command );

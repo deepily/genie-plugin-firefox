@@ -20,6 +20,8 @@ export const VOX_CMD_PROOFREAD      = "proofread";
 
 export const VOX_CMD_CLOSE_TAB      = "close tab";
 
+export const VOX_CMD_RELOAD_TAB     = "reload";
+
 export const EDIT_COMMANDS      = [ VOX_CMD_CUT, VOX_CMD_COPY, VOX_CMD_PASTE, VOX_CMD_DELETE, VOX_CMD_SELECT_ALL ];
 
 export const MULTIMODAL_EDITOR  = "multimodal editor";
