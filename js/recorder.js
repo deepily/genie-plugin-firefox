@@ -7,13 +7,14 @@ import {
     VOX_CMD_PASTE,
     VOX_CMD_DELETE,
     VOX_CMD_SELECT_ALL,
+    VOX_CMD_PROOFREAD,
     EDIT_COMMANDS,
     MULTIMODAL_EDITOR,
     COMMAND_MODE,
     TRANSCRIPTION_MODE,
     TTS_SERVER,
     GIB_SERVER,
-    VOX_CMD_PROOFREAD
+    VOX_CMD_CLOSE_TAB
 } from "/js/constants.js";
 import {
     sendMessageToBackgroundScripts,
@@ -298,8 +299,13 @@ async function handleCommand( prefix, transcription ) {
 
     } else if ( transcription.startsWith( "proof" ) || transcription == VOX_CMD_PROOFREAD ) {
 
-        updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
+        updateLastKnownRecorderState(currentMode, prefix, transcription, debug);
         await proofreadFromClipboard();
+        window.close();
+
+    } else if ( transcription == VOX_CMD_CLOSE_TAB ) {
+
+        sendMessageToBackgroundScripts( VOX_CMD_CLOSE_TAB );
         window.close();
 
     } else if ( transcription === "toggle" || transcription === "reset" || transcription === TRANSCRIPTION_MODE || transcription === "exit" ) {
