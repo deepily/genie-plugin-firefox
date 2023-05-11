@@ -39,14 +39,14 @@ let lastPaste = "";
             lastKey = "";
             lastCode = "";
             browser.runtime.sendMessage({
-                "transcription": "command-transcription"
+                "command": "command-transcription"
             });
         } else if ( event.key === "Alt" && event.code === "AltRight" && lastKey === "Alt" && lastCode === "AltRight" ) {
             console.log( "Background: Double AltRight keydown detected" );
             lastKey = "";
             lastCode = "";
             browser.runtime.sendMessage( {
-                "transcription": "command-mode"
+                "command": "command-mode"
             } );
         } else {
             // console.log( "Not a double MetaRight nor AltRight keydown" );
@@ -56,7 +56,7 @@ let lastPaste = "";
     });
 
     console.log( "content.js loading... onMessage event listener..." );
-    browser.runtime.onMessage.addListener(async ( request, sender, sendResponse ) => {
+    browser.runtime.onMessage.addListener( async ( request, sender, sendResponse ) => {
 
         console.log( "content.js: Message.command received: " + request.command);
 
@@ -225,6 +225,10 @@ let lastPaste = "";
         } else {
             console.log( "content.js: No text selected!" );
         }
+    }
+
+    function foo( bar ) {
+        console.log( "foo(): " + bar );
     }
     console.log( "content.js loading... Done!" );
 } )();

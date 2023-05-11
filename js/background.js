@@ -13,8 +13,9 @@ import {
     popupRecorder
 } from "/js/menu-and-side-bar.js";
 import {
+    callOnActiveTab,
     readLocalStorage,
-    updateLocalStorageLastPaste
+    updateLocalStorageLastPaste,
     // sendMessageToContentScripts
 } from "/js/util.js";
 
@@ -50,18 +51,27 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
         return value[ 0 ].toUpperCase() + value.slice( 1 );
     } );
     console.log( "lastUrl [" + lastUrl + "]" );
+
+    // loadContentScript();
 } );
 
-function onCreated() {
-  if (browser.runtime.lastError) {
-    console.log( "error creating item:" + browser.runtime.lastError);
-  } else {
-    // console.log( "item created successfully" );
-  }
-}
-function onError() {
-    console.log( "Error:" + browser.runtime.lastError );
-}
+// async function loadContentScript() {
+//
+//     console.log( "Background.js: Loading content script..." );
+//     browser.tabs.executeScript( {file: "../js/content.js" } )
+//     .then( () => { console.log( "Background.js: Loading content script... done!" ) } )
+//     .catch( () => { console.log( "Background.js: Loading content script... ERROR" ) } );
+// }
+// function onCreated() {
+//   if (browser.runtime.lastError) {
+//     console.log( "error creating item:" + browser.runtime.lastError);
+//   } else {
+//     // console.log( "item created successfully" );
+//   }
+// }
+// function onError() {
+//     console.log( "Error:" + browser.runtime.lastError );
+// }
 
 // This always fails returns know for any queried known objects
 // window.addEventListener( "DOMContentLoaded", (event) => {
@@ -438,35 +448,37 @@ browser.runtime.onMessage.addListener(async ( message) => {
 
     } else if ( message.command === "command-transcription" ) {
 
-        console.log( "background.js: command-open-new-tab received" );
+        console.log( "background.js: 'command-transcription' received" );
         popupRecorder( mode=TRANSCRIPTION_MODE );
 
     } else if ( message.command === "command-mode" ) {
 
-        console.log( "background.js: command-mode received" );
+        console.log( "background.js: 'command-mode' received" );
         popupRecorder(mode=COMMAND_MODE, prefix="multimodal editor", command="mode" );
 
     } else if ( EDIT_COMMANDS.includes( message.command ) ) {
 
-        console.log( "background.js: EDIT_COMMANDS received: " + message.command );
-        // replacementAll turns spoken transcription into the IDs that correspond to the editing buttons
-        sendMessageToContentScripts( "command-" + message.command.replaceAll( " ", "-" ) );
-
+        // TODO: This is a gigantic hack that needs to be replaced with a transcription to command dictionary
+        console.log( `background.js: sending [${message.command}] message to content script in tab [${lastTabId}]` )
+        await browser.tabs.sendMessage( lastTabId, {
+            command: "command-" + message.command.replaceAll( " ", "-" )
+        } );
     } else{
         console.log( "background.js: command NOT recognized: " + message.command );
     }
 } );
 console.log( "background.js: adding listener for messages... Done!" );
-
-export async function sendMessageToContentScripts( command ) {
+export async function sendMessageToContentScripts( tabId, command ) {
 
     // sends to content scripts
     await browser.tabs.query( {currentWindow: true, active: true} ).then(async (tabs) => {
         let tab = tabs[0];
+        console.log( "calling content script in tab: " + JSON.stringify( tab ) );
         await browser.tabs.sendMessage( tab.id, {
             command: command
         } );
         return true;
     } );
 }
+
 console.log( "NOT NEW! background.js loading... Done!" );

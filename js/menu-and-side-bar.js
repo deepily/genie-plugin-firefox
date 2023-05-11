@@ -272,12 +272,14 @@ export async function popupRecorder( mode=TRANSCRIPTION_MODE, prefix = "", trans
 
     // console.log( `popupRecorder() Mode [${mode}], prefix [${prefix}], command [${command}], debug [${debug}] tabId [${tabId}]...` )
 
-    let lastTabId = await browser.tabs.query({currentWindow: true, active: true}).then(async (tabs) => {
-        return tabs[0].id;
+    let lastTab = await browser.tabs.query({currentWindow: true, active: true}).then(async (tabs) => {
+        return tabs[0]
     });
-    console.log( "lastTabId: " + lastTabId);
+    let lastTabId = lastTab.id;
+    console.log( "lastTabId: " + lastTabId );
+    console.log( "lastTab: " + JSON.stringify( lastTab ) );
 
-    const result = await updateLocalStorage(mode, prefix, transcription, debug, lastTabId);
+    const result = await updateLocalStorage(mode, prefix, transcription, debug, lastTabId );
     console.log( "result: " + result);
 
     console.log( "popupRecorder() titleMode [" + titleMode + "]" );
