@@ -1,7 +1,8 @@
 export const TTS_SERVER = "http://127.0.0.1:5002";
 export const GIB_SERVER = "http://127.0.0.1:7999";
 
-export const EDITOR_URL = "http://127.0.0.1:8080/genie-plugin-firefox/html/editor-quill.html"
+export const EDITOR_URL = "http://127.0.0.1:8080/genie-plugin-firefox/html/editor-quill.html";
+export const CONSTANTS_URL = "http://127.0.0.1:8080/genie-plugin-firefox/js/constants.js";
 export const GOOGLE_SEARCH_URL = "https://www.google.com/search";
 export const DDG_SEARCH_URL = "https://www.duckduckgo.com/";
 
@@ -31,6 +32,7 @@ export const VOX_TAB_COMMANDS       = [ VOX_CMD_TAB_BACK, VOX_CMD_TAB_FORWARD, V
 export const VOX_CMD_OPEN_EDITOR    = "open editor";
 
 export const VOX_CMD_PROOFREAD      = "proofread";
+export const VOX_CMD_VIEW_CONSTANTS = "view constan";
 
 export const MULTIMODAL_EDITOR  = "multimodal editor";
 export const COMMAND_MODE       = "command"

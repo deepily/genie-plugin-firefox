@@ -24,7 +24,9 @@ import {
     VOX_CMD_SEARCH_DDG_CLIPBOARD,
     VOX_CMD_SEARCH_GOOGLE_CLIPBOARD,
     DDG_SEARCH_URL,
-    GOOGLE_SEARCH_URL
+    GOOGLE_SEARCH_URL,
+    CONSTANTS_URL,
+    VOX_CMD_VIEW_CONSTANTS
 } from "/js/constants.js";
 import {
     sendMessageToBackgroundScripts,
@@ -351,6 +353,11 @@ async function handleCommand( prefix, transcription ) {
         console.log("We know what you want (a new tab/search), but we don't know where you want to go or what you want to search.")
         updateLastKnownRecorderState(currentMode, prefix, transcription, debug);
         window.location.reload();
+
+    } else if ( transcription.startsWith( VOX_CMD_VIEW_CONSTANTS ) ) {
+
+        updateLocalStorageLastUrl( CONSTANTS_URL )
+        closeWindow();
 
     } else if ( transcription === VOX_CMD_SEARCH_DDG_CLIPBOARD ) {
 
