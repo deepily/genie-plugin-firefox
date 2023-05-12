@@ -31,30 +31,23 @@ var command   = "";
 
 console.log( "NOT NEW! background.js loading..." );
 
-var currentFocus = null;
-
-
 let titleMode = "Transcription"
-window.addEventListener( "DOMContentLoaded", async (event) => {
+window.addEventListener("DOMContentLoaded", async (event) => {
 
-    console.log( "DOM fully loaded and parsed, Setting up form event listeners..." );
-    lastUrl = await readLocalStorage( "lastUrl", "" ).then( (value) => {
-        // TODO: This is redundant! The default value is already set in the readLocalStorage function.
-        if ( value === undefined || value === null ) {
-            return defaultValue;
-        }
+    console.log("DOM fully loaded and parsed, initializing global values...");
+    lastUrl = await readLocalStorage("lastUrl", "").then( (value) => {
         return value;
-    } );
-    titleMode = await readLocalStorage( "mode", "Transcription" ).then( (value) => {
-        // TODO: This is redundant! The default value is already set in the readLocalStorage function.
-        if ( value === undefined || value === null ) {
-            return defaultValue[ 0 ].toUpperCase() + defaultValue.slice( 1 );
-        }
-        return value[ 0 ].toUpperCase() + value.slice( 1 );
     } );
     console.log( "lastUrl [" + lastUrl + "]" );
 
+    titleMode = await readLocalStorage("mode", "Transcription" ).then( (value) => {
+        return value;
+    } );
+    titleMode = titleMode[ 0 ].toUpperCase() + titleMode.slice( 1 );
+    console.log( "titleMode [" + titleMode + "]" );
+
     // loadContentScript();
+    return true;
 } );
 
 // async function loadContentScript() {
@@ -64,53 +57,6 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
 //     .then( () => { console.log( "Background.js: Loading content script... done!" ) } )
 //     .catch( () => { console.log( "Background.js: Loading content script... ERROR" ) } );
 // }
-// function onCreated() {
-//   if (browser.runtime.lastError) {
-//     console.log( "error creating item:" + browser.runtime.lastError);
-//   } else {
-//     // console.log( "item created successfully" );
-//   }
-// }
-// function onError() {
-//     console.log( "Error:" + browser.runtime.lastError );
-// }
-
-// This always fails returns know for any queried known objects
-// window.addEventListener( "DOMContentLoaded", (event) => {
-//
-//     console.log( "DOM fully loaded and parsed, Setting up form event listeners..." );
-//
-//     console.log( "window [" + window + "]" );
-//     console.log( "document [" + document + "]" );
-//     console.log( "window.document [" + window.document + "]" );
-//     console.log( "window.document.getElementsByClassName( 'form' ) [" + window.document.getElementsByClassName( "form" ) + "]" );
-//
-//     let forms = window.document.getElementsByClassName( "form" )
-//     console.log( "forms.length [" + forms.length + "]" );
-//     for ( let i = 0; i < forms.length; i++ ) {
-//         console.log( "form [" + forms[ i ] + "]" );
-//     }
-//
-//     const form = window.document.getElementsByClassName( "form" );
-//
-//     form.addEventListener(
-//       "focus",
-//       (event) => {
-//         event.target.style.background = "yellow";
-//       },
-//       true
-//     );
-//
-//     form.addEventListener(
-//       "blur",
-//       (event) => {
-//         event.target.style.background = "";
-//       },
-//       true
-//     );
-//
-//     console.log( "DOM fully loaded and parsed, Setting up event listeners... Done!" );
-// });
 
 browser.contextMenus.onClicked.addListener(function(info, tab) {
     // if (info.menuItemId == "radio-blue" ) {
