@@ -12,12 +12,35 @@ let lastPaste = "";
     * If this content script is injected into the same page again,
     * it will do nothing next time.
     */
+    // TODO: This may be the cause of the content script not being reloaded when moving backwards and forward through the history queue.
     if (window.hasRun) {
         console.log( "content.js loading... already loaded. Bailing early!" );
         return;
     }
     window.hasRun = true;
 
+    window.addEventListener("click", function(event) {
+        handleWindowClick(event);
+    }, false );
+
+    function handleWindowClick( event ){
+
+        var origEl = event.target || event.srcElement;
+        if( origEl.tagName === 'A' || origEl.parentNode.tagName === 'A' ) {
+            console.log( "Link clicked, canceling & redirecting to A new tab: " + origEl.href );
+            updateLocalStorageLastUrl( origEl.href );
+            event.preventDefault();
+        }
+    }
+    // TODO: move to util.js & find a way to import without the errors I've been getting when I try to do that.
+    async function updateLocalStorageLastUrl( url ) {
+
+        // add timestamp to url to force reload
+        browser.storage.local.set( {
+            "lastUrl": url + "?ts=" + Date.now()
+        } );
+        return true;
+    }
     document.addEventListener("selectionchange", () => {
 
         // console.log( document.getSelection().toString() );
@@ -227,8 +250,8 @@ let lastPaste = "";
         }
     }
 
-    function foo( bar ) {
-        console.log( "foo(): " + bar );
-    }
+    // function foo( bar ) {
+    //     console.log( "foo(): " + bar );
+    // }
     console.log( "content.js loading... Done!" );
 } )();

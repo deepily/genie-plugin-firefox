@@ -18,6 +18,7 @@ import {
     loadContentScript,
     readLocalStorage,
     updateLocalStorageLastPaste,
+    updateLocalStorageLastUrl,
     // sendMessageToContentScripts
 } from "/js/util.js";
 
@@ -32,6 +33,18 @@ var command   = "";
 console.log( "NOT NEW! background.js loading..." );
 
 let titleMode = "Transcription"
+
+let counter = 0;
+// function logURL(requestDetails) {
+//     counter++;
+//     console.log( `Loading [${counter}] [${requestDetails.url}]` );
+// }
+//
+// browser.webRequest.onBeforeRequest.addListener(
+//   logURL,
+//   {urls: ["<all_urls>"]}
+// );
+
 window.addEventListener("DOMContentLoaded", async (event) => {
 
     console.log("DOM fully loaded and parsed, initializing global values...");
