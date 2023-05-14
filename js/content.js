@@ -2,7 +2,6 @@
 
 let lastKey   = "";
 let lastCode  = "";
-let lastPaste = "";
 
 (function() {
     console.log( "content.js loading..." );
@@ -124,6 +123,7 @@ let lastPaste = "";
         } else if ( request.command === "command-paste" ) {
 
             console.log( "content.js: Pasting from clipboard?" );
+            // document.execCommand( "paste" );
             const clipboardText = await navigator.clipboard.readText()
             console.log( "content.js: clipboardText: " + clipboardText );
             paste( clipboardText );
@@ -184,34 +184,6 @@ let lastPaste = "";
             }
         });
     }
-    console.log( "content.js loading... onChanged event listener..." );
-    browser.storage.onChanged.addListener( async (changes, areaName ) => {
-
-        console.log( "content.js: storage.onChanged() called..." )
-        // console.log( "changes: " + JSON.stringify(changes));
-        // console.log( "areaName: " + areaName);
-        // console.log( "lastPaste: " + lastPaste );
-
-        if (changes.lastPaste === undefined) {
-            console.log( "lastPaste NOT defined: " + lastPaste)
-        } else if (areaName === "local" && lastPaste != changes.lastPaste.newValue) {
-
-            lastPaste = changes.lastPaste.newValue;
-            console.log( "lastPaste updated, sending message to paste from clipboard..." );
-
-            const clipboardText = await navigator.clipboard.readText()
-            paste( clipboardText )
-            // const tabId = await browser.tabs.query( {currentWindow: true, active: true} ).then(async (tabs) => {
-            //     return tabs[ 0 ].id;
-            // } );
-            // pasteIntoTab( clipboardText, tabId )
-
-        } else {
-            console.log( "lastPaste NOT changed: " + lastPaste )
-        }
-        // console.log( "lastPaste: " + lastPaste);
-    } );
-    console.log( "content.js loading... onChanged event listener... Done!" );
 
     function paste( text ) {
 
@@ -275,9 +247,5 @@ let lastPaste = "";
             console.log( "content.js: No text selected!" );
         }
     }
-
-    // function foo( bar ) {
-    //     console.log( "foo(): " + bar );
-    // }
     console.log( "content.js loading... Done!" );
 } )();
