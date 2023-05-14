@@ -276,7 +276,7 @@ saveButton.addEventListener( "click", async () => {
 
             updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
 
-            const writeCmd = navigator.clipboard.writeText( transcription )
+            const writeCmd = await navigator.clipboard.writeText( transcription )
             updateLocalStorageLastPaste( Date.now() );
 
             if ( debug ) { console.log( "Success!" ); }
