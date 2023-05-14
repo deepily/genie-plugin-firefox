@@ -11,12 +11,19 @@ export async function sendMessageToContentScripts( command ) {
 
     // sends to content scripts
     await browser.tabs.query( {currentWindow: true, active: true} ).then(async (tabs) => {
-        let tab = tabs[0];
-        await browser.tabs.sendMessage( tab.id, {
+        console.log( "util.js calling content script in tab [" + tabs[ 0 ].id + "] command [" + command + "]" );
+        await browser.tabs.sendMessage( tabs[ 0 ].id, {
             command: command
         } );
         return true;
     } );
+}
+export async function sendMessageToOneContentScript( tabId, command ) {
+
+    console.log( "calling content script in tab: " + tabId );
+    await browser.tabs.sendMessage( tabId, {
+        command: command
+    });
 }
 
 export async function loadContentScript() {
@@ -39,6 +46,17 @@ export function callOnActiveTab(callback) {
             }
         }
     });
+}
+export function getCurrentTab() {
+
+    let queryingTabs = browser.tabs.query({
+        active: true,
+        currentWindow: true
+    });
+    queryingTabs.then( ( tabs ) => {
+        return tabs[ 0 ];
+    });
+    return queryingTabs;
 }
 export function updateLocalStorageLastPaste( ts ) {
 

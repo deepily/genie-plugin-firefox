@@ -8,18 +8,20 @@ import {
     TRANSCRIPTION_MODE,
     COMMAND_MODE,
     VOX_EDIT_COMMANDS,
-    VOX_CMD_TAB_CLOSE, VOX_CMD_TAB_REFRESH, VOX_CMD_TAB_BACK, VOX_CMD_TAB_FORWARD
+    VOX_CMD_TAB_CLOSE, VOX_CMD_TAB_REFRESH, VOX_CMD_TAB_BACK, VOX_CMD_TAB_FORWARD, VOX_CMD_PASTE
 } from "/js/constants.js";
 import {
     popupRecorder
 } from "/js/menu-and-side-bar.js";
 import {
     callOnActiveTab,
+    getCurrentTab,
     loadContentScript,
     readLocalStorage,
     updateLocalStorageLastPaste,
     updateLocalStorageLastUrl,
     // sendMessageToContentScripts
+    sendMessageToOneContentScript
 } from "/js/util.js";
 
 let lastPaste = "";
@@ -417,13 +419,17 @@ browser.runtime.onMessage.addListener(async ( message) => {
         console.log( "background.js: 'command-mode' received" );
         popupRecorder(mode=COMMAND_MODE, prefix="multimodal editor", command="mode" );
 
+    } else if ( message.command === VOX_CMD_PASTE ) {
+
+        console.log( "background.js: 'paste' transcription received" );
+        sendMessageToOneContentScript( lastTabId, "command-paste" );
+
     } else if ( VOX_EDIT_COMMANDS.includes( message.command ) ) {
 
         // TODO: This is a gigantic hack that needs to be replaced with a transcription to command dictionary
         console.log( `background.js: sending [${message.command}] message to content script in tab [${lastTabId}]` )
-        await browser.tabs.sendMessage( lastTabId, {
-            command: "command-" + message.command.replaceAll(" ", "-" )
-        });
+        sendMessageToOneContentScript( lastTabId, "command-" + message.command.replaceAll(" ", "-" ) );
+
     } else if ( message.command === VOX_CMD_TAB_CLOSE ) {
 
         browser.tabs.remove( lastTabId );
@@ -457,17 +463,5 @@ browser.runtime.onMessage.addListener(async ( message) => {
     }
 } );
 console.log( "background.js: adding listener for messages... Done!" );
-export async function sendMessageToContentScripts( tabId, command ) {
-
-    // sends to content scripts
-    await browser.tabs.query( {currentWindow: true, active: true} ).then(async (tabs) => {
-        let tab = tabs[0];
-        console.log( "calling content script in tab: " + JSON.stringify( tab ) );
-        await browser.tabs.sendMessage( tab.id, {
-            command: command
-        } );
-        return true;
-    } );
-}
 
 console.log( "NOT NEW! background.js loading... Done!" );

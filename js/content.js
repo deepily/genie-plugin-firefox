@@ -124,10 +124,10 @@ let lastPaste = "";
         } else if ( request.command === "command-paste" ) {
 
             console.log( "content.js: Pasting from clipboard?" );
-            // const clipboardText = await navigator.clipboard.readText()
-            // console.log( "content.js: clipboardText: " + clipboardText );
-            // paste( clipboardText );
-            callOnActiveTab( document.execCommand( "paste" ) );
+            const clipboardText = await navigator.clipboard.readText()
+            console.log( "content.js: clipboardText: " + clipboardText );
+            paste( clipboardText );
+            // callOnActiveTab( document.execCommand( "paste" ) );
 
         } else if ( request.command === "command-open-new-tab" ) {
 
@@ -207,7 +207,7 @@ let lastPaste = "";
             // pasteIntoTab( clipboardText, tabId )
 
         } else {
-            console.log( "lastPaste NOT changed: " + lastUrl)
+            console.log( "lastPaste NOT changed: " + lastPaste )
         }
         // console.log( "lastPaste: " + lastPaste);
     } );
@@ -238,11 +238,14 @@ let lastPaste = "";
 
             console.log( "paste() successful!" );
         } catch ( e ) {
-            // console.log( "paste() failed: " + e );
+            console.log( "paste() failed: " + e );
         }
         // } else {
         //     console.log( "CANNOT paste() in this document, selection.rangeCount: " + selection.rangeCount );
         // }
+    }
+    function pasteFromClipboard(){
+        document.execCommand( "paste" )
     }
     function pasteIntoTab( text, tabId ) {
 
