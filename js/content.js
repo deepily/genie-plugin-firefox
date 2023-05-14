@@ -124,9 +124,10 @@ let lastPaste = "";
         } else if ( request.command === "command-paste" ) {
 
             console.log( "content.js: Pasting from clipboard?" );
-            const clipboardText = await navigator.clipboard.readText()
-            console.log( "content.js: clipboardText: " + clipboardText );
-            paste( clipboardText );
+            // const clipboardText = await navigator.clipboard.readText()
+            // console.log( "content.js: clipboardText: " + clipboardText );
+            // paste( clipboardText );
+            callOnActiveTab( document.execCommand( "paste" ) );
 
         } else if ( request.command === "command-open-new-tab" ) {
 
@@ -169,6 +170,20 @@ let lastPaste = "";
     } );
     console.log( "content.js loading... onMessage event listener... Done!" );
 
+    function getCurrentWindowTabs() {
+        return browser.tabs.query({currentWindow: true});
+    }
+    function callOnActiveTab(callback) {
+
+        console.log( "callOnActiveTab()..." );
+        getCurrentWindowTabs().then((tabs) => {
+            for (let tab of tabs) {
+                if (tab.active) {
+                    callback(tab, tabs);
+                }
+            }
+        });
+    }
     console.log( "content.js loading... onChanged event listener..." );
     browser.storage.onChanged.addListener( async (changes, areaName ) => {
 
