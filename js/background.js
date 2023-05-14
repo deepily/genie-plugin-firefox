@@ -37,25 +37,16 @@ console.log( "NOT NEW! background.js loading..." );
 let titleMode = "Transcription"
 
 let counter = 0;
-// function logURL(requestDetails) {
-//     counter++;
-//     console.log( `Loading [${counter}] [${requestDetails.url}]` );
-// }
-//
-// browser.webRequest.onBeforeRequest.addListener(
-//   logURL,
-//   {urls: ["<all_urls>"]}
-// );
 
-window.addEventListener("DOMContentLoaded", async (event) => {
+window.addEventListener( "DOMContentLoaded", async (event) => {
 
-    console.log("DOM fully loaded and parsed, initializing global values...");
-    lastUrl = await readLocalStorage("lastUrl", "").then( (value) => {
+    console.log( "DOM fully loaded and parsed, initializing global values..." );
+    lastUrl = await readLocalStorage( "lastUrl", "" ).then( (value) => {
         return value;
     } );
     console.log( "lastUrl [" + lastUrl + "]" );
 
-    titleMode = await readLocalStorage("mode", "Transcription" ).then( (value) => {
+    titleMode = await readLocalStorage( "mode", "Transcription" ).then( (value) => {
         return value;
     } );
     titleMode = titleMode[ 0 ].toUpperCase() + titleMode.slice( 1 );
@@ -64,26 +55,6 @@ window.addEventListener("DOMContentLoaded", async (event) => {
     // loadContentScript();
     return true;
 } );
-
-// async function loadContentScript() {
-//
-//     console.log( "Background.js: Loading content script..." );
-//     browser.tabs.executeScript( {file: "../js/content.js" } )
-//     .then( () => { console.log( "Background.js: Loading content script... done!" ) } )
-//     .catch( () => { console.log( "Background.js: Loading content script... ERROR" ) } );
-// }
-
-browser.contextMenus.onClicked.addListener(function(info, tab) {
-    // if (info.menuItemId == "radio-blue" ) {
-    //   browser.tabs.executeScript(tab.id, {
-    //     code: makeItBlue
-    //   });
-    // } else if (info.menuItemId == "radio-green" ) {
-    //   browser.tabs.executeScript(tab.id, {
-    //     code: makeItGreen
-    //   });
-    // }
-});
 
 console.log( "browser.commands.onCommand.addListener ..." )
 browser.commands.onCommand.addListener( ( command) => {
@@ -109,37 +80,7 @@ browser.contextMenus.create({
     // for information on the purpose of this error capture.
     () => void browser.runtime.lastError,
 );
-// browser.contextMenus.create({
-//         id: "read-to-me",
-//         title: "Read to me",
-//         contexts: ["selection"]
-//     },
-//     // See https://extensionworkshop.com/documentation/develop/manifest-v3-migration-guide/#event-pages-and-backward-compatibility
-//     // for information on the purpose of this error capture.
-//     () => void browser.runtime.lastError,
-// );`
 
-
-// function insertCss() {
-//
-//     browser.tabs.query({currentWindow: true, active: true}).then(async (tabs) => {
-//
-//         let tab = tabs[0]; // Safe to assume there will only be one result
-//
-//         console.log( "background.js inserting CSS...[" + tab + "]" );
-//         try {
-//             // Insert CSS from a file:
-//             browser.tabs.insertCSS( tab.id, { file: "../css/modal.css" } )
-//             document.getElementsByName( "body" ).innerHTML = "Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! ";
-//             // Insert static CSS:
-//             // let css = "body { border: 20px dotted pink; }";
-//             // await browser.tabs.insertCSS( tab.id, {code: css} );
-//         } catch (err) {
-//             console.error(`failed to insert CSS: ${err}`);
-//         }
-//         console.log( "background.js inserting CSS... Done!" );
-//     }, console.error )
-// }
 browser.contextMenus.onClicked.addListener(async (info, tab) => {
 //
 //     if (info.menuItemId === "insert-modal" ) {
@@ -173,11 +114,6 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
         proofread( info.selectionText );
     }
 });
-// insertModal = ( info ) => {
-//
-//     console.log( "insertModal() called..." )
-//     insertCss()
-// }
 
 async function proofread( rawText ) {
 
@@ -266,57 +202,31 @@ browser.storage.onChanged.addListener( async (changes, areaName) => {
     console.log( "lastTabId: " + lastTabId);
     console.log( "lastPaste: " + lastPaste);
 
-    if (changes.lastUrl === undefined || changes.lastUrl === null) {
-        console.log( "lastUrl NOT defined: " + lastUrl)
-    } else if (areaName === "local" && lastUrl !== changes.lastUrl.newValue) {
-        openNewTab( changes.lastUrl.newValue );
+    if ( areaName === "local" && changes.lastUrl !== undefined && lastUrl !== changes.lastUrl.newValue ) {
         lastUrl = changes.lastUrl.newValue;
-    } else {
-        console.log( "lastUrl NOT changed: " + lastUrl)
+        openNewTab( changes.lastUrl.newValue );
     }
 
-    if (changes.lastTabId === undefined) {
-        console.log( "lastTabId NOT defined: " + lastTabId)
-    } else if (areaName === "local" && lastTabId !== parseInt(changes.lastTabId.newValue) ) {
-        lastTabId = parseInt(changes.lastTabId.newValue);
-    } else {
-        console.log( "lastTabId NOT changed: " + lastUrl)
+    if ( areaName === "local" && changes.lastTabId !== undefined && lastTabId !== parseInt(changes.lastTabId.newValue ) ) {
+        lastTabId = parseInt( changes.lastTabId.newValue );
     }
 
-    if (changes.lastZoom === undefined) {
-        console.log( "lastZoom NOT defined: " + lastZoom)
-    } else if (areaName === "local" && lastZoom !== changes.lastZoom.newValue) {
+    if ( areaName === "local" && changes.lastZoom !== undefined && lastZoom !== changes.lastZoom.newValue ) {
 
         lastZoom = changes.lastZoom.newValue;
         // Remove time stamp from URL
         const zoom = lastZoom.split( "?ts=" )[0];
         console.log( "Zoom: " + zoom);
         console.log( "lastTabId: " + lastTabId);
-
-        zoomInOut(lastTabId, zoom);
-    } else {
-        console.log( "lastZoom NOT changed: " + lastUrl)
+        zoomInOut( lastTabId, zoom );
     }
 
-    // if (changes.lastPaste === undefined) {
-    //     console.log( "lastPaste NOT defined: " + lastPaste)
-    // } else if (areaName === "local" && lastPaste != changes.lastPaste.newValue) {
-    //
-    //     lastPaste = changes.lastPaste.newValue;
-    //     console.log( "lastPaste updated, sending message to paste from clipboard..." );
-    //
-    //     // let currentTabId = await browser.tabs.query( { currentWindow: true, active: true } ).then( async ( tabs ) => {
-    //     //     return tabs[0].id;
-    //     // });
-    //     // console.log( "currentTabId: " + currentTabId );
-    //     // browser.tabs.sendMessage( currentTabId, {
-    //     //     "transcription": "command-paste"
-    //     // });
-    //     // sendMessage( "command-paste" );
-    //
-    // } else {
-    //     console.log( "lastPaste NOT changed: " + lastUrl)
-    // }
+    if ( areaName === "local" && changes.lastPaste !== undefined && lastPaste != changes.lastPaste.newValue ) {
+
+        lastPaste = changes.lastPaste.newValue;
+        console.log( "lastPaste updated, sending message to paste from clipboard..." );
+        sendMessageToOneContentScript( lastTabId, "command-paste" );
+    }
     console.log( "lastUrl: " + lastUrl );
     console.log( "lastZoom: " + lastZoom );
     console.log( "lastTabId: " + lastTabId );
@@ -428,7 +338,7 @@ browser.runtime.onMessage.addListener(async ( message) => {
 
         // TODO: This is a gigantic hack that needs to be replaced with a transcription to command dictionary
         console.log( `background.js: sending [${message.command}] message to content script in tab [${lastTabId}]` )
-        sendMessageToOneContentScript( lastTabId, "command-" + message.command.replaceAll(" ", "-" ) );
+        sendMessageToOneContentScript( lastTabId, "command-" + message.command.replaceAll( " ", "-" ) );
 
     } else if ( message.command === VOX_CMD_TAB_CLOSE ) {
 
