@@ -26,9 +26,17 @@ let lastPaste = "";
     function handleWindowClick( event ){
 
         var origEl = event.target || event.srcElement;
+        console.log( "origEl is [" + JSON.stringify( origEl ) + "]" );
         if( origEl.tagName === 'A' || origEl.parentNode.tagName === 'A' ) {
-            console.log( "Link clicked, canceling & redirecting to A new tab: " + origEl.href );
-            updateLocalStorageLastUrl( origEl.href );
+            var eventHref = "";
+            if ( origEl.href != undefined ) {
+                eventHref = origEl.href;
+            } else {
+                eventHref = origEl.parentNode.href;
+            }
+            updateLocalStorageLastUrl(  eventHref );
+            console.log( "Link clicked, canceling & redirecting to a new tab: " + eventHref );
+
             event.preventDefault();
         }
     }
