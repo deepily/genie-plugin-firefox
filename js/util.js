@@ -58,21 +58,21 @@ export function getCurrentTab() {
     });
     return queryingTabs;
 }
-export function updateLocalStorageLastPaste( ts ) {
+export function queuePasteCommandInLocalStorage( ts ) {
 
-    console.log( "updateLocalStorageLastPaste()..." + ts  );
+    console.log( "queuePasteCommandInLocalStorage()..." + ts  );
     browser.storage.local.set( {
         "lastPaste": ts
     } );
     return true;
 }
 
-export async function updateLocalStorageLastUrl( url, args="" ) {
+export async function queueNewTabCommandInLocalStorage(url, args="" ) {
 
     // add timestamp to url to force reload
     url = url + "?ts=" + Date.now() + args;
 
-    console.log( "updateLocalStorageLastUrl()..." + url  );
+    console.log( "queueNewTabCommandInLocalStorage()..." + url  );
 
     browser.storage.local.set( {
         "lastUrl": url
@@ -80,7 +80,7 @@ export async function updateLocalStorageLastUrl( url, args="" ) {
     return true;
 }
 
-export const readLocalStorage = async (key, defaultValue ) => {
+export const readFromLocalStorage = async (key, defaultValue ) => {
     return new Promise(( resolve, reject ) => {
         browser.storage.local.get( [ key ], function ( result ) {
             if (result[ key ] === undefined) {

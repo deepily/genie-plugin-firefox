@@ -36,9 +36,9 @@ import {
 } from "/js/constants.js";
 import {
     sendMessageToBackgroundScripts,
-    readLocalStorage,
-    updateLocalStorageLastPaste,
-    updateLocalStorageLastUrl
+    readFromLocalStorage,
+    queuePasteCommandInLocalStorage,
+    queueNewTabCommandInLocalStorage
 } from "/js/util.js";
 
 console.log( "recorder.js loading..." );
@@ -55,11 +55,11 @@ async function initializeStartupParameters() {
 
     console.log( "initializeStartupParameters()..." );
     
-    currentMode   = await readLocalStorage( "mode", MODE_TRANSCRIPTION );
-    prefix        = await readLocalStorage( "prefix", "" );
+    currentMode   = await readFromLocalStorage( "mode", MODE_TRANSCRIPTION );
+    prefix        = await readFromLocalStorage( "prefix", "" );
     // TODO: Command should be renamed transcription!
-    transcription = await readLocalStorage( "transcription", "" );
-    debug         = await readLocalStorage( "debug", false );
+    transcription = await readFromLocalStorage( "transcription", "" );
+    debug         = await readFromLocalStorage( "debug", false );
     titleMode     = currentMode[ 0 ].toUpperCase() + currentMode.slice( 1 );
 
     dumpStartupParameters();
@@ -283,7 +283,7 @@ saveButton.addEventListener( "click", async () => {
             updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
 
             const writeCmd = await navigator.clipboard.writeText( transcription )
-            updateLocalStorageLastPaste( Date.now() );
+            queuePasteCommandInLocalStorage( Date.now() );
 
             if ( debug ) { console.log( "Success!" ); }
             closeWindow();
@@ -329,7 +329,7 @@ async function handleCommand( prefix, transcription ) {
     // } else if ( transcription == VOX_CMD_TAB_BACK ) {
     //
     //     // This fails: ncaught (in promise) Error: Incorrect argument types for tabs.sendMessage
-    //     // let tabId = readLocalStorage( "lastTabId", "-1" );
+    //     // let tabId = readFromLocalStorage( "lastTabId", "-1" );
     //     // browser.tabs.sendMessage( tabId, {
     //     //     command: "tab-back"
     //     // } );
@@ -337,7 +337,7 @@ async function handleCommand( prefix, transcription ) {
     //     closeWindow();
     } else if ( transcription === VOX_CMD_OPEN_EDITOR ) {
 
-        updateLocalStorageLastUrl( EDITOR_URL )
+        queueNewTabCommandInLocalStorage( EDITOR_URL )
         closeWindow();
 
     } else if ( transcription === MODE_RESET|| transcription === MODE_EXIT || transcription === MODE_TRANSCRIPTION  ) {
@@ -362,19 +362,19 @@ async function handleCommand( prefix, transcription ) {
 
     } else if ( transcription.startsWith( VOX_CMD_VIEW_CONSTANTS ) ) {
 
-        updateLocalStorageLastUrl( CONSTANTS_URL )
+        queueNewTabCommandInLocalStorage( CONSTANTS_URL )
         closeWindow();
 
     } else if ( transcription === VOX_CMD_SEARCH_CLIPBOARD_DDG ) {
 
         const clipboardText = await navigator.clipboard.readText()
-        updateLocalStorageLastUrl( SEARCH_URL_DDG, "&q=" + clipboardText )
+        queueNewTabCommandInLocalStorage( SEARCH_URL_DDG, "&q=" + clipboardText )
         closeWindow();
 
     } else if ( transcription === VOX_CMD_SEARCH_CLIPBOARD_GOOGLE ) {
 
         const clipboardText = await navigator.clipboard.readText()
-        updateLocalStorageLastUrl( SEARCH_URL_GOOGLE, "&q=" + clipboardText )
+        queueNewTabCommandInLocalStorage( SEARCH_URL_GOOGLE, "&q=" + clipboardText )
         closeWindow();
 
     } else if ( VOX_EDIT_COMMANDS.includes( transcription ) ) {
@@ -393,7 +393,7 @@ async function handleCommand( prefix, transcription ) {
         }
 
         console.log( "Updating lastUrl to [" + url + "]" );
-        updateLocalStorageLastUrl( url );
+        queueNewTabCommandInLocalStorage( url );
         closeWindow();
 
     } else if ( transcription.startsWith( VOX_CMD_SEARCH_GOOGLE ) || prefix === STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_SEARCH_GOOGLE ) {
@@ -405,7 +405,7 @@ async function handleCommand( prefix, transcription ) {
         } else {
             searchTerms = transcription.replace( VOX_CMD_SEARCH_GOOGLE, "" ).trim()
         }
-        updateLocalStorageLastUrl( SEARCH_URL_GOOGLE, "&q=" + searchTerms )
+        queueNewTabCommandInLocalStorage( SEARCH_URL_GOOGLE, "&q=" + searchTerms )
         closeWindow();
 
     } else if ( transcription.startsWith( VOX_CMD_SEARCH_DDG ) || prefix === STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_SEARCH_DDG ) {
@@ -420,7 +420,7 @@ async function handleCommand( prefix, transcription ) {
         const url = "https://www.duckduckgo.com/";
 
         console.log( "Updating lastUrl to [" + url + "]" );
-        updateLocalStorageLastUrl( url, "&q=" + searchTerms )
+        queueNewTabCommandInLocalStorage( url, "&q=" + searchTerms )
         closeWindow();
 
     } else if ( transcription.startsWith( VOX_CMD_ZOOM_RESET ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_ZOOM_RESET ) ) {
@@ -474,7 +474,7 @@ async function proofreadFromClipboard() {
 
         console.log( "Pushing proofreadText [" + proofreadText + "] to clipboard..." );
         const pasteCmd = await navigator.clipboard.writeText( proofreadText );
-        updateLocalStorageLastPaste( Date.now() );
+        queuePasteCommandInLocalStorage( Date.now() );
 
         doTextToSpeech( "Done!", closeWindow=true, refreshWindow=false );
 

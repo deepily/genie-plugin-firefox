@@ -18,7 +18,7 @@ import {
     sendMessageToBackgroundScripts,
     sendMessageToContentScripts,
     callOnActiveTab,
-    updateLocalStorageLastUrl,
+    queueNewTabCommandInLocalStorage,
 } from "/js/util.js";
 
 let args                = "";
@@ -152,13 +152,13 @@ document.addEventListener( "click", async (e) => {
 
         const clipboardText = await navigator.clipboard.readText()
         let url = "https://www.duckduckgo.com/";
-        updateLocalStorageLastUrl( url, args="&q=" + clipboardText );
+        queueNewTabCommandInLocalStorage( url, args="&q=" + clipboardText );
 
     } else if ( e.target.id === "command-search-google-clipboard" ) {
 
         const clipboardText = await navigator.clipboard.readText()
         let url = "https://www.google.com/search";
-        updateLocalStorageLastUrl( url, args="&q=" + clipboardText );
+        queueNewTabCommandInLocalStorage( url, args="&q=" + clipboardText );
 
     } else if ( e.target.id === "command-proofread" ) {
 
@@ -261,7 +261,7 @@ document.addEventListener( "click", async (e) => {
     } else if ( e.target.id === "open-editor" ) {
 
         // var url = "http://127.0.0.1:8080/genie-plugin-firefox/html/editor-quill.html";
-        updateLocalStorageLastUrl( EDITOR_URL )
+        queueNewTabCommandInLocalStorage( EDITOR_URL )
 
     } else {
         console.log( "Unknown button clicked: " + e.target.id);

@@ -17,9 +17,9 @@ import {
     callOnActiveTab,
     getCurrentTab,
     loadContentScript,
-    readLocalStorage,
-    updateLocalStorageLastPaste,
-    updateLocalStorageLastUrl,
+    readFromLocalStorage,
+    queuePasteCommandInLocalStorage,
+    queueNewTabCommandInLocalStorage,
     // sendMessageToContentScripts
     sendMessageToOneContentScript
 } from "/js/util.js";
@@ -41,12 +41,12 @@ let counter = 0;
 window.addEventListener( "DOMContentLoaded", async (event) => {
 
     console.log( "DOM fully loaded and parsed, initializing global values..." );
-    lastUrl = await readLocalStorage( "lastUrl", "" ).then( (value) => {
+    lastUrl = await readFromLocalStorage( "lastUrl", "" ).then( (value) => {
         return value;
     } );
     console.log( "lastUrl [" + lastUrl + "]" );
 
-    titleMode = await readLocalStorage( "mode", "Transcription" ).then( (value) => {
+    titleMode = await readFromLocalStorage( "mode", "Transcription" ).then( (value) => {
         return value;
     } );
     titleMode = titleMode[ 0 ].toUpperCase() + titleMode.slice( 1 );
@@ -140,7 +140,7 @@ async function proofread( rawText ) {
         const pasteCmd = await navigator.clipboard.writeText( proofreadText );
 
         doTextToSpeech( "Done!" );
-        updateLocalStorageLastPaste( Date.now() );
+        queuePasteCommandInLocalStorage( Date.now() );
 
     } catch ( e ) {
 
