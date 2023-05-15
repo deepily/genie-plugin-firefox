@@ -26,19 +26,19 @@ export const VOX_CMD_SEARCH_GOOGLE           = "search google";
 export const VOX_CMD_SEARCH_CLIPBOARD_DDG    = "search using clipboard";
 export const VOX_CMD_SEARCH_CLIPBOARD_GOOGLE = "search google using clipboard";
 
-export const STEM_MULTIMODAL_EDITOR  = "multimodal editor";
-export const MODE_TRANSCRIPTION      = "transcription"
-export const MODE_COMMAND            = "command"
-export const MODE_RESET              = "reset";
-export const MODE_EXIT               = "exit";
+export const STEM_MULTIMODAL_EDITOR = "multimodal editor";
+export const MODE_TRANSCRIPTION     = "transcription"
+export const MODE_COMMAND           = "command"
+export const MODE_RESET             = "reset";
+export const MODE_EXIT              = "exit";
 
-export const TTS_SERVER_ADDRESS = "http://127.0.0.1:5002";
-export const GIB_SERVER_ADDRESS = "http://127.0.0.1:7999";
+export const TTS_SERVER_ADDRESS     = "http://127.0.0.1:5002";
+export const GIB_SERVER_ADDRESS     = "http://127.0.0.1:7999";
 
-export const EDITOR_URL         = "http://127.0.0.1:8080/genie-plugin-firefox/html/editor-quill.html";
-export const CONSTANTS_URL      = "http://127.0.0.1:8080/genie-plugin-firefox/js/constants.js";
-export const SEARCH_URL_GOOGLE  = "https://www.google.com/search";
-export const SEARCH_URL_DDG     = "https://www.duckduckgo.com/";
+export const EDITOR_URL             = "http://127.0.0.1:8080/genie-plugin-firefox/html/editor-quill.html";
+export const CONSTANTS_URL          = "http://127.0.0.1:8080/genie-plugin-firefox/js/constants.js";
+export const SEARCH_URL_GOOGLE      = "https://www.google.com/search";
+export const SEARCH_URL_DDG         = "https://www.duckduckgo.com/";
 
 export const ZOOM_INCREMENT = 0.075;
 export const ZOOM_MAX       = 5;
