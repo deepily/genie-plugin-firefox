@@ -28,8 +28,8 @@ import {
     CONSTANTS_URL,
     VOX_CMD_VIEW_CONSTANTS,
     VOX_CMD_PROOFREAD_STEM,
-    MODE_RESET,
-    MODE_EXIT,
+    VOX_CMD_MODE_RESET,
+    VOX_CMD_MODE_EXIT,
     VOX_CMD_ZOOM_RESET,
     VOX_CMD_ZOOM_OUT,
     VOX_CMD_ZOOM_IN
@@ -340,7 +340,7 @@ async function handleCommand( prefix, transcription ) {
         queueNewTabCommandInLocalStorage( EDITOR_URL )
         closeWindow();
 
-    } else if ( transcription === MODE_RESET|| transcription === MODE_EXIT || transcription === MODE_TRANSCRIPTION  ) {
+    } else if ( transcription === VOX_CMD_MODE_RESET|| transcription === VOX_CMD_MODE_EXIT || transcription === MODE_TRANSCRIPTION  ) {
 
         currentMode   = MODE_TRANSCRIPTION;
                prefix = "";

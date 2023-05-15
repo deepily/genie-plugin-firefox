@@ -25,15 +25,16 @@ export const VOX_CMD_SEARCH_DDG              = "search";
 export const VOX_CMD_SEARCH_GOOGLE           = "search google";
 export const VOX_CMD_SEARCH_CLIPBOARD_DDG    = "search using clipboard";
 export const VOX_CMD_SEARCH_CLIPBOARD_GOOGLE = "search google using clipboard";
+export const VOX_CMD_MODE_RESET              = "reset";
+export const VOX_CMD_MODE_EXIT               = "exit";
 
-export const MULTIMODAL_CONTACT_INFO= "multimodal contact information";
-export const MULTIMODAL_TEXT_PYTHON = "multimodal python punctuation";
-export const MULTIMODAL_TEXT_EMAIL  = "multimodal text email"
+export const MULTIMODAL_CONTACT_INFO  = "multimodal contact information";
+export const MULTIMODAL_TEXT_PYTHON   = "multimodal python punctuation";
+export const MULTIMODAL_TEXT_EMAIL    = "multimodal text email"
 export const STEM_MULTIMODAL_EDITOR   = "multimodal editor";
+
 export const MODE_TRANSCRIPTION       = "transcription"
 export const MODE_COMMAND             = "command"
-export const MODE_RESET               = "reset";
-export const MODE_EXIT                = "exit";
 
 export const TTS_SERVER_ADDRESS     = "http://127.0.0.1:5002";
 export const GIB_SERVER_ADDRESS     = "http://127.0.0.1:7999";
