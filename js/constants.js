@@ -21,12 +21,13 @@ export const VOX_CMD_ZOOM_IN        = "zoom"
 export const VOX_CMD_ZOOM_OUT       = "zoom out";
 export const VOX_CMD_ZOOM_RESET     = "zoom reset"
 
+export const VOX_CMD_MODE_RESET     = "reset";
+export const VOX_CMD_MODE_EXIT      = "exit";
+
 export const VOX_CMD_SEARCH_DDG              = "search";
 export const VOX_CMD_SEARCH_GOOGLE           = "search google";
 export const VOX_CMD_SEARCH_CLIPBOARD_DDG    = "search using clipboard";
 export const VOX_CMD_SEARCH_CLIPBOARD_GOOGLE = "search google using clipboard";
-export const VOX_CMD_MODE_RESET              = "reset";
-export const VOX_CMD_MODE_EXIT               = "exit";
 
 export const MULTIMODAL_CONTACT_INFO  = "multimodal contact information";
 export const MULTIMODAL_TEXT_PYTHON   = "multimodal python punctuation";
