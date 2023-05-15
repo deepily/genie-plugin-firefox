@@ -11,7 +11,7 @@ import {
     VOX_CMD_SEARCH_GOOGLE,
     VOX_CMD_OPEN_NEW_TAB,
     STEM_MULTIMODAL_EDITOR,
-    EDITOR_URL
+    EDITOR_URL, MULTIMODAL_CONTACT_INFO, MULTIMODAL_TEXT_EMAIL, MULTIMODAL_TEXT_PYTHON
 } from "/js/constants.js";
 
 import {
@@ -117,11 +117,15 @@ document.addEventListener( "click", async (e) => {
 
     } else if ( e.target.id === "transcription-python" ) {
 
-        popupRecorder(mode=MODE_TRANSCRIPTION, prefix = "multimodal python punctuation" );
+        popupRecorder(mode=MODE_TRANSCRIPTION, prefix=MULTIMODAL_TEXT_PYTHON );
 
     } else if ( e.target.id === "transcription-email" ) {
 
-        popupRecorder(mode=MODE_TRANSCRIPTION, prefix = "multimodal text email" );
+        popupRecorder(mode=MODE_TRANSCRIPTION, prefix=MULTIMODAL_TEXT_EMAIL );
+
+    } else if ( e.target.id === "transcription-contact-information" ) {
+
+        popupRecorder(mode=MODE_TRANSCRIPTION, prefix=MULTIMODAL_CONTACT_INFO );
 
     } else if ( e.target.id === "transcription-debug" ) {
 
