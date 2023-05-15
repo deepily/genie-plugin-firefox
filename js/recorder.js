@@ -1,7 +1,7 @@
 import {
-    CMD_SEARCH_DDG,
-    CMD_SEARCH_GOOGLE,
-    CMD_OPEN_NEW_TAB,
+    VOX_CMD_SEARCH_DDG,
+    VOX_CMD_SEARCH_GOOGLE,
+    VOX_CMD_OPEN_NEW_TAB,
     VOX_CMD_CUT,
     VOX_CMD_COPY,
     VOX_CMD_PASTE,
@@ -9,11 +9,11 @@ import {
     VOX_CMD_SELECT_ALL,
     VOX_CMD_PROOFREAD,
     VOX_EDIT_COMMANDS,
-    MULTIMODAL_EDITOR,
-    COMMAND_MODE,
-    TRANSCRIPTION_MODE,
-    TTS_SERVER,
-    GIB_SERVER,
+    STEM_MULTIMODAL_EDITOR,
+    MODE_COMMAND,
+    MODE_TRANSCRIPTION,
+    TTS_SERVER_ADDRESS,
+    GIB_SERVER_ADDRESS,
     VOX_CMD_TAB_CLOSE,
     VOX_CMD_TAB_REFRESH,
     VOX_CMD_TAB_BACK,
@@ -21,10 +21,10 @@ import {
     VOX_TAB_COMMANDS,
     EDITOR_URL,
     VOX_CMD_OPEN_EDITOR,
-    VOX_CMD_SEARCH_DDG_CLIPBOARD,
-    VOX_CMD_SEARCH_GOOGLE_CLIPBOARD,
-    DDG_SEARCH_URL,
-    GOOGLE_SEARCH_URL,
+    VOX_CMD_SEARCH_CLIPBOARD_DDG,
+    VOX_CMD_SEARCH_CLIPBOARD_GOOGLE,
+    SEARCH_URL_DDG,
+    SEARCH_URL_GOOGLE,
     CONSTANTS_URL,
     VOX_CMD_VIEW_CONSTANTS
 } from "/js/constants.js";
@@ -49,7 +49,7 @@ async function initializeStartupParameters() {
 
     console.log( "initializeStartupParameters()..." );
     
-    currentMode   = await readLocalStorage( "mode", TRANSCRIPTION_MODE );
+    currentMode   = await readLocalStorage( "mode", MODE_TRANSCRIPTION );
     prefix        = await readLocalStorage( "prefix", "" );
     // TODO: Command should be renamed transcription!
     transcription = await readLocalStorage( "transcription", "" );
@@ -200,10 +200,10 @@ let audio;
 
 modeImage.addEventListener( "click", async () => {
 
-    if ( currentMode == COMMAND_MODE ) {
-        mode = TRANSCRIPTION_MODE;
+    if ( currentMode == MODE_COMMAND ) {
+        mode = MODE_TRANSCRIPTION;
         modeImage.src = "../icons/mode-transcription-24.png";
-        modeImage.title = "Mode: " + TRANSCRIPTION_MODE[ 0 ].toUpperCase() + TRANSCRIPTION_MODE.slice( 1 );
+        modeImage.title = "Mode: " + MODE_TRANSCRIPTION[ 0 ].toUpperCase() + MODE_TRANSCRIPTION.slice( 1 );
         transcription = "exit";
         handleCommand( prefix, transcription )
     }
@@ -238,7 +238,7 @@ playButton.addEventListener( "click", () => {
 
 saveButton.addEventListener( "click", async () => {
 
-    const url = GIB_SERVER + "/api/upload-and-transcribe-mp3?prefix=" + prefix;
+    const url = GIB_SERVER_ADDRESS + "/api/upload-and-transcribe-mp3?prefix=" + prefix;
     console.log( "Attempting to upload and transcribe to url [" + url + "]" )
 
     try {
@@ -266,7 +266,7 @@ saveButton.addEventListener( "click", async () => {
         let prefix        = transcriptionJson[ "prefix" ]
 
         // are we in command mode?
-        if ( prefix.startsWith( MULTIMODAL_EDITOR) || transcription.startsWith( MULTIMODAL_EDITOR ) ) {
+        if ( prefix.startsWith( STEM_MULTIMODAL_EDITOR) || transcription.startsWith( STEM_MULTIMODAL_EDITOR ) ) {
 
             handleCommand( prefix, transcription );
 
@@ -291,13 +291,13 @@ async function handleCommand( prefix, transcription ) {
 
     console.log( "handleCommands( transcription ) called with prefix [" + prefix + "] transcription [" + transcription + "]" );
 
-    if ( ( prefix == MULTIMODAL_EDITOR && ( transcription === "mode" || transcription === "help" )  ) ||
-         ( prefix == "" && transcription === MULTIMODAL_EDITOR ) ) {
+    if ( ( prefix == STEM_MULTIMODAL_EDITOR && ( transcription === "mode" || transcription === "help" )  ) ||
+         ( prefix == "" && transcription === STEM_MULTIMODAL_EDITOR ) ) {
 
         // Remove whatever commands were sent.
         transcription = "";
-        prefix        = MULTIMODAL_EDITOR;
-        currentMode   = COMMAND_MODE;
+        prefix        = STEM_MULTIMODAL_EDITOR;
+        currentMode   = MODE_COMMAND;
         document.getElementById( "stop" ).className = "disabled";
 
         const modeImg = document.getElementById( "mode-img" )
@@ -334,16 +334,16 @@ async function handleCommand( prefix, transcription ) {
         updateLocalStorageLastUrl( EDITOR_URL )
         closeWindow();
 
-    } else if ( transcription === "toggle" || transcription === "reset" || transcription === TRANSCRIPTION_MODE || transcription === "exit" ) {
+    } else if ( transcription === "toggle" || transcription === "reset" || transcription === MODE_TRANSCRIPTION || transcription === "exit" ) {
 
-        currentMode   = TRANSCRIPTION_MODE;
+        currentMode   = MODE_TRANSCRIPTION;
                prefix = "";
         transcription = "";
         updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
 
         await doTextToSpeech( "Switching to " + currentMode + " mode", closeWindow = false, refreshWindow = true);
 
-    } else if ( transcription == CMD_OPEN_NEW_TAB || transcription == CMD_SEARCH_GOOGLE || transcription == CMD_SEARCH_DDG ) {
+    } else if ( transcription == VOX_CMD_OPEN_NEW_TAB || transcription == VOX_CMD_SEARCH_GOOGLE || transcription == VOX_CMD_SEARCH_DDG ) {
 
         // Push transcription into the prefix so that we can capture where we want to go/do in the next conditional blocks below.
         prefix = prefix + " " + transcription;
@@ -359,16 +359,16 @@ async function handleCommand( prefix, transcription ) {
         updateLocalStorageLastUrl( CONSTANTS_URL )
         closeWindow();
 
-    } else if ( transcription === VOX_CMD_SEARCH_DDG_CLIPBOARD ) {
+    } else if ( transcription === VOX_CMD_SEARCH_CLIPBOARD_DDG ) {
 
         const clipboardText = await navigator.clipboard.readText()
-        updateLocalStorageLastUrl( DDG_SEARCH_URL, "&q=" + clipboardText )
+        updateLocalStorageLastUrl( SEARCH_URL_DDG, "&q=" + clipboardText )
         closeWindow();
 
-    } else if ( transcription === VOX_CMD_SEARCH_GOOGLE_CLIPBOARD ) {
+    } else if ( transcription === VOX_CMD_SEARCH_CLIPBOARD_GOOGLE ) {
 
         const clipboardText = await navigator.clipboard.readText()
-        updateLocalStorageLastUrl( GOOGLE_SEARCH_URL, "&q=" + clipboardText )
+        updateLocalStorageLastUrl( SEARCH_URL_GOOGLE, "&q=" + clipboardText )
         closeWindow();
 
     } else if ( VOX_EDIT_COMMANDS.includes( transcription ) ) {
@@ -377,39 +377,39 @@ async function handleCommand( prefix, transcription ) {
         sendMessageToBackgroundScripts( transcription );
         closeWindow();
 
-    } else if ( transcription.startsWith( CMD_OPEN_NEW_TAB ) || prefix === MULTIMODAL_EDITOR + " " + CMD_OPEN_NEW_TAB ) {
+    } else if ( transcription.startsWith( VOX_CMD_OPEN_NEW_TAB ) || prefix === STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_OPEN_NEW_TAB ) {
 
         let url = "";
-        if ( prefix === MULTIMODAL_EDITOR + " " + CMD_OPEN_NEW_TAB ) {
+        if ( prefix === STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_OPEN_NEW_TAB ) {
             url = "https://" + transcription
         } else {
-            url = "https://" + transcription.replace( CMD_OPEN_NEW_TAB, "" ).trim()
+            url = "https://" + transcription.replace( VOX_CMD_OPEN_NEW_TAB, "" ).trim()
         }
 
         console.log( "Updating lastUrl to [" + url + "]" );
         updateLocalStorageLastUrl( url );
         closeWindow();
 
-    } else if ( transcription.startsWith( CMD_SEARCH_GOOGLE ) || prefix === MULTIMODAL_EDITOR + " " + CMD_SEARCH_GOOGLE ) {
+    } else if ( transcription.startsWith( VOX_CMD_SEARCH_GOOGLE ) || prefix === STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_SEARCH_GOOGLE ) {
 
         let searchTerms = "";
 
-        if ( prefix === MULTIMODAL_EDITOR + " " + CMD_SEARCH_GOOGLE ) {
+        if ( prefix === STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_SEARCH_GOOGLE ) {
             searchTerms = transcription;
         } else {
-            searchTerms = transcription.replace( CMD_SEARCH_GOOGLE, "" ).trim()
+            searchTerms = transcription.replace( VOX_CMD_SEARCH_GOOGLE, "" ).trim()
         }
-        updateLocalStorageLastUrl( GOOGLE_SEARCH_URL, "&q=" + searchTerms )
+        updateLocalStorageLastUrl( SEARCH_URL_GOOGLE, "&q=" + searchTerms )
         closeWindow();
 
-    } else if ( transcription.startsWith( CMD_SEARCH_DDG ) || prefix === MULTIMODAL_EDITOR + " " + CMD_SEARCH_DDG ) {
+    } else if ( transcription.startsWith( VOX_CMD_SEARCH_DDG ) || prefix === STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_SEARCH_DDG ) {
 
         let searchTerms = "";
 
-        if ( prefix === MULTIMODAL_EDITOR + " " + CMD_SEARCH_DDG ) {
+        if ( prefix === STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_SEARCH_DDG ) {
             searchTerms = transcription;
         } else {
-            searchTerms = transcription.replace( CMD_SEARCH_DDG, "" ).trim()
+            searchTerms = transcription.replace( VOX_CMD_SEARCH_DDG, "" ).trim()
         }
         const url = "https://www.duckduckgo.com/";
 
@@ -417,13 +417,13 @@ async function handleCommand( prefix, transcription ) {
         updateLocalStorageLastUrl( url, "&q=" + searchTerms )
         closeWindow();
 
-    } else if ( transcription.startsWith( "zoom reset" ) || transcription.startsWith( MULTIMODAL_EDITOR + " zoom reset" ) ) {
+    } else if ( transcription.startsWith( "zoom reset" ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR + " zoom reset" ) ) {
 
         console.log( "Zoom reset..." );
         updateLocalStorageLastZoom( 0 );
         closeWindow();
 
-    } else if ( transcription.startsWith( "zoom out" ) || transcription.startsWith( MULTIMODAL_EDITOR + " zoom out" ) ) {
+    } else if ( transcription.startsWith( "zoom out" ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR + " zoom out" ) ) {
 
         console.log( "Zooming out..." );
         let zoomCount = ( transcription.split( "zoom out" ).length - 1 ) * -1;
@@ -431,7 +431,7 @@ async function handleCommand( prefix, transcription ) {
         updateLocalStorageLastZoom( zoomCount );
         closeWindow();
 
-    } else if ( transcription.startsWith( "zoom" ) || transcription.startsWith( MULTIMODAL_EDITOR + " zoom" ) ) {
+    } else if ( transcription.startsWith( "zoom" ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR + " zoom" ) ) {
 
         console.log( "Zooming in..." );
         let zoomCount = transcription.split( "zoom" ).length - 1;
@@ -453,7 +453,7 @@ async function proofreadFromClipboard() {
         const rawText = await navigator.clipboard.readText()
         console.log( "rawText [" + rawText + "]" );
 
-        let url = GIB_SERVER + "/api/proofread?question=" + rawText
+        let url = GIB_SERVER_ADDRESS + "/api/proofread?question=" + rawText
         const response = await fetch( url, {
             method: "GET",
             headers: {"Access-Control-Allow-Origin": "*"}
@@ -500,7 +500,7 @@ async function doTextToSpeech( text, closeWindow=true, refreshWindow=false ) {
 
     console.log( "doTextToSpeech() called..." )
 
-    let url = TTS_SERVER + "/api/tts?text=" + text
+    let url = TTS_SERVER_ADDRESS + "/api/tts?text=" + text
     const encodedUrl = encodeURI( url );
     console.log( "encoded: " + encodedUrl );
 

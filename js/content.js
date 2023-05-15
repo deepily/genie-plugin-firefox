@@ -1,4 +1,4 @@
-// import { TRANSCRIPTION_MODE, COMMAND_MODE } from "./constants";
+// import { MODE_TRANSCRIPTION, MODE_COMMAND } from "./constants";
 
 let lastKey   = "";
 let lastCode  = "";

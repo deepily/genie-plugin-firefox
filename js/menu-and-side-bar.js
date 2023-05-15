@@ -1,16 +1,16 @@
 import {
     ZOOM_INCREMENT,
-    MAX_ZOOM,
-    MIN_ZOOM,
-    DEFAULT_ZOOM,
-    TTS_SERVER,
-    GIB_SERVER,
-    TRANSCRIPTION_MODE,
-    COMMAND_MODE,
-    CMD_SEARCH_DDG,
-    CMD_SEARCH_GOOGLE,
-    CMD_OPEN_NEW_TAB,
-    MULTIMODAL_EDITOR,
+    ZOOM_MAX,
+    ZOOM_MIN,
+    ZOOM_DEFAULT,
+    TTS_SERVER_ADDRESS,
+    GIB_SERVER_ADDRESS,
+    MODE_TRANSCRIPTION,
+    MODE_COMMAND,
+    VOX_CMD_SEARCH_DDG,
+    VOX_CMD_SEARCH_GOOGLE,
+    VOX_CMD_OPEN_NEW_TAB,
+    STEM_MULTIMODAL_EDITOR,
     EDITOR_URL
 } from "/js/constants.js";
 
@@ -113,19 +113,19 @@ document.addEventListener( "click", async (e) => {
 
     } else if ( e.target.id === "transcription" ) {
 
-        popupRecorder(mode=TRANSCRIPTION_MODE );
+        popupRecorder(mode=MODE_TRANSCRIPTION );
 
     } else if ( e.target.id === "transcription-python" ) {
 
-        popupRecorder(mode=TRANSCRIPTION_MODE, prefix = "multimodal python punctuation" );
+        popupRecorder(mode=MODE_TRANSCRIPTION, prefix = "multimodal python punctuation" );
 
     } else if ( e.target.id === "transcription-email" ) {
 
-        popupRecorder(mode=TRANSCRIPTION_MODE, prefix = "multimodal text email" );
+        popupRecorder(mode=MODE_TRANSCRIPTION, prefix = "multimodal text email" );
 
     } else if ( e.target.id === "transcription-debug" ) {
 
-        popupRecorder(mode=TRANSCRIPTION_MODE, debug = true);
+        popupRecorder(mode=MODE_TRANSCRIPTION, debug = true);
 
     } else if ( e.target.id === "command-cut" || e.target.id === "command-copy" || e.target.id === "command-paste" || e.target.id === "command-delete" || e.target.id === "command-select-all" ) {
 
@@ -133,20 +133,20 @@ document.addEventListener( "click", async (e) => {
 
     } else if ( e.target.id === "command-mode" ) {
 
-        popupRecorder(mode=COMMAND_MODE, prefix=MULTIMODAL_EDITOR, command="mode" );
+        popupRecorder(mode=MODE_COMMAND, prefix=STEM_MULTIMODAL_EDITOR, command="mode" );
 
     } else if ( e.target.id === "command-open-new-tab" ) {
 
         console.log( "command-new-tab" );
-        popupRecorder(mode=COMMAND_MODE, prefix=MULTIMODAL_EDITOR, command=CMD_OPEN_NEW_TAB );
+        popupRecorder(mode=MODE_COMMAND, prefix=STEM_MULTIMODAL_EDITOR, command=VOX_CMD_OPEN_NEW_TAB );
 
     } else if ( e.target.id === "command-search-duck-duck-go" ) {
 
-        popupRecorder(mode=COMMAND_MODE, prefix=MULTIMODAL_EDITOR, command=CMD_SEARCH_DDG );
+        popupRecorder(mode=MODE_COMMAND, prefix=STEM_MULTIMODAL_EDITOR, command=VOX_CMD_SEARCH_DDG );
 
     } else if ( e.target.id === "command-search-google" ) {
 
-        popupRecorder(mode=COMMAND_MODE, prefix=MULTIMODAL_EDITOR, command=CMD_SEARCH_GOOGLE );
+        popupRecorder(mode=MODE_COMMAND, prefix=STEM_MULTIMODAL_EDITOR, command=VOX_CMD_SEARCH_GOOGLE );
 
     } else if ( e.target.id === "command-search-duck-duck-go-clipboard" ) {
 
@@ -215,13 +215,13 @@ document.addEventListener( "click", async (e) => {
             let gettingZoom = browser.tabs.getZoom( tab.id);
             gettingZoom.then((zoomFactor) => {
                 // //the maximum zoomFactor is 5, it can't go higher
-                // if (zoomFactor >= MAX_ZOOM) {
+                // if (zoomFactor >= ZOOM_MAX) {
                 //     // alert( "Tab zoom factor is already at max!" );
                 // } else {
                 let newZoomFactor = zoomFactor + ZOOM_INCREMENT;
                 //if the newZoomFactor is set to higher than the max accepted
                 //it won't change, and will never alert that it's at maximum
-                newZoomFactor = newZoomFactor > MAX_ZOOM ? MAX_ZOOM : newZoomFactor;
+                newZoomFactor = newZoomFactor > ZOOM_MAX ? ZOOM_MAX : newZoomFactor;
                 browser.tabs.setZoom(tab.id, newZoomFactor);
                 // }
             });
@@ -231,13 +231,13 @@ document.addEventListener( "click", async (e) => {
             let gettingZoom = browser.tabs.getZoom(tab.id);
             gettingZoom.then((zoomFactor) => {
                 //the minimum zoomFactor is 0.3, it can't go lower
-                // if (zoomFactor <= MIN_ZOOM) {
+                // if (zoomFactor <= ZOOM_MIN) {
                 //     // alert( "Tab zoom factor is already at minimum!" );
                 // } else {
                 let newZoomFactor = zoomFactor - ZOOM_INCREMENT;
                 //if the newZoomFactor is set to lower than the min accepted
                 //it won't change, and will never alert that it's at minimum
-                newZoomFactor = newZoomFactor < MIN_ZOOM ? MIN_ZOOM : newZoomFactor;
+                newZoomFactor = newZoomFactor < ZOOM_MIN ? ZOOM_MIN : newZoomFactor;
                 browser.tabs.setZoom(tab.id, newZoomFactor);
                 // }
             });
@@ -246,8 +246,8 @@ document.addEventListener( "click", async (e) => {
         callOnActiveTab(( tab ) => {
             let gettingZoom = browser.tabs.getZoom(tab.id);
             gettingZoom.then((zoomFactor) => {
-                if (zoomFactor != DEFAULT_ZOOM) {
-                    browser.tabs.setZoom(tab.id, DEFAULT_ZOOM);
+                if (zoomFactor != ZOOM_DEFAULT) {
+                    browser.tabs.setZoom(tab.id, ZOOM_DEFAULT);
                 }
             });
         });
@@ -269,7 +269,7 @@ document.addEventListener( "click", async (e) => {
     e.preventDefault()
 } );
 
-export async function popupRecorder( mode=TRANSCRIPTION_MODE, prefix = "", transcription = "", debug = false, tabId = -1) {
+export async function popupRecorder(mode=MODE_TRANSCRIPTION, prefix = "", transcription = "", debug = false, tabId = -1) {
 
     // console.log( `popupRecorder() Mode [${mode}], prefix [${prefix}], command [${command}], debug [${debug}] tabId [${tabId}]...` )
 
@@ -337,7 +337,7 @@ fetchWhatsThisMean = async () => {
 
     const clipboardText = await navigator.clipboard.readText();
 
-    let url = GIB_SERVER + "/api/ask-ai-text?question=" + clipboardText
+    let url = GIB_SERVER_ADDRESS + "/api/ask-ai-text?question=" + clipboardText
     const encodedUrl = encodeURI( url );
     console.log( "encoded: " + encodedUrl);
 
@@ -361,7 +361,7 @@ let doTextToSpeech = async (text) => {
 
     console.log( "doTextToSpeech() called..." )
 
-    let url = TTS_SERVER + "/api/tts?text=" + text
+    let url = TTS_SERVER_ADDRESS + "/api/tts?text=" + text
     const encodedUrl = encodeURI( url );
     console.log( "encoded: " + encodedUrl);
 

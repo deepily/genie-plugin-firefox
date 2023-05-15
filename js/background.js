@@ -1,12 +1,12 @@
 import {
     ZOOM_INCREMENT,
-    MAX_ZOOM,
-    MIN_ZOOM,
-    DEFAULT_ZOOM,
-    TTS_SERVER,
-    GIB_SERVER,
-    TRANSCRIPTION_MODE,
-    COMMAND_MODE,
+    ZOOM_MAX,
+    ZOOM_MIN,
+    ZOOM_DEFAULT,
+    TTS_SERVER_ADDRESS,
+    GIB_SERVER_ADDRESS,
+    MODE_TRANSCRIPTION,
+    MODE_COMMAND,
     VOX_EDIT_COMMANDS,
     VOX_CMD_TAB_CLOSE, VOX_CMD_TAB_REFRESH, VOX_CMD_TAB_BACK, VOX_CMD_TAB_FORWARD, VOX_CMD_PASTE
 } from "/js/constants.js";
@@ -120,9 +120,9 @@ async function proofread( rawText ) {
     console.log( "proofread() rawText [" + rawText + "]" );
     try {
         await doTextToSpeech( "Proofreading..." )
-        let url = GIB_SERVER + "/api/proofread?question=" + rawText
+        let url = GIB_SERVER_ADDRESS + "/api/proofread?question=" + rawText
 
-        console.log( "Calling GIB_SERVER [" + GIB_SERVER + "]..." );
+        console.log( "Calling GIB_SERVER_ADDRESS [" + GIB_SERVER_ADDRESS + "]..." );
 
         const response = await fetch( url, {
             method: 'GET',
@@ -153,7 +153,7 @@ let fetchWhatsThisMean = async (info) => {
 
     console.log( "fetchWhatsThisMean() called..." )
 
-    let url = GIB_SERVER + "/api/ask-ai-text?question=" + info.selectionText
+    let url = GIB_SERVER_ADDRESS + "/api/ask-ai-text?question=" + info.selectionText
     const encodedUrl = encodeURI(url);
     console.log( "encoded: " + encodedUrl);
 
@@ -177,7 +177,7 @@ let doTextToSpeech = async (text) => {
 
     console.log( "doTextToSpeech() called..." )
 
-    let url = TTS_SERVER + "/api/tts?text=" + text
+    let url = TTS_SERVER_ADDRESS + "/api/tts?text=" + text
     const encodedUrl = encodeURI(url);
     console.log( "encoded: " + encodedUrl);
 
@@ -255,13 +255,13 @@ function zoomInOut( tabId, zoom ) {
 
     console.log( "zoomInOut( tab.id: " + tabId + ", zoom: " + zoom+ " ) called..." )
 
-    let newZoomFactor = DEFAULT_ZOOM;
+    let newZoomFactor = ZOOM_DEFAULT;
     let gettingZoom = browser.tabs.getZoom( tabId );
     gettingZoom.then( ( zoomFactor ) => {
 
         // If the zoom factor is 0, then reset to the default value.
         // if ( zoom = 0 ) {
-        //     newZoomFactor = DEFAULT_ZOOM;
+        //     newZoomFactor = ZOOM_DEFAULT;
         // } else {
         if ( zoom != 0 ) {
             let incrementing = zoom > 0;
@@ -275,20 +275,20 @@ function zoomInOut( tabId, zoom ) {
 
                 console.log( "Zooming... " + i );
 
-                if ( newZoomFactor >= MAX_ZOOM || newZoomFactor <= MIN_ZOOM ) {
+                if ( newZoomFactor >= ZOOM_MAX || newZoomFactor <= ZOOM_MIN ) {
                     console.log( "Tab zoom factor is already at max/min!" );
                 } else {
                     if ( incrementing ) {
                         newZoomFactor += ZOOM_INCREMENT;
                         //if the newZoomFactor is set to higher than the max accepted
                         //it won't change, and will never alert that it's at maximum
-                        newZoomFactor = newZoomFactor > MAX_ZOOM ? MAX_ZOOM : newZoomFactor;
+                        newZoomFactor = newZoomFactor > ZOOM_MAX ? ZOOM_MAX : newZoomFactor;
                     } else {
                         // We must be decrementing
                         newZoomFactor -= ZOOM_INCREMENT;
                         //if the newZoomFactor is set to lower than the min accepted
                         //it won't change, and will never alert that it's at minimum
-                        newZoomFactor = newZoomFactor < MIN_ZOOM ? MIN_ZOOM : newZoomFactor;
+                        newZoomFactor = newZoomFactor < ZOOM_MIN ? ZOOM_MIN : newZoomFactor;
                     }
                 }
                 console.log( "newZoomFactor: " + newZoomFactor )
@@ -322,12 +322,12 @@ browser.runtime.onMessage.addListener(async ( message) => {
     } else if ( message.command === "command-transcription" ) {
 
         console.log( "background.js: 'command-transcription' received" );
-        popupRecorder( mode=TRANSCRIPTION_MODE );
+        popupRecorder( mode=MODE_TRANSCRIPTION );
 
     } else if ( message.command === "command-mode" ) {
 
         console.log( "background.js: 'command-mode' received" );
-        popupRecorder(mode=COMMAND_MODE, prefix="multimodal editor", command="mode" );
+        popupRecorder(mode=MODE_COMMAND, prefix="multimodal editor", command="mode" );
 
     } else if ( message.command === VOX_CMD_PASTE ) {
 
