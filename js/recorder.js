@@ -26,7 +26,13 @@ import {
     SEARCH_URL_DDG,
     SEARCH_URL_GOOGLE,
     CONSTANTS_URL,
-    VOX_CMD_VIEW_CONSTANTS
+    VOX_CMD_VIEW_CONSTANTS,
+    VOX_CMD_PROOFREAD_STEM,
+    MODE_RESET,
+    MODE_EXIT,
+    VOX_CMD_ZOOM_RESET,
+    VOX_CMD_ZOOM_OUT,
+    VOX_CMD_ZOOM_IN
 } from "/js/constants.js";
 import {
     sendMessageToBackgroundScripts,
@@ -307,7 +313,7 @@ async function handleCommand( prefix, transcription ) {
         updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
         window.location.reload();
 
-    } else if ( transcription.startsWith( "proof" ) || transcription == VOX_CMD_PROOFREAD ) {
+    } else if ( transcription.startsWith( VOX_CMD_PROOFREAD_STEM ) || transcription == VOX_CMD_PROOFREAD ) {
 
         updateLastKnownRecorderState(currentMode, prefix, transcription, debug);
         await proofreadFromClipboard();
@@ -334,7 +340,7 @@ async function handleCommand( prefix, transcription ) {
         updateLocalStorageLastUrl( EDITOR_URL )
         closeWindow();
 
-    } else if ( transcription === "toggle" || transcription === "reset" || transcription === MODE_TRANSCRIPTION || transcription === "exit" ) {
+    } else if ( transcription === MODE_RESET|| transcription === MODE_EXIT || transcription === MODE_TRANSCRIPTION  ) {
 
         currentMode   = MODE_TRANSCRIPTION;
                prefix = "";
@@ -417,13 +423,13 @@ async function handleCommand( prefix, transcription ) {
         updateLocalStorageLastUrl( url, "&q=" + searchTerms )
         closeWindow();
 
-    } else if ( transcription.startsWith( "zoom reset" ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR + " zoom reset" ) ) {
+    } else if ( transcription.startsWith( VOX_CMD_ZOOM_RESET ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_ZOOM_RESET ) ) {
 
         console.log( "Zoom reset..." );
         updateLocalStorageLastZoom( 0 );
         closeWindow();
 
-    } else if ( transcription.startsWith( "zoom out" ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR + " zoom out" ) ) {
+    } else if ( transcription.startsWith( VOX_CMD_ZOOM_OUT ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_ZOOM_OUT ) ) {
 
         console.log( "Zooming out..." );
         let zoomCount = ( transcription.split( "zoom out" ).length - 1 ) * -1;
@@ -431,7 +437,7 @@ async function handleCommand( prefix, transcription ) {
         updateLocalStorageLastZoom( zoomCount );
         closeWindow();
 
-    } else if ( transcription.startsWith( "zoom" ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR + " zoom" ) ) {
+    } else if ( transcription.startsWith( VOX_CMD_ZOOM_IN ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_ZOOM_IN ) ) {
 
         console.log( "Zooming in..." );
         let zoomCount = transcription.split( "zoom" ).length - 1;
