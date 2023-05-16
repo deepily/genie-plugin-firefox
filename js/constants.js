@@ -13,6 +13,7 @@ export const VOX_CMD_OPEN_NEW_TAB   = "open new tab";
 export const VOX_TAB_COMMANDS    = [ VOX_CMD_TAB_BACK, VOX_CMD_TAB_FORWARD, VOX_CMD_TAB_REFRESH, VOX_CMD_TAB_CLOSE, VOX_CMD_OPEN_NEW_TAB ];
 
 export const VOX_CMD_OPEN_EDITOR    = "open editor";
+export const VOX_CMD_OPEN_URL_BUCKET= "open url bucket";
 export const VOX_CMD_PROOFREAD      = "proofread";
 export const VOX_CMD_PROOFREAD_STEM = "proof";
 export const VOX_CMD_VIEW_CONSTANTS = "view constan";
@@ -34,7 +35,7 @@ export const MULTIMODAL_CONTACT_INFO  = "multimodal contact information";
 export const MULTIMODAL_TEXT_PYTHON   = "multimodal python punctuation";
 export const MULTIMODAL_TEXT_EMAIL    = "multimodal text email"
 export const STEM_MULTIMODAL_EDITOR   = "multimodal editor";
-
+export const STEM_MULTIMODAL_AI_FETCH = "multimodal ai fetch"
 export const MODE_TRANSCRIPTION       = "transcription"
 export const MODE_COMMAND             = "command"
 
@@ -42,6 +43,7 @@ export const TTS_SERVER_ADDRESS        = "http://127.0.0.1:5002";
 export const GIB_SERVER_ADDRESS        = "http://127.0.0.1:7999";
 
 export const EDITOR_URL                = "http://127.0.0.1:8080/genie-plugin-firefox/html/editor-quill.html";
+export const BUCKET_URL                = "http://127.0.0.1:8080/genie-plugin-firefox/html/blank.html";
 export const CONSTANTS_URL             = "http://127.0.0.1:8080/genie-plugin-firefox/js/constants.js";
 export const SEARCH_URL_GOOGLE         = "https://www.google.com/search";
 export const SEARCH_URL_GOOGLE_SCHOLAR = "https://scholar.google.com/scholar"
