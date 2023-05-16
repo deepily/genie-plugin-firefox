@@ -90,13 +90,29 @@ let lastCode  = "";
 
         console.log( "content.js: Message.command received: " + request.command);
 
-        if ( request.command === "command-select-all" ) {
+        if ( request.command === "command-append-html-to-body" ) {
+
+            console.log( "content.js: Appending to body: " + request.extras );
+
+            //Create the element using the createElement method.
+            var newDiv = document.createElement("div" );
+
+            //Set its unique ID.
+            newDiv.id = 'div-id-' + Date.now();
+
+            //Add your content to the DIV
+            newDiv.innerHTML = request.extras;
+
+            //Finally, append the element to the HTML body
+            document.body.appendChild( newDiv );
+
+        } else if ( request.command === "command-select-all" ) {
 
             document.execCommand( "selectAll" );
 
         } else if ( request.command === "command-copy" ) {
 
-            selectedText = document.getSelection().toString()
+            var selectedText = document.getSelection().toString()
 
             await copyToClipboard( selectedText );
             browser.runtime.sendMessage( {
@@ -106,7 +122,7 @@ let lastCode  = "";
 
         } else if ( request.command === "command-cut" ) {
 
-            selection = document.getSelection()
+            var selection = document.getSelection()
             
             await copyToClipboard( selection.toString() );
             selection.deleteFromDocument()
@@ -188,7 +204,7 @@ let lastCode  = "";
     function paste( text ) {
 
         console.log( "paste() called..." );
-        selection = document.getSelection()
+        var selection = document.getSelection()
 
         // test for selection before attempting to delete it
         if ( selection.rangeCount ) {
@@ -223,7 +239,7 @@ let lastCode  = "";
 
         console.log( "pasteIntoTab() called..." );
         const activeDocument = browser.tabs[ tabId ].document
-        selection = activeDocument.getSelection()
+        var selection = activeDocument.getSelection()
 
         // test for selection before attempting to delete it
         if ( selection.rangeCount ) {
