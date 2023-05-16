@@ -32,13 +32,17 @@ import {
     VOX_CMD_MODE_EXIT,
     VOX_CMD_ZOOM_RESET,
     VOX_CMD_ZOOM_OUT,
-    VOX_CMD_ZOOM_IN, VOX_CMD_SEARCH_GOOGLE_SCHOLAR, SEARCH_URL_GOOGLE_SCHOLAR
+    VOX_CMD_ZOOM_IN,
+    VOX_CMD_SEARCH_GOOGLE_SCHOLAR,
+    SEARCH_URL_GOOGLE_SCHOLAR,
+    STEM_MULTIMODAL_AI_FETCH,
+    VOX_CMD_OPEN_URL_BUCKET, BUCKET_URL
 } from "/js/constants.js";
 import {
     sendMessageToBackgroundScripts,
     readFromLocalStorage,
     queuePasteCommandInLocalStorage,
-    queueNewTabCommandInLocalStorage
+    queueNewTabCommandInLocalStorage, queueHtmlInsertInLocalStorage
 } from "/js/util.js";
 
 console.log( "recorder.js loading..." );
@@ -49,6 +53,7 @@ var mode          = "";
 var currentMode   = "";
 var prefix        = "";
 var transcription = "";
+var results        = [];
 var titleMode     = "Transcription";
 
 async function initializeStartupParameters() {
@@ -267,18 +272,42 @@ saveButton.addEventListener( "click", async () => {
             throw new Error( `HTTP error: ${response.status}` );
         }
         const transcriptionJson = await response.json();
-        console.log( "transcriptionJson [" + JSON.stringify( transcriptionJson ) + "]..." );
-        let transcription = transcriptionJson[ "transcription" ]
-        let prefix        = transcriptionJson[ "prefix" ]
+        // console.log( "transcriptionJson [" + JSON.stringify( transcriptionJson ) + "]..." );
+        let transcription = transcriptionJson[ "transcription" ];
+        let prefix        = transcriptionJson[ "prefix" ];
+        let results       = transcriptionJson[ "results" ];
 
         // are we in command mode?
-        if ( prefix.startsWith( STEM_MULTIMODAL_EDITOR) || transcription.startsWith( STEM_MULTIMODAL_EDITOR ) ) {
+        if ( prefix.startsWith( STEM_MULTIMODAL_EDITOR ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR ) ) {
 
             handleCommand( prefix, transcription );
 
+        } else if ( prefix.startsWith( STEM_MULTIMODAL_EDITOR ) || transcriptionJson[ "mode" ].startsWith( STEM_MULTIMODAL_AI_FETCH ) ) {
+
+            console.log( "Processing multimodal AI fetch results..." )
+
+            let idx = 1;
+            let urlChunks = "<ul>";
+            for ( const result of results ){
+                let urlChunk = `<li>${idx}) <a href="${result[ 'href' ]}">${result[ 'title' ]}</a></li>`;
+                // let urlChunk = `${result[ 'title' ]}: ${result[ 'href' ]}<br><br>`;
+                console.log( "urlChunk [" + urlChunk + "]" );
+                urlChunks += urlChunk;
+                idx++;
+            }
+            urlChunks += "</ul>";
+
+            console.log( "urlTags [" + urlChunks + "]" );
+            // const writeCmd = await navigator.clipboard.writeText( urlChunks )
+            queueHtmlInsertInLocalStorage( urlChunks );
+
+            console.log( "Done!" );
+            closeWindow();
+
         } else {
-            console.log( "Pushing 'transcription' part of this response object to clipboard [" + JSON.stringify( transcriptionJson ) + "]..." );
-            console.log( "transcription [" + transcriptionJson[ "transcription" ] + "]" );
+
+            // console.log( "Pushing 'transcription' part of this response object to clipboard [" + JSON.stringify( transcriptionJson ) + "]..." );
+            console.log( "Pushing 'transcription' to clipboard [" + transcriptionJson[ "transcription" ] + "]" );
 
             updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
 
@@ -288,8 +317,8 @@ saveButton.addEventListener( "click", async () => {
             if ( debug ) { console.log( "Success!" ); }
             closeWindow();
         }
-    } catch (e) {
-        console.log( "Error reading audio file [" + e + "]" );
+    } catch ( e ) {
+        console.log( "Error processing audio file [" + e.stack + "]" );
     }
 } );
 
@@ -337,7 +366,12 @@ async function handleCommand( prefix, transcription ) {
     //     closeWindow();
     } else if ( transcription === VOX_CMD_OPEN_EDITOR ) {
 
-        queueNewTabCommandInLocalStorage( EDITOR_URL )
+        queueNewTabCommandInLocalStorage(EDITOR_URL)
+        closeWindow();
+
+    } else if ( transcription === VOX_CMD_OPEN_URL_BUCKET ) {
+
+        queueNewTabCommandInLocalStorage( BUCKET_URL )
         closeWindow();
 
     } else if ( transcription === VOX_CMD_MODE_RESET|| transcription === VOX_CMD_MODE_EXIT || transcription === MODE_TRANSCRIPTION  ) {
