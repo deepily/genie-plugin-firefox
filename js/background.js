@@ -27,7 +27,9 @@ import {
 let lastPaste = "";
 let lastUrl   = "";
 let lastZoom  = "";
-let lastTabId = -1;
+let lastTabId= -1;
+let lastHtmlToInsert = "";
+
 var mode      = "";
 var prefix    = "";
 var command   = "";
@@ -227,6 +229,15 @@ browser.storage.onChanged.addListener( async (changes, areaName) => {
         console.log( "lastPaste updated, sending message to paste from clipboard..." );
         sendMessageToOneContentScript( lastTabId, "command-paste" );
     }
+
+    if ( areaName === "local" && changes.lastHtmlToInsert !== undefined && lastHtmlToInsert != changes.lastHtmlToInsert.newValue ) {
+
+        lastHtmlToInsert = changes.lastHtmlToInsert.newValue;
+        console.log( "lastHtmlToInsert updated, sending message to paste html..." );
+        sendMessageToOneContentScript( lastTabId, "command-append-html-to-body", lastHtmlToInsert );
+    }
+
+
     console.log( "lastUrl: " + lastUrl );
     console.log( "lastZoom: " + lastZoom );
     console.log( "lastTabId: " + lastTabId );
