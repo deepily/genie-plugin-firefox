@@ -18,11 +18,12 @@ export async function sendMessageToContentScripts( command ) {
         return true;
     } );
 }
-export async function sendMessageToOneContentScript( tabId, command ) {
+export async function sendMessageToOneContentScript( tabId, command, extras="" ) {
 
     console.log( "calling content script in tab: " + tabId );
     await browser.tabs.sendMessage( tabId, {
-        command: command
+        command: command,
+        extras: extras
     });
 }
 
@@ -79,7 +80,15 @@ export async function queueNewTabCommandInLocalStorage(url, args="" ) {
     } );
     return true;
 }
+export async function queueHtmlInsertInLocalStorage( htmlToInsert ) {
 
+    console.log( "queueHtmlInsertInLocalStorage()..." );
+
+    browser.storage.local.set( {
+        "lastHtmlToInsert": htmlToInsert
+    } );
+    return true;
+}
 export const readFromLocalStorage = async (key, defaultValue ) => {
     return new Promise(( resolve, reject ) => {
         browser.storage.local.get( [ key ], function ( result ) {
