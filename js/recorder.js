@@ -32,7 +32,7 @@ import {
     VOX_CMD_MODE_EXIT,
     VOX_CMD_ZOOM_RESET,
     VOX_CMD_ZOOM_OUT,
-    VOX_CMD_ZOOM_IN
+    VOX_CMD_ZOOM_IN, VOX_CMD_SEARCH_GOOGLE_SCHOLAR, SEARCH_URL_GOOGLE_SCHOLAR
 } from "/js/constants.js";
 import {
     sendMessageToBackgroundScripts,
@@ -394,6 +394,20 @@ async function handleCommand( prefix, transcription ) {
 
         console.log( "Updating lastUrl to [" + url + "]" );
         queueNewTabCommandInLocalStorage( url );
+        closeWindow();
+
+    } else if ( transcription.startsWith( VOX_CMD_SEARCH_GOOGLE_SCHOLAR ) || prefix === STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_SEARCH_GOOGLE_SCHOLAR ) {
+
+        let searchTerms = "";
+
+        if ( prefix === STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_SEARCH_GOOGLE_SCHOLAR ) {
+            searchTerms = transcription;
+        } else {
+            searchTerms = transcription.replace( VOX_CMD_SEARCH_GOOGLE_SCHOLAR, "" ).trim()
+        }
+        // TODO/KLUDGE: Replace "this information" with "disinformation"
+        searchTerms = searchTerms.replace( "this information", "disinformation" )
+        queueNewTabCommandInLocalStorage( SEARCH_URL_GOOGLE_SCHOLAR, "&q=" + searchTerms )
         closeWindow();
 
     } else if ( transcription.startsWith( VOX_CMD_SEARCH_GOOGLE ) || prefix === STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_SEARCH_GOOGLE ) {
