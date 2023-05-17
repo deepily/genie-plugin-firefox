@@ -24,6 +24,10 @@ export const VOX_CMD_ZOOM_RESET     = "zoom reset"
 
 export const VOX_CMD_MODE_RESET     = "reset";
 export const VOX_CMD_MODE_EXIT      = "exit";
+export const VOX_CMD_SET_LINK_MODE  = "set link mode";
+export const LINK_MODE_DRILL_DOWN   = "drill down";
+export const LINK_MODE_NEW_TAB      = "new tab";
+export const LINK_MODE_DEFAULT      = LINK_MODE_DRILL_DOWN;
 
 export const VOX_CMD_SEARCH_DDG              = "search";
 export const VOX_CMD_SEARCH_GOOGLE           = "search google";
