@@ -36,7 +36,7 @@ import {
     VOX_CMD_SEARCH_GOOGLE_SCHOLAR,
     SEARCH_URL_GOOGLE_SCHOLAR,
     STEM_MULTIMODAL_AI_FETCH,
-    VOX_CMD_OPEN_URL_BUCKET, BUCKET_URL
+    VOX_CMD_OPEN_URL_BUCKET, BUCKET_URL, VOX_CMD_SET_LINK_MODE, LINK_MODE_DRILL_DOWN, LINK_MODE_NEW_TAB
 } from "/js/constants.js";
 import {
     sendMessageToBackgroundScripts,
@@ -374,14 +374,28 @@ async function handleCommand( prefix, transcription ) {
         queueNewTabCommandInLocalStorage( BUCKET_URL )
         closeWindow();
 
-    } else if ( transcription === VOX_CMD_MODE_RESET|| transcription === VOX_CMD_MODE_EXIT || transcription === MODE_TRANSCRIPTION  ) {
+    } else if ( transcription.startsWith( VOX_CMD_SET_LINK_MODE ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_SET_LINK_MODE ) ) {
+
+        if ( transcription.endsWith( LINK_MODE_DRILL_DOWN ) ) {
+            await browser.storage.local.set( { "linkMode": LINK_MODE_DRILL_DOWN } );
+            await doTextToSpeech( LINK_MODE_DRILL_DOWN )
+        } else if ( transcription.endsWith( LINK_MODE_NEW_TAB ) ) {
+            await browser.storage.local.set( { "linkMode": LINK_MODE_NEW_TAB } );
+            await doTextToSpeech( LINK_MODE_NEW_TAB )
+        } else {
+            await browser.storage.local.set( { "linkMode": LINK_MODE_DEFAULT } );
+            await doTextToSpeech( LINK_MODE_DEFAULT )
+        }
+        closeWindow();
+
+    } else if ( transcription === VOX_CMD_MODE_RESET || transcription === VOX_CMD_MODE_EXIT || transcription === MODE_TRANSCRIPTION  ) {
 
         currentMode   = MODE_TRANSCRIPTION;
                prefix = "";
         transcription = "";
         updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
 
-        await doTextToSpeech( "Switching to " + currentMode + " mode", closeWindow = false, refreshWindow = true);
+        await doTextToSpeech( "Switching to " + currentMode + " mode", refreshWindow=true);
 
     } else if ( transcription == VOX_CMD_OPEN_NEW_TAB || transcription == VOX_CMD_SEARCH_GOOGLE || transcription == VOX_CMD_SEARCH_DDG ) {
 
@@ -495,14 +509,14 @@ async function handleCommand( prefix, transcription ) {
 
     } else {
         console.log( "Unknown command [" + transcription + "]" );
-        await doTextToSpeech( "Unknown command " + transcription, closeWindow=false, refreshWindow=true );
+        await doTextToSpeech( "Unknown command " + transcription, refreshWindow=true );
     }
 }
 async function proofreadFromClipboard() {
 
     try {
 
-        doTextToSpeech( "Proofreading...", closeWindow=false, refreshWindow=false )
+        doTextToSpeech( "Proofreading...", refreshWindow=false )
 
         const rawText = await navigator.clipboard.readText()
         console.log( "rawText [" + rawText + "]" );
@@ -524,7 +538,7 @@ async function proofreadFromClipboard() {
         const pasteCmd = await navigator.clipboard.writeText( proofreadText );
         queuePasteCommandInLocalStorage( Date.now() );
 
-        doTextToSpeech( "Done!", closeWindow=true, refreshWindow=false );
+        doTextToSpeech( "Done!", refreshWindow=false );
 
     } catch ( e ) {
         console.log( "Error: " + e );
@@ -550,7 +564,7 @@ async function readBlobAsDataURL( file ) {
     return result_base64;
 }
 
-async function doTextToSpeech( text, closeWindow=true, refreshWindow=false ) {
+async function doTextToSpeech( text, refreshWindow=false ) {
 
     console.log( "doTextToSpeech() called..." )
 

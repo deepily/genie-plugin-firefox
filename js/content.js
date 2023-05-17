@@ -18,25 +18,34 @@ let lastCode  = "";
     }
     window.hasRun = true;
 
-    window.addEventListener("click", function(event) {
+    window.addEventListener( "click", function(event) {
         handleWindowClick(event);
     }, false );
 
-    function handleWindowClick( event ){
+    async function handleWindowClick(event) {
 
         var origEl = event.target || event.srcElement;
-        console.log( "origEl is [" + JSON.stringify( origEl ) + "]" );
-        if( origEl.tagName === 'A' || origEl.parentNode.tagName === 'A' ) {
+        console.log( "origEl is [" + JSON.stringify(origEl) + "]");
+        if (origEl.tagName === 'A' || origEl.parentNode.tagName === 'A') {
             var eventHref = "";
-            if ( origEl.href != undefined ) {
+            if (origEl.href != undefined) {
                 eventHref = origEl.href;
             } else {
                 eventHref = origEl.parentNode.href;
             }
-            updateLocalStorageLastUrl(  eventHref );
-            console.log( "Link clicked, canceling & redirecting to a new tab: " + eventHref );
-
-            event.preventDefault();
+            const mode = await browser.storage.local.get( "linkMode" ).then( ( result ) => {
+                return result.linkMode;
+            } );
+            console.log( "linkMode is [" + mode + "]");
+            const newTab = mode === "new tab";
+            console.log( "newTab is [" + newTab + "]");
+            if (newTab) {
+                updateLocalStorageLastUrl( eventHref );
+                console.log( "Link clicked, canceling & redirecting to a new tab: " + eventHref );
+                event.preventDefault();
+            } else {
+                console.log( "Link clicked, loading to the same tab: " + eventHref );
+            }
         }
     }
     // TODO: move to util.js & find a way to import without the errors I've been getting when I try to do that.
@@ -48,7 +57,7 @@ let lastCode  = "";
         } );
         return true;
     }
-    document.addEventListener("selectionchange", () => {
+    document.addEventListener( "selectionchange", () => {
 
         // console.log( document.getSelection().toString() );
         if ( document.getSelection().toString() !== "" ) {
@@ -65,7 +74,7 @@ let lastCode  = "";
         // console.log( "lastKey is [" + lastKey + "] and the lastCode is [" + lastCode + "]" );
 
         if ( event.key === "Meta" && event.code === "OSRight" && lastKey === "Meta" && lastCode === "OSRight" ) {
-            console.log("Background: Double OSRight keydown detected");
+            console.log( "Background: Double OSRight keydown detected");
             lastKey = "";
             lastCode = "";
             browser.runtime.sendMessage({
@@ -95,7 +104,7 @@ let lastCode  = "";
             console.log( "content.js: Appending to body: " + request.extras );
 
             //Create the element using the createElement method.
-            var newDiv = document.createElement("div" );
+            var newDiv = document.createElement( "div" );
 
             //Set its unique ID.
             newDiv.id = 'div-id-' + Date.now();
