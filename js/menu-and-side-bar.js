@@ -36,21 +36,22 @@ window.addEventListener( "DOMContentLoaded", (event) => {
 
     console.log( "DOM fully loaded and parsed, Setting up form event listeners..." );
 
-    // document.getElementById( "transcription" ).focus();
+    document.addEventListener( "click", async (e) => {
+        handleClickEvent( e );
+    } );
+
+    // const cmbLinkMode = document.getElementById( "link-mode" );
+    // // set startup value
+    // // browser.storage.local.set( { "linkMode" : cmbLinkMode.value } );
+    // // Update value as it changes
+    // cmbLinkMode.addEventListener( "change", async (e) => {
+    //     console.log( "cmbLinkMode: " + cmbLinkMode.value )
+    //     browser.storage.local.set( { "linkMode" : cmbLinkMode.value } );
+    // } );
 
     loadContentScript();
-    // console.log( "Loading content script..." );
-    // browser.tabs.executeScript( {file: "../js/content.js" } )
-    // .then( () => { console.log( "Loading content script... done!" ) } )
-    // .catch( reportExecuteScriptError );
-
+    
 } );
-// window.addEventListener( "message", (event) => {
-//
-//     console.log( "message: " + event );
-//     console.log( "message: " + event.data );
-//     console.log( "message: " + JSON.stringify( event.data ) );
-// } );
 async function loadContentScript() {
 
     console.log( "Loading content script..." );
@@ -58,24 +59,24 @@ async function loadContentScript() {
     .then( () => { console.log( "Loading content script... done!" ) } )
     .catch( reportExecuteScriptError );
 }
-document.addEventListener( "keypress", (event) => {
-
-    console.log( "key pressed: " + event.key );
-
-    if (event.key === "ArrowDown" ) {
-
-        console.log( "ArrowDown" )
-        // currentFocus = document.activeElement;
-        // for ( button in buttons ) {
-        //     if ( button === currentFocus ) {
-        //         console.log( "button has focus: " + button )
-        //         break;
-        //     }
-        // }
-    } else if (event.key === "ArrowUp" ) {
-        console.log( "ArrowUp" )
-    }
-} );
+// document.addEventListener( "keypress", (event) => {
+//
+//     console.log( "key pressed: " + event.key );
+//
+//     if (event.key === "ArrowDown" ) {
+//
+//         console.log( "ArrowDown" )
+//         // currentFocus = document.activeElement;
+//         // for ( button in buttons ) {
+//         //     if ( button === currentFocus ) {
+//         //         console.log( "button has focus: " + button )
+//         //         break;
+//         //     }
+//         // }
+//     } else if (event.key === "ArrowUp" ) {
+//         console.log( "ArrowUp" )
+//     }
+// } );
 
 function reportExecuteScriptError( error) {
     console.error(`Failed to execute content script: ${error.message}`);
@@ -103,70 +104,81 @@ function reportExecuteScriptError( error) {
 //     } );
 // }
 
-function foo( bar ) {
-    console.log( "foo: " + bar );
-}
-document.addEventListener( "click", async (e) => {
+
+// document.getElementById( "link-mode" ).addEventListener( "change", async (e) => {
+//
+//     const cmbLinkMode = document.getElementById( "link-mode" );
+//     console.log( "cmbLinkMode: " + cmbLinkMode.value() )
+//     // if ( cmbLinkMode.checked ) {
+//     //     console.log( "Link mode: Drill Down" );
+//     //     browser.storage.local.set( { "linkMode" : "drill down" } );
+//     // } else {
+//     //     console.log( "Link mode: Open link new tab" );
+//     //     browser.storage.local.set( { "linkMode" : "new tab" } );
+//     // }
+//
+// } );
+
+async function handleClickEvent( e ) {
 
     if ( e.target.id === "editor" ) {
-
-
+        console.log( "editor clicked?" );
     } else if ( e.target.id === "transcription" ) {
 
-        popupRecorder(mode=MODE_TRANSCRIPTION );
+        popupRecorder(mode = MODE_TRANSCRIPTION);
 
     } else if ( e.target.id === "transcription-python" ) {
 
-        popupRecorder(mode=MODE_TRANSCRIPTION, prefix=MULTIMODAL_TEXT_PYTHON );
+        popupRecorder(mode = MODE_TRANSCRIPTION, prefix = MULTIMODAL_TEXT_PYTHON);
 
     } else if ( e.target.id === "transcription-email" ) {
 
-        popupRecorder(mode=MODE_TRANSCRIPTION, prefix=MULTIMODAL_TEXT_EMAIL );
+        popupRecorder(mode = MODE_TRANSCRIPTION, prefix = MULTIMODAL_TEXT_EMAIL);
 
     } else if ( e.target.id === "transcription-contact-information" ) {
 
-        popupRecorder(mode=MODE_TRANSCRIPTION, prefix=MULTIMODAL_CONTACT_INFO );
+        popupRecorder(mode = MODE_TRANSCRIPTION, prefix = MULTIMODAL_CONTACT_INFO);
 
     } else if ( e.target.id === "transcription-debug" ) {
 
-        popupRecorder(mode=MODE_TRANSCRIPTION, debug = true);
+        popupRecorder(mode = MODE_TRANSCRIPTION, debug = true);
 
     } else if ( e.target.id === "command-cut" || e.target.id === "command-copy" || e.target.id === "command-paste" || e.target.id === "command-delete" || e.target.id === "command-select-all" ) {
 
-        let response = await sendMessageToContentScripts( e.target.id )
+        let response = await sendMessageToContentScripts( e.target.id)
 
     } else if ( e.target.id === "command-mode" ) {
 
-        popupRecorder(mode=MODE_COMMAND, prefix=STEM_MULTIMODAL_EDITOR, command="mode" );
+        popupRecorder(mode = MODE_COMMAND, prefix = STEM_MULTIMODAL_EDITOR, command = "mode" );
 
     } else if ( e.target.id === "command-open-new-tab" ) {
 
         console.log( "command-new-tab" );
-        popupRecorder(mode=MODE_COMMAND, prefix=STEM_MULTIMODAL_EDITOR, command=VOX_CMD_OPEN_NEW_TAB );
+        popupRecorder(mode = MODE_COMMAND, prefix = STEM_MULTIMODAL_EDITOR, command = VOX_CMD_OPEN_NEW_TAB);
 
     } else if ( e.target.id === "command-search-duck-duck-go" ) {
 
-        popupRecorder(mode=MODE_COMMAND, prefix=STEM_MULTIMODAL_EDITOR, command=VOX_CMD_SEARCH_DDG );
+        popupRecorder(mode = MODE_COMMAND, prefix = STEM_MULTIMODAL_EDITOR, command = VOX_CMD_SEARCH_DDG);
 
     } else if ( e.target.id === "command-search-google" ) {
 
-        popupRecorder(mode=MODE_COMMAND, prefix=STEM_MULTIMODAL_EDITOR, command=VOX_CMD_SEARCH_GOOGLE );
+        popupRecorder(mode = MODE_COMMAND, prefix = STEM_MULTIMODAL_EDITOR, command = VOX_CMD_SEARCH_GOOGLE);
 
     } else if ( e.target.id === "command-search-duck-duck-go-clipboard" ) {
 
         const clipboardText = await navigator.clipboard.readText()
         let url = "https://www.duckduckgo.com/";
-        queueNewTabCommandInLocalStorage( url, args="&q=" + clipboardText );
+        queueNewTabCommandInLocalStorage(url, args = "&q=" + clipboardText);
 
     } else if ( e.target.id === "command-search-google-clipboard" ) {
 
         const clipboardText = await navigator.clipboard.readText()
         let url = "https://www.google.com/search";
-        queueNewTabCommandInLocalStorage( url, args="&q=" + clipboardText );
+        queueNewTabCommandInLocalStorage(url, args = "&q=" + clipboardText);
 
     } else if ( e.target.id === "command-proofread" ) {
 
-        let response = await sendMessageToBackgroundScripts( e.target.id )
+        let response = await sendMessageToBackgroundScripts( e.target.id)
 
     } else if ( e.target.id === "command-whats-this" ) {
 
@@ -183,40 +195,40 @@ document.addEventListener( "click", async (e) => {
     } else if ( e.target.id === "tab-back" ) {
 
         // Kluge to force a reload of the content script just in case we've already toggled forward or backwards and the script has not been reloaded.
-        let response = await sendMessageToContentScripts( e.target.id )
+        let response = await sendMessageToContentScripts( e.target.id)
         await loadContentScript();
 
     } else if ( e.target.id === "tab-forward" ) {
 
         // Kluge to force a reload of the content script just in case we've already toggled forward or backwards and the script has not been reloaded.
-        let response = await sendMessageToContentScripts( e.target.id )
+        let response = await sendMessageToContentScripts( e.target.id)
         await loadContentScript();
 
     } else if ( e.target.id === "tab-refresh" ) {
 
         // window.location.reload();
-        let response = await sendMessageToContentScripts( e.target.id )
+        let response = await sendMessageToContentScripts( e.target.id)
         // await loadContentScript();
 
         let searchingHistory = browser.history.search({text: "", maxResults: 5});
-            searchingHistory.then((results) => {
+        searchingHistory.then((results) => {
             // What to show if there are no results.
             if (results.length < 1) {
-              console.log( "This is all there is:" + hostname.url );
+                console.log( "This is all there is:" + hostname.url);
             } else {
-              for (let k in results) {
-                let history = results[k];
-                console.log(history.url);
-              }
+                for (let k in results) {
+                    let history = results[k];
+                    console.log(history.url);
+                }
             }
         });
 
-    // verbatim copy and paste from web extension example "tabs tabs tabs": https://github.com/mdn/webextensions-examples/tree/main/tabs-tabs-tabs
+        // verbatim copy and paste from web extension example "tabs tabs tabs": https://github.com/mdn/webextensions-examples/tree/main/tabs-tabs-tabs
     } else if ( e.target.id === "tabs-add-zoom" ) {
-        callOnActiveTab(( tab ) => {
+        callOnActiveTab((tab) => {
             // console.log( "tabs-add-zoom, tab: " + JSON.stringify( tab ) );
-            console.log( "tabs-add-zoom, tab.id: " + tab.id );
-            let gettingZoom = browser.tabs.getZoom( tab.id);
+            console.log( "tabs-add-zoom, tab.id: " + tab.id);
+            let gettingZoom = browser.tabs.getZoom(tab.id);
             gettingZoom.then((zoomFactor) => {
                 // //the maximum zoomFactor is 5, it can't go higher
                 // if (zoomFactor >= ZOOM_MAX) {
@@ -231,7 +243,7 @@ document.addEventListener( "click", async (e) => {
             });
         });
     } else if ( e.target.id === "tabs-decrease-zoom" ) {
-        callOnActiveTab(( tab ) => {
+        callOnActiveTab((tab) => {
             let gettingZoom = browser.tabs.getZoom(tab.id);
             gettingZoom.then((zoomFactor) => {
                 //the minimum zoomFactor is 0.3, it can't go lower
@@ -247,7 +259,7 @@ document.addEventListener( "click", async (e) => {
             });
         });
     } else if ( e.target.id === "tabs-default-zoom" ) {
-        callOnActiveTab(( tab ) => {
+        callOnActiveTab((tab) => {
             let gettingZoom = browser.tabs.getZoom(tab.id);
             gettingZoom.then((zoomFactor) => {
                 if (zoomFactor != ZOOM_DEFAULT) {
@@ -255,23 +267,27 @@ document.addEventListener( "click", async (e) => {
                 }
             });
         });
-        
+
     } else if ( e.target.id === "tabs-close-current-tab" ) {
 
-        callOnActiveTab(( tab ) => {
-            browser.tabs.remove( tab.id );
+        callOnActiveTab((tab) => {
+            browser.tabs.remove(tab.id);
         });
 
     } else if ( e.target.id === "open-editor" ) {
 
         // var url = "http://127.0.0.1:8080/genie-plugin-firefox/html/editor-quill.html";
-        queueNewTabCommandInLocalStorage( EDITOR_URL )
+        queueNewTabCommandInLocalStorage(EDITOR_URL)
+
+    } else if ( e.target.id === "link-mode" ) {
+
+        console.log( "Link mode clicked..." );
 
     } else {
         console.log( "Unknown button clicked: " + e.target.id);
     }
     e.preventDefault()
-} );
+}
 
 export async function popupRecorder(mode=MODE_TRANSCRIPTION, prefix = "", transcription = "", debug = false, tabId = -1) {
 
