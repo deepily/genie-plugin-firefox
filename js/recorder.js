@@ -2,46 +2,26 @@ import {
     VOX_CMD_SEARCH_DDG,
     VOX_CMD_SEARCH_GOOGLE,
     VOX_CMD_OPEN_NEW_TAB,
-    VOX_CMD_CUT,
-    VOX_CMD_COPY,
-    VOX_CMD_PASTE,
-    VOX_CMD_DELETE,
-    VOX_CMD_SELECT_ALL,
-    VOX_CMD_PROOFREAD,
+    // VOX_CMD_CUT, VOX_CMD_COPY, VOX_CMD_PASTE, VOX_CMD_DELETE, VOX_CMD_SELECT_ALL,
     VOX_EDIT_COMMANDS,
+    VOX_CMD_PROOFREAD,
     STEM_MULTIMODAL_EDITOR,
-    MODE_COMMAND,
-    MODE_TRANSCRIPTION,
-    TTS_SERVER_ADDRESS,
-    GIB_SERVER_ADDRESS,
-    VOX_CMD_TAB_CLOSE,
-    VOX_CMD_TAB_REFRESH,
-    VOX_CMD_TAB_BACK,
-    VOX_CMD_TAB_FORWARD,
+    MODE_COMMAND, MODE_TRANSCRIPTION,
+    TTS_SERVER_ADDRESS, GIB_SERVER_ADDRESS,
+    // VOX_CMD_TAB_CLOSE, VOX_CMD_TAB_REFRESH, VOX_CMD_TAB_BACK, VOX_CMD_TAB_FORWARD,
     VOX_TAB_COMMANDS,
     EDITOR_URL,
     VOX_CMD_OPEN_EDITOR,
-    VOX_CMD_SEARCH_CLIPBOARD_DDG,
-    VOX_CMD_SEARCH_CLIPBOARD_GOOGLE,
-    SEARCH_URL_DDG,
-    SEARCH_URL_GOOGLE,
-    CONSTANTS_URL,
+    VOX_CMD_SEARCH_CLIPBOARD_DDG, VOX_CMD_SEARCH_CLIPBOARD_GOOGLE, VOX_CMD_SEARCH_GOOGLE_SCHOLAR,
+    SEARCH_URL_DDG, SEARCH_URL_GOOGLE, CONSTANTS_URL, SEARCH_URL_GOOGLE_SCHOLAR,
+    STEM_MULTIMODAL_AI_FETCH,
     VOX_CMD_VIEW_CONSTANTS,
     VOX_CMD_PROOFREAD_STEM,
-    VOX_CMD_MODE_RESET,
-    VOX_CMD_MODE_EXIT,
-    VOX_CMD_ZOOM_RESET,
-    VOX_CMD_ZOOM_OUT,
-    VOX_CMD_ZOOM_IN,
-    VOX_CMD_SEARCH_GOOGLE_SCHOLAR,
-    SEARCH_URL_GOOGLE_SCHOLAR,
-    STEM_MULTIMODAL_AI_FETCH,
-    VOX_CMD_OPEN_URL_BUCKET,
-    BUCKET_URL,
-    VOX_CMD_SET_LINK_MODE,
-    LINK_MODE_DRILL_DOWN,
-    LINK_MODE_NEW_TAB,
-    VOX_CMD_SET_PROMPT_MODE, PROMPT_MODE_VERBOSE, PROMPT_MODE_QUIET, PROMPT_MODE_DEFAULT
+    VOX_CMD_MODE_RESET, VOX_CMD_MODE_EXIT,
+    VOX_CMD_ZOOM_RESET, VOX_CMD_ZOOM_OUT, VOX_CMD_ZOOM_IN,
+    VOX_CMD_OPEN_URL_BUCKET, BUCKET_URL,
+    VOX_CMD_SET_LINK_MODE, LINK_MODE_DRILL_DOWN, LINK_MODE_NEW_TAB,
+    VOX_CMD_SET_PROMPT_MODE, PROMPT_MODE_VERBOSE, PROMPT_MODE_QUIET, PROMPT_MODE_DEFAULT, STEM_MULTIMODAL_RUN_PROMPT
 } from "/js/constants.js";
 import {
     sendMessageToBackgroundScripts,
@@ -254,17 +234,10 @@ playButton.addEventListener( "click", () => {
 
 saveButton.addEventListener( "click", async () => {
 
-    // let promptVerbose = await readFromLocalStorage( "promptVerbose", "true" ).then( ( value ) => {
-    //     return value;
-    // } );
     const promptVerbose = await browser.storage.local.get( "promptMode" ).then( ( result ) => {
         return result.promptMode;
     } );
-    // if ( promptVerbose == PROMPT_MODE_VERBOSE ) {
-    //     promptVerbose = "true";
-    // } else {
-    //     promptVerbose = "false";
-    // }
+    // const promptVerbose = await readFromLocalStorageWithDefault( "promptMode", "verbose" )
 
     const url = GIB_SERVER_ADDRESS + "/api/upload-and-transcribe-mp3?prompt_key=generic&prefix=" + prefix + "&prompt_feedback=" + promptVerbose;
     console.log( "Attempting to upload and transcribe to url [" + url + "]" )
@@ -301,25 +274,10 @@ saveButton.addEventListener( "click", async () => {
 
         } else if ( prefix.startsWith( STEM_MULTIMODAL_EDITOR ) || transcriptionJson[ "mode" ].startsWith( STEM_MULTIMODAL_AI_FETCH ) ) {
 
-            console.log( "Processing multimodal AI fetch results..." )
+            handleAiFetch( results );
 
-            let idx = 1;
-            let urlChunks = "<ul>";
-            for ( const result of results ){
-                let urlChunk = `<li>${idx}) <a href="${result[ 'href' ]}">${result[ 'title' ]}</a></li>`;
-                // let urlChunk = `${result[ 'title' ]}: ${result[ 'href' ]}<br><br>`;
-                console.log( "urlChunk [" + urlChunk + "]" );
-                urlChunks += urlChunk;
-                idx++;
-            }
-            urlChunks += "</ul>";
+        } else if ( prefix.startsWith( STEM_MULTIMODAL_RUN_PROMPT ) || transcriptionJson[ "mode" ].startsWith( STEM_MULTIMODAL_RUN_PROMPT ) ) {
 
-            console.log( "urlTags [" + urlChunks + "]" );
-            // const writeCmd = await navigator.clipboard.writeText( urlChunks )
-            queueHtmlInsertInLocalStorage( urlChunks );
-
-            console.log( "Done!" );
-            closeWindow();
 
         } else {
 
@@ -338,6 +296,28 @@ saveButton.addEventListener( "click", async () => {
         console.log( "Error processing audio file [" + e.stack + "]" );
     }
 } );
+
+function handleAiFetch( results ) {
+
+    console.log( "Processing multimodal AI fetch results..." )
+
+    let idx = 1;
+    let urlChunks = "<ul>";
+    for ( const result of results ){
+        let urlChunk = `<li>${idx}) <a href="${result[ 'href' ]}">${result[ 'title' ]}</a></li>`;
+        console.log( "urlChunk [" + urlChunk + "]" );
+        urlChunks += urlChunk;
+        idx++;
+    }
+    urlChunks += "</ul>";
+
+    console.log( "urlTags [" + urlChunks + "]" );
+    // const writeCmd = await navigator.clipboard.writeText( urlChunks )
+    queueHtmlInsertInLocalStorage( urlChunks );
+
+    console.log( "Done!" );
+    closeWindow();
+}
 
 async function handleCommand( prefix, transcription ) {
 
