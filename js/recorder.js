@@ -36,7 +36,12 @@ import {
     VOX_CMD_SEARCH_GOOGLE_SCHOLAR,
     SEARCH_URL_GOOGLE_SCHOLAR,
     STEM_MULTIMODAL_AI_FETCH,
-    VOX_CMD_OPEN_URL_BUCKET, BUCKET_URL, VOX_CMD_SET_LINK_MODE, LINK_MODE_DRILL_DOWN, LINK_MODE_NEW_TAB
+    VOX_CMD_OPEN_URL_BUCKET,
+    BUCKET_URL,
+    VOX_CMD_SET_LINK_MODE,
+    LINK_MODE_DRILL_DOWN,
+    LINK_MODE_NEW_TAB,
+    VOX_CMD_SET_PROMPT_MODE, PROMPT_MODE_VERBOSE, PROMPT_MODE_QUIET, PROMPT_MODE_DEFAULT
 } from "/js/constants.js";
 import {
     sendMessageToBackgroundScripts,
@@ -249,7 +254,19 @@ playButton.addEventListener( "click", () => {
 
 saveButton.addEventListener( "click", async () => {
 
-    const url = GIB_SERVER_ADDRESS + "/api/upload-and-transcribe-mp3?prefix=" + prefix;
+    // let promptVerbose = await readFromLocalStorage( "promptVerbose", "true" ).then( ( value ) => {
+    //     return value;
+    // } );
+    const promptVerbose = await browser.storage.local.get( "promptMode" ).then( ( result ) => {
+        return result.promptMode;
+    } );
+    // if ( promptVerbose == PROMPT_MODE_VERBOSE ) {
+    //     promptVerbose = "true";
+    // } else {
+    //     promptVerbose = "false";
+    // }
+
+    const url = GIB_SERVER_ADDRESS + "/api/upload-and-transcribe-mp3?prompt_key=generic&prefix=" + prefix + "&prompt_feedback=" + promptVerbose;
     console.log( "Attempting to upload and transcribe to url [" + url + "]" )
 
     try {
@@ -386,7 +403,21 @@ async function handleCommand( prefix, transcription ) {
             await browser.storage.local.set( { "linkMode": LINK_MODE_DEFAULT } );
             await doTextToSpeech( LINK_MODE_DEFAULT )
         }
-        closeWindow();
+        closeWindow( 1000 );
+
+    } else if ( transcription.startsWith( VOX_CMD_SET_PROMPT_MODE ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_SET_PROMPT_MODE ) ) {
+
+        if ( transcription.endsWith( PROMPT_MODE_VERBOSE ) ) {
+            await browser.storage.local.set( { "promptMode": PROMPT_MODE_VERBOSE } );
+            await doTextToSpeech( PROMPT_MODE_VERBOSE )
+        } else if ( transcription.endsWith( PROMPT_MODE_QUIET ) ) {
+            await browser.storage.local.set( { "promptMode": PROMPT_MODE_QUIET } );
+            await doTextToSpeech( PROMPT_MODE_QUIET )
+        } else {
+            await browser.storage.local.set( { "promptMode": PROMPT_MODE_DEFAULT } );
+            await doTextToSpeech( PROMPT_MODE_DEFAULT )
+        }
+        closeWindow( 1000 );
 
     } else if ( transcription === VOX_CMD_MODE_RESET || transcription === VOX_CMD_MODE_EXIT || transcription === MODE_TRANSCRIPTION  ) {
 

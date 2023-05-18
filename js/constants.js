@@ -29,6 +29,11 @@ export const LINK_MODE_DRILL_DOWN   = "drill down";
 export const LINK_MODE_NEW_TAB      = "new tab";
 export const LINK_MODE_DEFAULT      = LINK_MODE_DRILL_DOWN;
 
+export const VOX_CMD_SET_PROMPT_MODE  = "set prompt mode";
+export const PROMPT_MODE_VERBOSE      = "verbose";
+export const PROMPT_MODE_QUIET        = "quiet";
+export const PROMPT_MODE_DEFAULT      = PROMPT_MODE_VERBOSE;
+
 export const VOX_CMD_SEARCH_DDG              = "search";
 export const VOX_CMD_SEARCH_GOOGLE           = "search google";
 export const VOX_CMD_SEARCH_GOOGLE_SCHOLAR   = "search google scholar";
