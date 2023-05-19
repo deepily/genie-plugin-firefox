@@ -45,19 +45,20 @@ import {
     sendMessageToBackgroundScripts,
     readFromLocalStorage,
     queuePasteCommandInLocalStorage,
-    queueNewTabCommandInLocalStorage, queueHtmlInsertInLocalStorage
+    queueNewTabCommandInLocalStorage,
+    queueHtmlInsertInLocalStorage
 } from "/js/util.js";
 
 console.log( "recorder.js loading..." );
 
 let debug         = false;
 var refreshWindow = false;
-var mode          = "";
-var currentMode   = "";
-var prefix        = "";
-var transcription = "";
-var results        = [];
-var titleMode     = "Transcription";
+var mode            = "";
+var currentMode     = "";
+var prefix          = "";
+var transcription   = "";
+var titleMode       = "Transcription";
+// var results         = [];
 
 async function initializeStartupParameters() {
 
@@ -65,7 +66,6 @@ async function initializeStartupParameters() {
     
     currentMode   = await readFromLocalStorage( "mode", MODE_TRANSCRIPTION );
     prefix        = await readFromLocalStorage( "prefix", "" );
-    // TODO: Command should be renamed transcription!
     transcription = await readFromLocalStorage( "transcription", "" );
     debug         = await readFromLocalStorage( "debug", false );
     titleMode     = currentMode[ 0 ].toUpperCase() + currentMode.slice( 1 );
@@ -330,7 +330,6 @@ function handleServerSearchResults( results ) {
     }
     urlChunks += "</ul>";
 
-    // console.log( "urlTags [" + urlChunks + "]" );
     // const writeCmd = await navigator.clipboard.writeText( urlChunks )
     queueHtmlInsertInLocalStorage( urlChunks );
 
@@ -393,15 +392,6 @@ async function handleCommand( prefix, transcription ) {
         sendMessageToBackgroundScripts( transcription );
         closeWindow();
 
-    // } else if ( transcription == VOX_CMD_TAB_BACK ) {
-    //
-    //     // This fails: ncaught (in promise) Error: Incorrect argument types for tabs.sendMessage
-    //     // let tabId = readFromLocalStorage( "lastTabId", "-1" );
-    //     // browser.tabs.sendMessage( tabId, {
-    //     //     command: "tab-back"
-    //     // } );
-    //     sendMessageToBackgroundScripts( transcription );
-    //     closeWindow();
     } else if ( transcription === VOX_CMD_OPEN_EDITOR ) {
 
         queueNewTabCommandInLocalStorage( EDITOR_URL )
@@ -692,19 +682,7 @@ async function doTextToSpeech( text, refreshWindow=false ) {
     console.log( "doTextToSpeech() called... done!" )
 }
 
-function reportExecuteScriptError( error) {
-    console.error( `Failed to execute content script: ${error.message}` );
-}
-
-// async function sendMessage( command, url="" ) {
-//
-//     await browser.tabs.query( {currentWindow: true, active: true} ).then(async (tabs) => {
-//         let tab = tabs[0];
-//         await browser.tabs.sendMessage( tab.id, {
-//             command: command,
-//                 url: url
-//         } );
-//         return true;
-//     } );
+// function reportExecuteScriptError( error) {
+//     console.error( `Failed to execute content script: ${error.message}` );
 // }
 console.log( "recorder.js loaded" );
