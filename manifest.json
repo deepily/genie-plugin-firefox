@@ -2,7 +2,7 @@
 
   "manifest_version": 2,
   "name": "Genie in the Box for Firefox",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "homepage_url": "https://github.com/deepily/genie-plugin-firefox",
   "description": "Records, transcribes and proofreads your voice, pasting it to the clipboard and/or into your browser.",
 
