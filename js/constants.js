@@ -34,6 +34,8 @@ export const PROMPT_MODE_VERBOSE      = "verbose";
 export const PROMPT_MODE_QUIET        = "quiet";
 export const PROMPT_MODE_DEFAULT      = PROMPT_MODE_VERBOSE;
 
+export const VOX_CMD_RUN_PROMPT_TEXT  = "run prompt from clipboard";
+
 export const VOX_CMD_SEARCH_DDG              = "search";
 export const VOX_CMD_SEARCH_GOOGLE           = "search google";
 export const VOX_CMD_SEARCH_GOOGLE_SCHOLAR   = "search google scholar";
@@ -45,6 +47,9 @@ export const MULTIMODAL_TEXT_PYTHON   = "multimodal python punctuation";
 export const MULTIMODAL_TEXT_EMAIL    = "multimodal text email"
 export const STEM_MULTIMODAL_EDITOR   = "multimodal editor";
 export const STEM_MULTIMODAL_AI_FETCH = "multimodal ai fetch"
+export const STEM_MULTIMODAL_RUN_PROMPT= "multimodal run prompt"
+export const VOX_CMD_SUFFIX_FROM_FILE  = "from file";
+export const VOX_CMD_SUFFIX_FROM_CLIPBOARD= "from clipboard";
 export const MODE_TRANSCRIPTION       = "transcription"
 export const MODE_COMMAND             = "command"
 
