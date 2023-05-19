@@ -14,7 +14,7 @@ import {
     VOX_CMD_OPEN_EDITOR,
     VOX_CMD_SEARCH_CLIPBOARD_DDG, VOX_CMD_SEARCH_CLIPBOARD_GOOGLE, VOX_CMD_SEARCH_GOOGLE_SCHOLAR,
     SEARCH_URL_DDG, SEARCH_URL_GOOGLE, CONSTANTS_URL, SEARCH_URL_GOOGLE_SCHOLAR,
-    STEM_MULTIMODAL_AI_FETCH,
+    STEM_MULTIMODAL_SERVER_SEARCH,
     VOX_CMD_VIEW_CONSTANTS,
     VOX_CMD_PROOFREAD_STEM,
     VOX_CMD_MODE_RESET, VOX_CMD_MODE_EXIT,
@@ -272,7 +272,7 @@ saveButton.addEventListener( "click", async () => {
 
             handleCommand( prefix, transcription );
 
-        } else if ( prefix.startsWith( STEM_MULTIMODAL_EDITOR ) || transcriptionJson[ "mode" ].startsWith( STEM_MULTIMODAL_AI_FETCH ) ) {
+        } else if ( transcriptionJson[ "mode" ].startsWith( STEM_MULTIMODAL_SERVER_SEARCH ) ) {
 
             handleAiFetch( results );
 
