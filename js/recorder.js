@@ -6,22 +6,40 @@ import {
     VOX_EDIT_COMMANDS,
     VOX_CMD_PROOFREAD,
     STEM_MULTIMODAL_EDITOR,
-    MODE_COMMAND, MODE_TRANSCRIPTION,
-    TTS_SERVER_ADDRESS, GIB_SERVER_ADDRESS,
+    MODE_COMMAND,
+    MODE_TRANSCRIPTION,
+    TTS_SERVER_ADDRESS,
+    GIB_SERVER_ADDRESS,
     // VOX_CMD_TAB_CLOSE, VOX_CMD_TAB_REFRESH, VOX_CMD_TAB_BACK, VOX_CMD_TAB_FORWARD,
     VOX_TAB_COMMANDS,
     EDITOR_URL,
     VOX_CMD_OPEN_EDITOR,
-    VOX_CMD_SEARCH_CLIPBOARD_DDG, VOX_CMD_SEARCH_CLIPBOARD_GOOGLE, VOX_CMD_SEARCH_GOOGLE_SCHOLAR,
-    SEARCH_URL_DDG, SEARCH_URL_GOOGLE, CONSTANTS_URL, SEARCH_URL_GOOGLE_SCHOLAR,
+    VOX_CMD_SEARCH_CLIPBOARD_DDG,
+    VOX_CMD_SEARCH_CLIPBOARD_GOOGLE,
+    VOX_CMD_SEARCH_GOOGLE_SCHOLAR,
+    SEARCH_URL_DDG,
+    SEARCH_URL_GOOGLE,
+    CONSTANTS_URL,
+    SEARCH_URL_GOOGLE_SCHOLAR,
     STEM_MULTIMODAL_SERVER_SEARCH,
     VOX_CMD_VIEW_CONSTANTS,
     VOX_CMD_PROOFREAD_STEM,
-    VOX_CMD_MODE_RESET, VOX_CMD_MODE_EXIT,
-    VOX_CMD_ZOOM_RESET, VOX_CMD_ZOOM_OUT, VOX_CMD_ZOOM_IN,
-    VOX_CMD_OPEN_URL_BUCKET, BUCKET_URL,
-    VOX_CMD_SET_LINK_MODE, LINK_MODE_DRILL_DOWN, LINK_MODE_NEW_TAB,
-    VOX_CMD_SET_PROMPT_MODE, PROMPT_MODE_VERBOSE, PROMPT_MODE_QUIET, PROMPT_MODE_DEFAULT, STEM_MULTIMODAL_RUN_PROMPT
+    VOX_CMD_MODE_RESET,
+    VOX_CMD_MODE_EXIT,
+    VOX_CMD_ZOOM_RESET,
+    VOX_CMD_ZOOM_OUT,
+    VOX_CMD_ZOOM_IN,
+    VOX_CMD_OPEN_URL_BUCKET,
+    BUCKET_URL,
+    VOX_CMD_SET_LINK_MODE,
+    LINK_MODE_DRILL_DOWN,
+    LINK_MODE_NEW_TAB,
+    VOX_CMD_SET_PROMPT_MODE,
+    PROMPT_MODE_VERBOSE,
+    PROMPT_MODE_QUIET,
+    PROMPT_MODE_DEFAULT,
+    VOX_CMD_RUN_PROMPT,
+    VOX_CMD_SUFFIX_FROM_CLIPBOARD, VOX_CMD_SUFFIX_FROM_FILE
 } from "/js/constants.js";
 import {
     sendMessageToBackgroundScripts,
@@ -234,12 +252,9 @@ playButton.addEventListener( "click", () => {
 
 saveButton.addEventListener( "click", async () => {
 
-    const promptVerbose = await browser.storage.local.get( "promptMode" ).then( ( result ) => {
-        return result.promptMode;
-    } );
-    // const promptVerbose = await readFromLocalStorageWithDefault( "promptMode", "verbose" )
+    const promptFeedback = await getPromptFeedbackMode();
 
-    const url = GIB_SERVER_ADDRESS + "/api/upload-and-transcribe-mp3?prompt_key=generic&prefix=" + prefix + "&prompt_feedback=" + promptVerbose;
+    const url = GIB_SERVER_ADDRESS + "/api/upload-and-transcribe-mp3?prompt_key=generic&prefix=" + prefix + "&prompt_feedback=" + promptFeedback;
     console.log( "Attempting to upload and transcribe to url [" + url + "]" )
 
     try {
@@ -274,10 +289,14 @@ saveButton.addEventListener( "click", async () => {
 
         } else if ( transcriptionJson[ "mode" ].startsWith( STEM_MULTIMODAL_SERVER_SEARCH ) ) {
 
-            handleAiFetch( results );
+            console.log( "  mode: " + transcriptionJson[ "mode" ] )
+            handleServerSearchResults( results );
 
-        } else if ( prefix.startsWith( STEM_MULTIMODAL_RUN_PROMPT ) || transcriptionJson[ "mode" ].startsWith( STEM_MULTIMODAL_RUN_PROMPT ) ) {
+        } else if ( prefix.startsWith( STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_RUN_PROMPT ) || transcriptionJson[ "mode" ].startsWith( VOX_CMD_RUN_PROMPT ) ) {
 
+            console.log( "prefix: " + prefix )
+            console.log( "  mode: " + transcriptionJson[ "mode" ] )
+            handleServerPromptResults( results );
 
         } else {
 
@@ -297,9 +316,9 @@ saveButton.addEventListener( "click", async () => {
     }
 } );
 
-function handleAiFetch( results ) {
+function handleServerSearchResults( results ) {
 
-    console.log( "Processing multimodal AI fetch results..." )
+    console.log( "Processing multimodal server search results..." )
 
     let idx = 1;
     let urlChunks = "<ul>";
@@ -311,7 +330,7 @@ function handleAiFetch( results ) {
     }
     urlChunks += "</ul>";
 
-    console.log( "urlTags [" + urlChunks + "]" );
+    // console.log( "urlTags [" + urlChunks + "]" );
     // const writeCmd = await navigator.clipboard.writeText( urlChunks )
     queueHtmlInsertInLocalStorage( urlChunks );
 
@@ -319,6 +338,28 @@ function handleAiFetch( results ) {
     closeWindow();
 }
 
+function handleServerPromptResults( results ) {
+
+    console.log( "TODO: Processing multimodal server prompt results..." )
+    console.log( "results [" + JSON.stringify( results ) + "]" )
+
+    // let idx = 1;
+    // let urlChunks = "<ul>";
+    // for ( const result of results ){
+    //     let urlChunk = `<li>${idx}) <a href="${result[ 'href' ]}">${result[ 'title' ]}</a></li>`;
+    //     console.log( "urlChunk [" + urlChunk + "]" );
+    //     urlChunks += urlChunk;
+    //     idx++;
+    // }
+    // urlChunks += "</ul>";
+    //
+    // // console.log( "urlTags [" + urlChunks + "]" );
+    // // const writeCmd = await navigator.clipboard.writeText( urlChunks )
+    // queueHtmlInsertInLocalStorage( urlChunks );
+
+    console.log( "Done!" );
+    closeWindow();
+}
 async function handleCommand( prefix, transcription ) {
 
     console.log( "handleCommands( transcription ) called with prefix [" + prefix + "] transcription [" + transcription + "]" );
@@ -363,13 +404,23 @@ async function handleCommand( prefix, transcription ) {
     //     closeWindow();
     } else if ( transcription === VOX_CMD_OPEN_EDITOR ) {
 
-        queueNewTabCommandInLocalStorage(EDITOR_URL)
+        queueNewTabCommandInLocalStorage( EDITOR_URL )
         closeWindow();
 
     } else if ( transcription === VOX_CMD_OPEN_URL_BUCKET ) {
 
         queueNewTabCommandInLocalStorage( BUCKET_URL )
         closeWindow();
+
+    } else if ( transcription.startsWith( VOX_CMD_RUN_PROMPT ) ) {
+
+        if ( transcription.endsWith( VOX_CMD_SUFFIX_FROM_CLIPBOARD ) ) {
+            runPromptFromClipboard();
+        } else if ( transcription.endsWith( VOX_CMD_SUFFIX_FROM_FILE ) ) {
+            doTextToSpeech( "TODO: implement run prompt from file" );
+        } else {
+            doTextToSpeech( "I don't understand prompt command suffix " + transcription.replace( VOX_CMD_RUN_PROMPT, "" ) );
+        }
 
     } else if ( transcription.startsWith( VOX_CMD_SET_LINK_MODE ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_SET_LINK_MODE ) ) {
 
@@ -383,7 +434,7 @@ async function handleCommand( prefix, transcription ) {
             await browser.storage.local.set( { "linkMode": LINK_MODE_DEFAULT } );
             await doTextToSpeech( LINK_MODE_DEFAULT )
         }
-        closeWindow( 1000 );
+        await closeWindow();
 
     } else if ( transcription.startsWith( VOX_CMD_SET_PROMPT_MODE ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_SET_PROMPT_MODE ) ) {
 
@@ -397,7 +448,7 @@ async function handleCommand( prefix, transcription ) {
             await browser.storage.local.set( { "promptMode": PROMPT_MODE_DEFAULT } );
             await doTextToSpeech( PROMPT_MODE_DEFAULT )
         }
-        closeWindow( 1000 );
+        await closeWindow();
 
     } else if ( transcription === VOX_CMD_MODE_RESET || transcription === VOX_CMD_MODE_EXIT || transcription === MODE_TRANSCRIPTION  ) {
 
@@ -415,7 +466,7 @@ async function handleCommand( prefix, transcription ) {
         transcription = "";
 
         console.log(transcription)
-        console.log("We know what you want (a new tab/search), but we don't know where you want to go or what you want to search.")
+        console.log( "We know what you want (a new tab/search), but we don't know where you want to go or what you want to search." )
         updateLastKnownRecorderState(currentMode, prefix, transcription, debug);
         window.location.reload();
 
@@ -523,6 +574,48 @@ async function handleCommand( prefix, transcription ) {
         await doTextToSpeech( "Unknown command " + transcription, refreshWindow=true );
     }
 }
+function getPromptFeedbackMode() {
+
+    const promptFeedback = browser.storage.local.get( "promptMode" ).then( ( result ) => {
+        return result.promptMode;
+    });
+    return promptFeedback;
+}
+async function runPromptFromClipboard() {
+
+    try {
+
+        await doTextToSpeech( "Processing prompt...", refreshWindow=false )
+
+        const promptFeedback = await getPromptFeedbackMode();
+        console.log( "promptFeedback [" + promptFeedback + "]" )
+
+        const rawPrompt = await navigator.clipboard.readText()
+        console.log( "rawText [" + rawPrompt + "]" );
+
+        let url = GIB_SERVER_ADDRESS + "/api/run-raw-prompt-text?prompt_feedback=" + promptFeedback + "&prompt_and_content=" + rawPrompt
+        const response = await fetch( url, {
+            method: "GET",
+            headers: {"Access-Control-Allow-Origin": "*"}
+        } );
+        console.log( "response.status [" + response.status + "]" );
+
+        if ( !response.ok ) {
+            throw new Error( `HTTP error: ${response.status}` );
+        }
+        const promptText = await response.text();
+        console.log( "promptText [" + promptText + "]" );
+
+        console.log( "Pushing promptText promptText to clipboard..." );
+        const pasteCmd = await navigator.clipboard.writeText( promptText );
+        queuePasteCommandInLocalStorage( Date.now() );
+
+        closeWindow();
+
+    } catch ( error ) {
+        console.error( error );
+    }
+}
 async function proofreadFromClipboard() {
 
     try {
@@ -539,7 +632,7 @@ async function proofreadFromClipboard() {
         } );
         console.log( "response.status [" + response.status + "]" );
 
-        if (!response.ok) {
+        if ( !response.ok ) {
             throw new Error( `HTTP error: ${response.status}` );
         }
         const proofreadText = await response.text();
@@ -556,10 +649,10 @@ async function proofreadFromClipboard() {
     }
 }
 
-function closeWindow( timeout=250 ) {
-    window.setTimeout( () => {
+async function closeWindow(timeout = 250) {
+    await window.setTimeout(() => {
         window.close();
-    }, 250 );
+    }, 250);
 }
 
 async function readBlobAsDataURL( file ) {
