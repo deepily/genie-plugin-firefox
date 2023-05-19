@@ -25,10 +25,10 @@ let lastCode  = "";
     async function handleWindowClick(event) {
 
         var origEl = event.target || event.srcElement;
-        console.log( "origEl is [" + JSON.stringify(origEl) + "]");
-        if (origEl.tagName === 'A' || origEl.parentNode.tagName === 'A') {
+
+        if ( origEl.tagName === 'A' || origEl.parentNode.tagName === 'A' ) {
             var eventHref = "";
-            if (origEl.href != undefined) {
+            if ( origEl.href != undefined ) {
                 eventHref = origEl.href;
             } else {
                 eventHref = origEl.parentNode.href;
@@ -37,10 +37,8 @@ let lastCode  = "";
                 return result.linkMode;
             } );
             console.log( "linkMode is [" + mode + "]");
-            const newTab = mode === "new tab";
-            console.log( "newTab is [" + newTab + "]");
-            if (newTab) {
-                updateLocalStorageLastUrl( eventHref );
+            if ( mode === "new tab" ) {
+                await queueNewTabCommandInLocalStorage( eventHref );
                 console.log( "Link clicked, canceling & redirecting to a new tab: " + eventHref );
                 event.preventDefault();
             } else {
@@ -49,7 +47,7 @@ let lastCode  = "";
         }
     }
     // TODO: move to util.js & find a way to import without the errors I've been getting when I try to do that.
-    async function updateLocalStorageLastUrl( url ) {
+    async function queueNewTabCommandInLocalStorage( url ) {
 
         // add timestamp to url to force reload
         browser.storage.local.set( {
@@ -59,10 +57,7 @@ let lastCode  = "";
     }
     document.addEventListener( "selectionchange", () => {
 
-        // console.log( document.getSelection().toString() );
         if ( document.getSelection().toString() !== "" ) {
-            // console.log( "selectionchange event detected: empty selection" );
-        // } else {
             console.log( "Auto copying to the clipboard [" + document.getSelection().toString() + "]" );
             copyToClipboard( document.getSelection().toString() );
         }
@@ -70,26 +65,21 @@ let lastCode  = "";
 
     document.body.addEventListener( "keydown", (event) => {
 
-        console.log( "keydown.key is [" + event.key + "] and the code is [" + event.code + "]" );
-        // console.log( "lastKey is [" + lastKey + "] and the lastCode is [" + lastCode + "]" );
+        // console.log( "keydown.key is [" + event.key + "] and the code is [" + event.code + "]" );
+        // console.log( "    lastKey is [" + lastKey + "] and the lastCode is [" + lastCode + "]" );
 
         if ( event.key === "Meta" && event.code === "OSRight" && lastKey === "Meta" && lastCode === "OSRight" ) {
             console.log( "Background: Double OSRight keydown detected");
-            lastKey = "";
+            lastKey  = "";
             lastCode = "";
-            browser.runtime.sendMessage({
-                "command": "command-transcription"
-            });
+            browser.runtime.sendMessage( { "command": "command-transcription" } );
         } else if ( event.key === "Alt" && event.code === "AltRight" && lastKey === "Alt" && lastCode === "AltRight" ) {
             console.log( "Background: Double AltRight keydown detected" );
-            lastKey = "";
+            lastKey  = "";
             lastCode = "";
-            browser.runtime.sendMessage( {
-                "command": "command-mode"
-            } );
+            browser.runtime.sendMessage( { "command": "command-mode" } );
         } else {
-            // console.log( "Not a double MetaRight nor AltRight keydown" );
-            lastKey = event.key;
+            lastKey  = event.key;
             lastCode = event.code;
         }
     });
@@ -237,9 +227,6 @@ let lastCode  = "";
         } catch ( e ) {
             console.log( "paste() failed: " + e );
         }
-        // } else {
-        //     console.log( "CANNOT paste() in this document, selection.rangeCount: " + selection.rangeCount );
-        // }
     }
     function pasteFromClipboard(){
         document.execCommand( "paste" )
@@ -265,7 +252,7 @@ let lastCode  = "";
     // create a function that copies the parameter text to the clipboard
     async function copyToClipboard( selectedText) {
 
-        if (selectedText.length > 0) {
+        if ( selectedText.length > 0 ) {
             const writeCmd = await navigator.clipboard.writeText( selectedText );
             console.log( "clipboard.writeText() Success!" );
         } else {
