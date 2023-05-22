@@ -129,15 +129,15 @@ async function handleClickEvent( e ) {
 
     } else if ( e.target.id === "transcription-python" ) {
 
-        popupRecorder(mode = MODE_TRANSCRIPTION, prefix = MULTIMODAL_TEXT_PYTHON);
+        popupRecorder(mode = MODE_TRANSCRIPTION, prefix = MULTIMODAL_TEXT_PYTHON );
 
     } else if ( e.target.id === "transcription-email" ) {
 
-        popupRecorder(mode = MODE_TRANSCRIPTION, prefix = MULTIMODAL_TEXT_EMAIL);
+        popupRecorder(mode = MODE_TRANSCRIPTION, prefix = MULTIMODAL_TEXT_EMAIL );
 
     } else if ( e.target.id === "transcription-contact-information" ) {
 
-        popupRecorder(mode = MODE_TRANSCRIPTION, prefix = MULTIMODAL_CONTACT_INFO);
+        popupRecorder(mode = MODE_TRANSCRIPTION, prefix = MULTIMODAL_CONTACT_INFO );
 
     } else if ( e.target.id === "transcription-debug" ) {
 
