@@ -125,8 +125,8 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
     document.getElementById( "stop" ).focus();
 
     // console.log( "window.opener.location" + window.opener.location );
-    console.log( "window.parent.location: " + window.parent.location );
-    console.log( "window.parent.location.href: " + window.parent.location.href );
+    // console.log( "window.parent.location: " + window.parent.location );
+    // console.log( "window.parent.location.href: " + window.parent.location.href );
 
     console.log( "DOM fully loaded and parsed. Checking permissions...." );
 
@@ -411,15 +411,21 @@ async function handleCommand( prefix, transcription ) {
 
     } else if ( transcription === VOX_CMD_SAVE_FROM_CLIPBOARD ) {
 
+        // Fixed! I no longer need to push text to the server only to have it mirrored back to me now that I can create
+        // an in place blob URL from the clipboard text :-)
+        // url : GIB_SERVER_ADDRESS + "/api/download-text?text=" + encodeURIComponent( await navigator.clipboard.readText() ),
+        // url : GIB_SERVER_ADDRESS + "/api/download-text?text=" + await navigator.clipboard.readText(),
+        // FROM: https://stackoverflow.com/questions/40269862/save-data-uri-as-file-using-downloads-download-api
+        var blob = new Blob([ await navigator.clipboard.readText() ], { type: "text/plain;charset=utf-8" } )
         var downloading = browser.downloads.download({
-            // url : GIB_SERVER_ADDRESS + "/api/download-text?text=" + encodeURIComponent( await navigator.clipboard.readText() ),
-            url : GIB_SERVER_ADDRESS + "/api/download-text?text=" + await navigator.clipboard.readText(),
-            saveAs : true,
-            filename : "prompt-0000000.txt",
-            conflictAction : 'uniquify'
+            url: URL.createObjectURL( blob ),
+            saveAs: true,
+            filename: "prompt-0000000.txt",
+            conflictAction: 'uniquify'
         }).then( function( downloadId ) {
             console.log( "Download started with ID [" + downloadId + "]" );
         } );
+        closeWindow();
 
     } else if ( transcription.startsWith( VOX_CMD_RUN_PROMPT ) ) {
 

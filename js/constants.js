@@ -52,6 +52,8 @@ export const VOX_CMD_RUN_PROMPT           = "run prompt"
 export const VOX_CMD_SUFFIX_FROM_FILE     = "from file";
 export const VOX_CMD_SUFFIX_FROM_CLIPBOARD= "from clipboard";
 
+export const VOX_CMD_SAVE_FROM_CLIPBOARD= "save from clipboard";
+
 export const MODE_TRANSCRIPTION       = "transcription"
 export const MODE_COMMAND             = "command"
 
