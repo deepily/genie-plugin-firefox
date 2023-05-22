@@ -39,7 +39,7 @@ import {
     PROMPT_MODE_QUIET,
     PROMPT_MODE_DEFAULT,
     VOX_CMD_RUN_PROMPT,
-    VOX_CMD_SUFFIX_FROM_CLIPBOARD, VOX_CMD_SUFFIX_FROM_FILE
+    VOX_CMD_SUFFIX_FROM_CLIPBOARD, VOX_CMD_SUFFIX_FROM_FILE, VOX_CMD_SAVE_FROM_CLIPBOARD, MULTIMODAL_CONTACT_INFO
 } from "/js/constants.js";
 import {
     sendMessageToBackgroundScripts,
@@ -255,12 +255,11 @@ saveButton.addEventListener( "click", async () => {
     const promptFeedback = await getPromptFeedbackMode();
 
     const url = GIB_SERVER_ADDRESS + "/api/upload-and-transcribe-mp3?prompt_key=generic&prefix=" + prefix + "&prompt_feedback=" + promptFeedback;
-    console.log( "Attempting to upload and transcribe to url [" + url + "]" )
+    console.log( "Upload and transcribing to url [" + url + "]" )
 
     try {
         const result = await readBlobAsDataURL( audio.audioBlob )
-        console.log( "result [" + typeof result + "]" );
-        console.log( "result.split( "," )[0] [" + result.split( "," )[0] + "]" );
+        console.log( "Mime type [" + result.split( "," )[0] + "]" );
 
         const audioMessage = result.split( "," )[1];
         const mimeType = result.split( "," )[0];
@@ -286,6 +285,14 @@ saveButton.addEventListener( "click", async () => {
         if ( prefix.startsWith( STEM_MULTIMODAL_EDITOR ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR ) ) {
 
             handleCommand( prefix, transcription );
+
+        } else if ( transcriptionJson[ "mode" ].startsWith( MULTIMODAL_CONTACT_INFO ) ) {
+
+            console.log( " contact info: " + results )
+            console.log( "transcription: " + transcription )
+            const writeCmd = await navigator.clipboard.writeText( results )
+            queuePasteCommandInLocalStorage( Date.now() );
+            closeWindow();
 
         } else if ( transcriptionJson[ "mode" ].startsWith( STEM_MULTIMODAL_SERVER_SEARCH ) ) {
 
@@ -399,8 +406,20 @@ async function handleCommand( prefix, transcription ) {
 
     } else if ( transcription === VOX_CMD_OPEN_URL_BUCKET ) {
 
-        queueNewTabCommandInLocalStorage( BUCKET_URL )
+        queueNewTabCommandInLocalStorage(BUCKET_URL)
         closeWindow();
+
+    } else if ( transcription === VOX_CMD_SAVE_FROM_CLIPBOARD ) {
+
+        var downloading = browser.downloads.download({
+            // url : GIB_SERVER_ADDRESS + "/api/download-text?text=" + encodeURIComponent( await navigator.clipboard.readText() ),
+            url : GIB_SERVER_ADDRESS + "/api/download-text?text=" + await navigator.clipboard.readText(),
+            saveAs : true,
+            filename : "prompt-0000000.txt",
+            conflictAction : 'uniquify'
+        }).then( function( downloadId ) {
+            console.log( "Download started with ID [" + downloadId + "]" );
+        } );
 
     } else if ( transcription.startsWith( VOX_CMD_RUN_PROMPT ) ) {
 
