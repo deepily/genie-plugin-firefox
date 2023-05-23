@@ -111,4 +111,22 @@ export const readFromLocalStorage = async (key, defaultValue ) => {
         } );
     } );
 }
+
+export function handleOneFile() {
+
+    const fileList = this.files;
+    console.log( fileList[ 0 ] );
+    let reader = new FileReader();
+    reader.readAsDataURL( fileList[ 0 ] );
+    reader.onload = function () {
+        let rawBase64 = reader.result;
+        let mimeType = rawBase64.split( "," )[ 0 ]
+        let base64   = rawBase64.split( "," )[ 1 ]
+        console.log( "mimeType:" + mimeType );
+        let plainText = atob( base64 );
+        console.log( "plainText:" + plainText.substring( 0, 32 ) + "..." );
+        navigator.clipboard.writeText( plainText );
+        sendMessageToContentScripts( "command-paste" )
+    };
+}
 console.log( "util.js: Loading... Done!" );

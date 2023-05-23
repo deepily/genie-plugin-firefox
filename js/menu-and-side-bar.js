@@ -19,6 +19,7 @@ import {
     sendMessageToContentScripts,
     callOnActiveTab,
     queueNewTabCommandInLocalStorage,
+    handleOneFile
 } from "/js/util.js";
 
 let args                = "";
@@ -306,7 +307,7 @@ async function handleClickEvent( e ) {
 
         // const fileSelector = document.getElementById( "file-selector" ) RETURNS NULL!?!?!?!?!?!
         // These two lines below are used because when you assign, get element by ID to a variable, it returns null. I have no idea why.
-        document.getElementById("file-selector").addEventListener("change", handleFile, false);
+        document.getElementById("file-selector").addEventListener("change", handleOneFile, false);
         document.getElementById("file-selector").click();
 
     } else if ( e.target.id === "file-selector" ) {
@@ -330,23 +331,23 @@ async function handleClickEvent( e ) {
 }
 
 
-function handleFile() {
-
-    const fileList = this.files;
-    console.log( fileList[ 0 ] );
-    let reader = new FileReader();
-    reader.readAsDataURL( fileList[ 0 ] );
-    reader.onload = function () {
-        let rawBase64 = reader.result;
-        let mimeType = rawBase64.split( "," )[ 0 ]
-        let base64   = rawBase64.split( "," )[ 1 ]
-        console.log( "mimeType:" + mimeType );
-        let plainText = atob( base64 );
-        console.log( "plainText:" + plainText.substring( 0, 32 ) + "..." );
-        navigator.clipboard.writeText( plainText );
-        sendMessageToContentScripts( "command-paste" )
-    };
-}
+// function handleFile() {
+//
+//     const fileList = this.files;
+//     console.log( fileList[ 0 ] );
+//     let reader = new FileReader();
+//     reader.readAsDataURL( fileList[ 0 ] );
+//     reader.onload = function () {
+//         let rawBase64 = reader.result;
+//         let mimeType = rawBase64.split( "," )[ 0 ]
+//         let base64   = rawBase64.split( "," )[ 1 ]
+//         console.log( "mimeType:" + mimeType );
+//         let plainText = atob( base64 );
+//         console.log( "plainText:" + plainText.substring( 0, 32 ) + "..." );
+//         navigator.clipboard.writeText( plainText );
+//         sendMessageToContentScripts( "command-paste" )
+//     };
+// }
 export async function popupRecorder(mode=MODE_TRANSCRIPTION, prefix = "", transcription = "", debug = false, tabId = -1) {
 
     // console.log( `popupRecorder() Mode [${mode}], prefix [${prefix}], command [${command}], debug [${debug}] tabId [${tabId}]...` )
