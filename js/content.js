@@ -40,7 +40,7 @@ let lastCode  = "";
             const newTab = mode === "new tab";
             console.log( "newTab is [" + newTab + "]");
             if ( mode === "new tab" ) {
-                updateLocalStorageLastUrl( eventHref );
+                queueNextUrlInLocalStorage( eventHref );
                 console.log( "Link clicked, canceling & redirecting to a new tab: " + eventHref );
                 event.preventDefault();
             } else {
@@ -49,7 +49,7 @@ let lastCode  = "";
         }
     }
     // TODO: move to util.js & find a way to import without the errors I've been getting when I try to do that.
-    async function updateLocalStorageLastUrl( url ) {
+    async function queueNextUrlInLocalStorage( url ) {
 
         // add timestamp to url to force reload
         browser.storage.local.set( {
@@ -105,6 +105,8 @@ let lastCode  = "";
 
             //Create the element using the createElement method.
             var newDiv = document.createElement( "div" );
+
+            newDiv.style = "margin: 50px auto; max-width: 840px; font-family: monospace; border-style: solid; border-width: 1px; border-color: #cccccc; padding: 10px;";
 
             //Set its unique ID.
             newDiv.id = 'div-id-' + Date.now();
