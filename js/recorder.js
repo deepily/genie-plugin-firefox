@@ -618,12 +618,16 @@ async function runPromptFromClipboard() {
         if ( !response.ok ) {
             throw new Error( `HTTP error: ${response.status}` );
         }
-        const promptText = await response.text();
-        console.log( "promptText [" + promptText + "]" );
+        const promptResponse = await response.text();
+        console.log( "promptResponse [" + promptResponse + "]" );
 
-        console.log( "Pushing promptText promptText to clipboard..." );
-        const pasteCmd = await navigator.clipboard.writeText( promptText );
-        queuePasteCommandInLocalStorage( Date.now() );
+        console.log( "Pushing promptResponse to clipboard..." );
+        const pasteCmd = await navigator.clipboard.writeText( promptResponse );
+
+        // Doing HTML insert op another div instead of a verbatim copy & paste.
+        // queuePasteCommandInLocalStorage( Date.now() );
+        console.log( "Appending promptResponse to current active document dom..." );
+        queueHtmlInsertInLocalStorage( promptResponse );
 
         closeWindow();
 
