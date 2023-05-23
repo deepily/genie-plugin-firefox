@@ -1826,15 +1826,17 @@
       <button class="ql-video"></button>
       <button class="ql-formula"></button>
     </span>
-    <span class="ql-formats">
-      <button class="ql-clean"></button>
-    </span>
+<!--    <span class="ql-formats">-->
+<!--      <button class="ql-clean"></button>-->
+<!--    </span>-->
+<!--    <span class="ql-formats">-->
+<!--      <button id="btn" onclick="doClick()">+Text</button>-->
+<!--    </span>-->
   </div>
   <div id="editor-container"></div>
 </div>
 
-  
-  
+
 <script src="../js/lib/katex.min.js"></script>
 
 <script src="../js/lib/highlight.min.js"></script>
@@ -1843,6 +1845,33 @@
 
 <script src="../js/editor.js" type="module"></script>
 
+<!--<script>-->
+<!--    // const inputElement = document.getElementById("fileSelector");-->
+<!--    // inputElement.addEventListener("change", handleFile, false);-->
+<!--    function handleFile() {-->
+<!--        const fileList = this.files;-->
+<!--        console.log( fileList[ 0 ] );-->
+<!--        let reader = new FileReader();-->
+<!--        reader.readAsDataURL( fileList[ 0 ] );-->
+<!--        reader.onload = function () {-->
+<!--            rawBase64 = reader.result;-->
+<!--            mimeType = rawBase64.split( "," )[ 0 ]-->
+<!--            base64   = rawBase64.split( "," )[ 1 ]-->
+<!--            console.log( "mimeType:" + mimeType );-->
+<!--            plainText = atob( base64 );-->
+<!--            console.log( "plainText:" + plainText );-->
+<!--            // navigator.clipboard.writeText( plainText );-->
+<!--        };-->
+<!--    }-->
+
+<!--    function doClick() {-->
+<!--        console.log( "doClick" );-->
+<!--        foo = document.getElementById("fileSelector")-->
+<!--        foo.addEventListener("change", handleFile, false);-->
+<!--        foo.click();-->
+<!--    }-->
+<!--</script>-->
+<!--<input type="file" id="fileSelector" hidden="true"/>-->
 
 </body>
 </html>
