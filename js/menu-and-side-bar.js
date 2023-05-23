@@ -31,6 +31,10 @@ let debug                 = false;
 let titleMode             = "Transcription"
 let popupRecorderWindowId = null;
 
+let fileSelect= null;
+let fileElem = null;
+let fileList = null;
+
 // Set focus after the DOM is loaded
 window.addEventListener( "DOMContentLoaded", (event) => {
 
@@ -50,8 +54,18 @@ window.addEventListener( "DOMContentLoaded", (event) => {
     // } );
 
     loadContentScript();
-    
+
+
 } );
+// window.onload = function() {
+//
+//     console.log( "window.onload()..." );
+//     fileSelect = document.getElementsByName( "fileSelect")[ 0 ];
+//     fileElem = document.getElementsByName( "fileElem")[ 0 ];
+//     fileList = document.getElementsByName( "fileList")[ 0 ];
+//
+//     fileElem.addEventListener("change", handleFiles, false);
+// }
 async function loadContentScript() {
 
     console.log( "Loading content script..." );
@@ -86,7 +100,7 @@ function reportExecuteScriptError( error) {
 // async function sendMessageToContentScripts( command ) {
 //
 //     // sends to content scripts
-//     await browser.tabs.query( {currentWindow: true, active: true} ).then(async (tabs) => {
+//     await browser.tabs.query( {currentWindow: true, active: true} ).then(async ( tabs) => {
 //         let tab = tabs[0];
 //         await browser.tabs.sendMessage( tab.id, {
 //             command: command
@@ -119,6 +133,7 @@ function reportExecuteScriptError( error) {
 //
 // } );
 
+
 async function handleClickEvent( e ) {
 
     if ( e.target.id === "editor" ) {
@@ -145,7 +160,7 @@ async function handleClickEvent( e ) {
 
     } else if ( e.target.id === "command-cut" || e.target.id === "command-copy" || e.target.id === "command-paste" || e.target.id === "command-delete" || e.target.id === "command-select-all" ) {
 
-        let response = await sendMessageToContentScripts( e.target.id)
+        let response = await sendMessageToContentScripts( e.target.id )
 
     } else if ( e.target.id === "command-mode" ) {
 
@@ -178,16 +193,16 @@ async function handleClickEvent( e ) {
 
     } else if ( e.target.id === "command-proofread" ) {
 
-        let response = await sendMessageToBackgroundScripts( e.target.id)
+        let response = await sendMessageToBackgroundScripts( e.target.id )
 
     } else if ( e.target.id === "command-whats-this" ) {
 
         doTextToSpeech( "TODO: Implement what's this?" )
         // fetchWhatsThisMean();
         //
-        // browser.tabs.query( {currentWindow: true, active: true} ).then(async (tabs) => {
+        // browser.tabs.query( {currentWindow: true, active: true} ).then(async ( tabs) => {
         //     let tab = tabs[0];
-        //     browser.tabs.sendMessage(tab.id, {
+        //     browser.tabs.sendMessage( tab.id, {
         //         command: e.target.id
         //     } );
         // } );
@@ -195,19 +210,19 @@ async function handleClickEvent( e ) {
     } else if ( e.target.id === "tab-back" ) {
 
         // Kluge to force a reload of the content script just in case we've already toggled forward or backwards and the script has not been reloaded.
-        let response = await sendMessageToContentScripts( e.target.id)
+        let response = await sendMessageToContentScripts( e.target.id )
         await loadContentScript();
 
     } else if ( e.target.id === "tab-forward" ) {
 
         // Kluge to force a reload of the content script just in case we've already toggled forward or backwards and the script has not been reloaded.
-        let response = await sendMessageToContentScripts( e.target.id)
+        let response = await sendMessageToContentScripts( e.target.id )
         await loadContentScript();
 
     } else if ( e.target.id === "tab-refresh" ) {
 
         // window.location.reload();
-        let response = await sendMessageToContentScripts( e.target.id)
+        let response = await sendMessageToContentScripts( e.target.id )
         // await loadContentScript();
 
         let searchingHistory = browser.history.search({text: "", maxResults: 5});
@@ -225,10 +240,10 @@ async function handleClickEvent( e ) {
 
         // verbatim copy and paste from web extension example "tabs tabs tabs": https://github.com/mdn/webextensions-examples/tree/main/tabs-tabs-tabs
     } else if ( e.target.id === "tabs-add-zoom" ) {
-        callOnActiveTab((tab) => {
+        callOnActiveTab(( tab) => {
             // console.log( "tabs-add-zoom, tab: " + JSON.stringify( tab ) );
-            console.log( "tabs-add-zoom, tab.id: " + tab.id);
-            let gettingZoom = browser.tabs.getZoom(tab.id);
+            console.log( "tabs-add-zoom, tab.id: " + tab.id );
+            let gettingZoom = browser.tabs.getZoom( tab.id );
             gettingZoom.then((zoomFactor) => {
                 // //the maximum zoomFactor is 5, it can't go higher
                 // if (zoomFactor >= ZOOM_MAX) {
@@ -238,13 +253,13 @@ async function handleClickEvent( e ) {
                 //if the newZoomFactor is set to higher than the max accepted
                 //it won't change, and will never alert that it's at maximum
                 newZoomFactor = newZoomFactor > ZOOM_MAX ? ZOOM_MAX : newZoomFactor;
-                browser.tabs.setZoom(tab.id, newZoomFactor);
+                browser.tabs.setZoom( tab.id, newZoomFactor);
                 // }
             });
         });
     } else if ( e.target.id === "tabs-decrease-zoom" ) {
-        callOnActiveTab((tab) => {
-            let gettingZoom = browser.tabs.getZoom(tab.id);
+        callOnActiveTab(( tab) => {
+            let gettingZoom = browser.tabs.getZoom( tab.id );
             gettingZoom.then((zoomFactor) => {
                 //the minimum zoomFactor is 0.3, it can't go lower
                 // if (zoomFactor <= ZOOM_MIN) {
@@ -254,24 +269,24 @@ async function handleClickEvent( e ) {
                 //if the newZoomFactor is set to lower than the min accepted
                 //it won't change, and will never alert that it's at minimum
                 newZoomFactor = newZoomFactor < ZOOM_MIN ? ZOOM_MIN : newZoomFactor;
-                browser.tabs.setZoom(tab.id, newZoomFactor);
+                browser.tabs.setZoom( tab.id, newZoomFactor);
                 // }
             });
         });
     } else if ( e.target.id === "tabs-default-zoom" ) {
-        callOnActiveTab((tab) => {
-            let gettingZoom = browser.tabs.getZoom(tab.id);
+        callOnActiveTab(( tab ) => {
+            let gettingZoom = browser.tabs.getZoom( tab.id );
             gettingZoom.then((zoomFactor) => {
                 if (zoomFactor != ZOOM_DEFAULT) {
-                    browser.tabs.setZoom(tab.id, ZOOM_DEFAULT);
+                    browser.tabs.setZoom( tab.id, ZOOM_DEFAULT);
                 }
             });
         });
 
     } else if ( e.target.id === "tabs-close-current-tab" ) {
 
-        callOnActiveTab((tab) => {
-            browser.tabs.remove(tab.id);
+        callOnActiveTab(( tab) => {
+            browser.tabs.remove( tab.id );
         });
 
     } else if ( e.target.id === "open-editor" ) {
@@ -281,19 +296,62 @@ async function handleClickEvent( e ) {
 
     } else if ( e.target.id === "link-mode" ) {
 
-        console.log( "Link mode clicked..." );
+        console.log("Link mode clicked...");
 
+    } else if ( e.target.id === "open-file-selector" ) {
+
+        // This is a ridiculously KLUDGEY workaround in which a visible button is used to force a click on an invisible
+        // file selector button!
+        console.log("open-file-selector clicked... " + e.target.id );
+
+        // const fileSelector = document.getElementById( "file-selector" ) RETURNS NULL!?!?!?!?!?!
+        // These two lines below are used because when you assign, get element by ID to a variable, it returns null. I have no idea why.
+        document.getElementById("file-selector").addEventListener("change", handleFile, false);
+        document.getElementById("file-selector").click();
+
+    } else if ( e.target.id === "file-selector" ) {
+
+        console.log( "file-selector clicked..." );
+        console.log( "Here comes your innocuous, but odd as fuck, uncaught in-promise type error:" )
+        // always throws: Uncaught (in promise) TypeError: window.showOpenFilePicker is not a function
+        // Currently harmless.
+        const filePicker = await window.showOpenFilePicker();
+        //     .then(
+        //     (fileHandle) => {
+        //         console.log("fileHandle: " + fileHandle);
+        //         return fileHandle;
+        //     }
+        // );
+        console.log("filePicker: " + filePicker);
     } else {
-        console.log( "Unknown button clicked: " + e.target.id);
+        console.log( "Unknown button clicked: " + e.target.id );
     }
     e.preventDefault()
 }
 
+
+function handleFile() {
+
+    const fileList = this.files;
+    console.log( fileList[ 0 ] );
+    let reader = new FileReader();
+    reader.readAsDataURL( fileList[ 0 ] );
+    reader.onload = function () {
+        let rawBase64 = reader.result;
+        let mimeType = rawBase64.split( "," )[ 0 ]
+        let base64   = rawBase64.split( "," )[ 1 ]
+        console.log( "mimeType:" + mimeType );
+        let plainText = atob( base64 );
+        console.log( "plainText:" + plainText.substring( 0, 32 ) + "..." );
+        navigator.clipboard.writeText( plainText );
+        sendMessageToContentScripts( "command-paste" )
+    };
+}
 export async function popupRecorder(mode=MODE_TRANSCRIPTION, prefix = "", transcription = "", debug = false, tabId = -1) {
 
     // console.log( `popupRecorder() Mode [${mode}], prefix [${prefix}], command [${command}], debug [${debug}] tabId [${tabId}]...` )
 
-    let lastTab = await browser.tabs.query({currentWindow: true, active: true}).then(async (tabs) => {
+    let lastTab = await browser.tabs.query({currentWindow: true, active: true}).then(async ( tabs) => {
         return tabs[0]
     });
     let lastTabId = lastTab.id;
