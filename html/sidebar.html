@@ -5,6 +5,7 @@
     <meta charset="utf-8">
 <!--    <link rel="stylesheet" href="panel.css"/>-->
     <link rel="stylesheet" href="../css/sidebar.css"></link>
+<!--      moved to below GUI layout below-->
 <!--    <script src="../js/menu-and-side-bar.js" type="module"></script>-->
 <!--    <script src="../js/constants.js"         type="module"></script>-->
   </head>
@@ -36,8 +37,12 @@
         <button id="transcription" class="button half-width-button">Text</button>
         <button id="transcription-python" class="button half-width-button">Python</button><br>
         <button id="transcription-email" class="button half-width-button">Email</button>
-        <button id="transcription-contact-information" class="button half-width-button">Contact</button>
+        <button id="transcription-contact-information" class="button half-width-button">Contact</button><br><br>
+
+
         <hr>
+        <input type="file" id="file-selector" hidden="true"/>
+        <button id="open-file-selector" class="button icon-button" style="background-image: url( '../icons/firefox-24.png' );">+Text</button>
         <button id="open-editor" class="button icon-button" style="background-image: url( '../icons/firefox-24.png' );">Editor</button>
         <button id="command-open-new-tab" class="button icon-button" style="background-image: url( '../icons/firefox-24.png' );">New Tab</button>
         <button id="command-search-duck-duck-go" class="button icon-button" style="background-image: url( '../icons/duckduckgo-24.png' );">Voice</button>
@@ -52,8 +57,6 @@
         <button id="command-copy" class="button half-width-button">Copy</button>
         <button id="command-paste" class="button half-width-button">Paste</button>
         <button id="command-delete" class="button half-width-button">Delete</button>
-<!--        <hr>-->
-<!--        <button id="transcription-debug" class="button">Debug</button>-->
         </div>
     </div>
 
