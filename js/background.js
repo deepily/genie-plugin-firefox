@@ -8,7 +8,7 @@ import {
     MODE_TRANSCRIPTION,
     MODE_COMMAND,
     VOX_EDIT_COMMANDS,
-    VOX_CMD_TAB_CLOSE, VOX_CMD_TAB_REFRESH, VOX_CMD_TAB_BACK, VOX_CMD_TAB_FORWARD, VOX_CMD_PASTE
+    VOX_CMD_TAB_CLOSE, VOX_CMD_TAB_REFRESH, VOX_CMD_TAB_BACK, VOX_CMD_TAB_FORWARD, VOX_CMD_PASTE, VOX_CMD_OPEN_FILE
 } from "/js/constants.js";
 import {
     popupRecorder
@@ -21,7 +21,7 @@ import {
     queuePasteCommandInLocalStorage,
     queueNewTabCommandInLocalStorage,
     // sendMessageToContentScripts
-    sendMessageToOneContentScript
+    sendMessageToOneContentScript, handleOneFile
 } from "/js/util.js";
 
 let lastPaste = "";
@@ -378,6 +378,13 @@ browser.runtime.onMessage.addListener(async ( message) => {
         });
         // TODO/KLUDGE!
         loadContentScript();
+
+    } else if ( message.command === "open-file-selector" ) {
+
+        console.log( "background.js: 'open-file-selector' received" );
+        let sending = browser.runtime.sendMessage( {
+            command: VOX_CMD_OPEN_FILE
+        } );
 
     } else{
         console.log( "background.js: command NOT recognized: " + message.command );

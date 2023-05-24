@@ -39,7 +39,11 @@ import {
     PROMPT_MODE_QUIET,
     PROMPT_MODE_DEFAULT,
     VOX_CMD_RUN_PROMPT,
-    VOX_CMD_SUFFIX_FROM_CLIPBOARD, VOX_CMD_SUFFIX_FROM_FILE, VOX_CMD_SAVE_FROM_CLIPBOARD, MULTIMODAL_CONTACT_INFO
+    VOX_CMD_SUFFIX_FROM_CLIPBOARD,
+    VOX_CMD_SUFFIX_FROM_FILE,
+    VOX_CMD_SAVE_FROM_CLIPBOARD,
+    MULTIMODAL_CONTACT_INFO,
+    VOX_CMD_OPEN_FILE
 } from "/js/constants.js";
 import {
     sendMessageToBackgroundScripts,
@@ -416,16 +420,22 @@ async function handleCommand( prefix, transcription ) {
         // url : GIB_SERVER_ADDRESS + "/api/download-text?text=" + encodeURIComponent( await navigator.clipboard.readText() ),
         // url : GIB_SERVER_ADDRESS + "/api/download-text?text=" + await navigator.clipboard.readText(),
         // FROM: https://stackoverflow.com/questions/40269862/save-data-uri-as-file-using-downloads-download-api
-        var blob = new Blob([ await navigator.clipboard.readText() ], { type: "text/plain;charset=utf-8" } )
+        var blob = new Blob([await navigator.clipboard.readText()], {type: "text/plain;charset=utf-8"})
         var downloading = browser.downloads.download({
-            url: URL.createObjectURL( blob ),
+            url: URL.createObjectURL(blob),
             saveAs: true,
             filename: "prompt-0000000.txt",
             conflictAction: 'uniquify'
-        }).then( function( downloadId ) {
-            console.log( "Download started with ID [" + downloadId + "]" );
-        } );
+        }).then(function (downloadId) {
+            console.log("Download started with ID [" + downloadId + "]");
+        });
         closeWindow();
+
+    } else if ( transcription === VOX_CMD_OPEN_FILE ) {
+
+        // sendMessageToBackgroundScripts( VOX_CMD_OPEN_FILE );
+        await doTextToSpeech( "Firefox has a weird bug. You need to click on the open file button manually." );
+        // closeWindow();
 
     } else if ( transcription.startsWith( VOX_CMD_RUN_PROMPT ) ) {
 

@@ -13,6 +13,8 @@ export const VOX_CMD_OPEN_NEW_TAB   = "open new tab";
 export const VOX_TAB_COMMANDS    = [ VOX_CMD_TAB_BACK, VOX_CMD_TAB_FORWARD, VOX_CMD_TAB_REFRESH, VOX_CMD_TAB_CLOSE, VOX_CMD_OPEN_NEW_TAB ];
 
 export const VOX_CMD_OPEN_EDITOR    = "open editor";
+
+export const VOX_CMD_OPEN_FILE      = "open file";
 export const VOX_CMD_OPEN_URL_BUCKET= "open url bucket";
 export const VOX_CMD_PROOFREAD      = "proofread";
 export const VOX_CMD_PROOFREAD_STEM = "proof";

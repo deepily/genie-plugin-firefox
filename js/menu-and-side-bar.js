@@ -56,8 +56,25 @@ window.addEventListener( "DOMContentLoaded", (event) => {
 
     loadContentScript();
 
+    browser.runtime.onMessage.addListener( ( message, sender ) => {
+        handleMessages( message, sender );
+    } );
 
 } );
+
+function handleMessages( message, sender ) {
+
+    console.log( "handleMessages()..." );
+    console.log( "message: " + JSON.stringify( message ) );
+    console.log( "sender: " + JSON.stringify( sender ) );
+
+    // None of these work all throw a very specific error: <input> picker was blocked due to lack of user activation.
+    // 1) document.getElementById("file-selector" ).addEventListener("change", handleOneFile, false);
+    // 1) document.getElementById("file-selector" ).click();
+
+    // 2) handleClickEvent( { target: { id: "open-file-selector" } } );
+    // 3) document.getElementById("open-file-selector" ).click();
+}
 // window.onload = function() {
 //
 //     console.log( "window.onload()..." );
@@ -96,29 +113,6 @@ async function loadContentScript() {
 function reportExecuteScriptError( error) {
     console.error(`Failed to execute content script: ${error.message}`);
 }
-//
-// replaced, I mean moved into the util module
-// async function sendMessageToContentScripts( command ) {
-//
-//     // sends to content scripts
-//     await browser.tabs.query( {currentWindow: true, active: true} ).then(async ( tabs) => {
-//         let tab = tabs[0];
-//         await browser.tabs.sendMessage( tab.id, {
-//             command: command
-//         } );
-//         return true;
-//     } );
-// }
-
-// replaced by calls to the same function within the utility module.
-// async function sendMessageToBackgroundScripts( command ) {
-//
-//     // sends to background scripts
-//     let sending = browser.runtime.sendMessage( {
-//         command: command
-//     } );
-// }
-
 
 // document.getElementById( "link-mode" ).addEventListener( "change", async (e) => {
 //
@@ -293,12 +287,18 @@ async function handleClickEvent( e ) {
     } else if ( e.target.id === "open-editor" ) {
 
         // var url = "http://127.0.0.1:8080/genie-plugin-firefox/html/editor-quill.html";
-        queueNewTabCommandInLocalStorage(EDITOR_URL)
+        queueNewTabCommandInLocalStorage( EDITOR_URL )
 
     } else if ( e.target.id === "link-mode" ) {
 
         console.log("Link mode clicked..." );
 
+    // } else if ( e.target.id === "open-file-selector" || e.target.id === "file-selector" ) {
+    //
+    //     console.log("open-file-selector clicked... " + e.target.id );
+    //     let response = await sendMessageToBackgroundScripts( e.target.id );
+
+    // Moved this into the background script so that we can call it by voice also
     } else if ( e.target.id === "open-file-selector" ) {
 
         // This is a ridiculously KLUDGEY workaround in which a visible button is used to force a click on an invisible
@@ -332,7 +332,7 @@ async function handleClickEvent( e ) {
 
 export async function popupRecorder(mode=MODE_TRANSCRIPTION, prefix = "", transcription = "", debug = false, tabId = -1) {
 
-    let lastTab = await browser.tabs.query( { currentWindow: true, active: tru } ).then(async ( tabs ) => {
+    let lastTab = await browser.tabs.query( { currentWindow: true, active: true } ).then(async ( tabs ) => {
         return tabs[0]
     });
     let lastTabId = lastTab.id;

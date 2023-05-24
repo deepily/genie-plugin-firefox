@@ -2,6 +2,7 @@ console.log( "util.js: Loading..." );
 
 export async function sendMessageToBackgroundScripts( command ) {
 
+    console.log( "util.js calling background script command [" + command + "]" );
     // sends to background scripts
     let sending = browser.runtime.sendMessage( {
         command: command
