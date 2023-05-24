@@ -61,9 +61,9 @@ window.addEventListener( "DOMContentLoaded", (event) => {
 // window.onload = function() {
 //
 //     console.log( "window.onload()..." );
-//     fileSelect = document.getElementsByName( "fileSelect")[ 0 ];
-//     fileElem = document.getElementsByName( "fileElem")[ 0 ];
-//     fileList = document.getElementsByName( "fileList")[ 0 ];
+//     fileSelect = document.getElementsByName( "fileSelect" )[ 0 ];
+//     fileElem = document.getElementsByName( "fileElem" )[ 0 ];
+//     fileList = document.getElementsByName( "fileList" )[ 0 ];
 //
 //     fileElem.addEventListener("change", handleFiles, false);
 // }
@@ -297,7 +297,7 @@ async function handleClickEvent( e ) {
 
     } else if ( e.target.id === "link-mode" ) {
 
-        console.log("Link mode clicked...");
+        console.log("Link mode clicked..." );
 
     } else if ( e.target.id === "open-file-selector" ) {
 
@@ -307,8 +307,8 @@ async function handleClickEvent( e ) {
 
         // const fileSelector = document.getElementById( "file-selector" ) RETURNS NULL!?!?!?!?!?!
         // These two lines below are used because when you assign, get element by ID to a variable, it returns null. I have no idea why.
-        document.getElementById("file-selector").addEventListener("change", handleOneFile, false);
-        document.getElementById("file-selector").click();
+        document.getElementById("file-selector" ).addEventListener("change", handleOneFile, false);
+        document.getElementById("file-selector" ).click();
 
     } else if ( e.target.id === "file-selector" ) {
 
@@ -323,36 +323,16 @@ async function handleClickEvent( e ) {
         //         return fileHandle;
         //     }
         // );
-        console.log("filePicker: " + filePicker);
+        console.log( "filePicker: " + filePicker) ;
     } else {
         console.log( "Unknown button clicked: " + e.target.id );
     }
     e.preventDefault()
 }
 
-
-// function handleFile() {
-//
-//     const fileList = this.files;
-//     console.log( fileList[ 0 ] );
-//     let reader = new FileReader();
-//     reader.readAsDataURL( fileList[ 0 ] );
-//     reader.onload = function () {
-//         let rawBase64 = reader.result;
-//         let mimeType = rawBase64.split( "," )[ 0 ]
-//         let base64   = rawBase64.split( "," )[ 1 ]
-//         console.log( "mimeType:" + mimeType );
-//         let plainText = atob( base64 );
-//         console.log( "plainText:" + plainText.substring( 0, 32 ) + "..." );
-//         navigator.clipboard.writeText( plainText );
-//         sendMessageToContentScripts( "command-paste" )
-//     };
-// }
 export async function popupRecorder(mode=MODE_TRANSCRIPTION, prefix = "", transcription = "", debug = false, tabId = -1) {
 
-    // console.log( `popupRecorder() Mode [${mode}], prefix [${prefix}], command [${command}], debug [${debug}] tabId [${tabId}]...` )
-
-    let lastTab = await browser.tabs.query({currentWindow: true, active: true}).then(async ( tabs) => {
+    let lastTab = await browser.tabs.query( { currentWindow: true, active: tru } ).then(async ( tabs ) => {
         return tabs[0]
     });
     let lastTabId = lastTab.id;
@@ -380,10 +360,6 @@ export async function popupRecorder(mode=MODE_TRANSCRIPTION, prefix = "", transc
     console.log( "popupRecorderWindow  : " + JSON.stringify(popupRecorderWindow));
     console.log( "popupRecorderWindowId: " + popupRecorderWindowId);
 }
-// function messageToParentWindow( foo ) {
-//     alert( "messageToParentWindow()... " + foo );
-// }
-// TODO: Command should be renamed transcription!
 async function updateLocalStorage( mode, prefix, transcription, debug, lastTabId ) {
 
     console.log( `updateLocalStorage() Mode [${mode}], prefix [${prefix}], transcription [${transcription}], debug [${debug}] lastTabId [${lastTabId}]...` )
@@ -392,22 +368,12 @@ async function updateLocalStorage( mode, prefix, transcription, debug, lastTabId
       alwaysOnTop: false,
            "mode": mode,
          "prefix": prefix,
-        // TODO: Command should be renamed transcription!
         "transcription": transcription,
           "debug": debug,
       "lastTabId": lastTabId
     } );
     return true;
 }
-
-// console.log( "Loading content script..." );
-// browser.tabs.executeScript( {file: "../js/content.js" } )
-// .then( () => { console.log( "Loading content script... done!" ) } )
-// .catch(reportExecuteScriptError);
-//
-// function reportExecuteScriptError( error) {
-//     console.error(`Failed to execute content script: ${error.message}`);
-// }
 
 let fetchWhatsThisMean;
 fetchWhatsThisMean = async () => {
