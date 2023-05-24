@@ -433,8 +433,9 @@ async function handleCommand( prefix, transcription ) {
 
     } else if ( transcription === VOX_CMD_OPEN_FILE ) {
 
-        // sendMessageToBackgroundScripts( VOX_CMD_OPEN_FILE );
+        console.log( "Opening file..." )
         await doTextToSpeech( "Firefox has a weird bug. You need to click on the open file button manually." );
+        // await sendMessageToBackgroundScripts( VOX_CMD_OPEN_FILE );
         // closeWindow();
 
     } else if ( transcription.startsWith( VOX_CMD_RUN_PROMPT ) ) {

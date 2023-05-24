@@ -56,17 +56,18 @@ window.addEventListener( "DOMContentLoaded", (event) => {
 
     loadContentScript();
 
+    console.log( "DOM fully loaded and parsed, setting up message listener..." );
     browser.runtime.onMessage.addListener( ( message, sender ) => {
         handleMessages( message, sender );
     } );
+    console.log( "DOM fully loaded and parsed, setting up message listener... done!" );
 
 } );
 
 function handleMessages( message, sender ) {
 
-    console.log( "handleMessages()..." );
-    console.log( "message: " + JSON.stringify( message ) );
-    console.log( "sender: " + JSON.stringify( sender ) );
+    console.log( "handleMessages() message: " + JSON.stringify( message ) );
+    // console.log( "sender: " + JSON.stringify( sender ) );
 
     // None of these work all throw a very specific error: <input> picker was blocked due to lack of user activation.
     // 1) document.getElementById("file-selector" ).addEventListener("change", handleOneFile, false);
@@ -74,6 +75,7 @@ function handleMessages( message, sender ) {
 
     // 2) handleClickEvent( { target: { id: "open-file-selector" } } );
     // 3) document.getElementById("open-file-selector" ).click();
+    // document.getElementById("open-file-selector" ).focus( { force: true, focusVisible: true } );
 }
 // window.onload = function() {
 //

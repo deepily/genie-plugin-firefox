@@ -34,7 +34,7 @@ var mode      = "";
 var prefix    = "";
 var command   = "";
 
-console.log( "NOT NEW! background.js loading..." );
+console.log( "background.js loading..." );
 
 let titleMode = "Transcription"
 
@@ -379,9 +379,9 @@ browser.runtime.onMessage.addListener(async ( message) => {
         // TODO/KLUDGE!
         loadContentScript();
 
-    } else if ( message.command === "open-file-selector" ) {
+    } else if ( message.command === VOX_CMD_OPEN_FILE ) {
 
-        console.log( "background.js: 'open-file-selector' received" );
+        console.log( "background.js: '" + VOX_CMD_OPEN_FILE + "' received" );
         let sending = browser.runtime.sendMessage( {
             command: VOX_CMD_OPEN_FILE
         } );
@@ -392,4 +392,4 @@ browser.runtime.onMessage.addListener(async ( message) => {
 } );
 console.log( "background.js: adding listener for messages... Done!" );
 
-console.log( "NOT NEW! background.js loading... Done!" );
+console.log( "background.js loading... Done!" );
