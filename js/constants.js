@@ -36,8 +36,6 @@ export const PROMPT_MODE_VERBOSE      = "verbose";
 export const PROMPT_MODE_QUIET        = "quiet";
 export const PROMPT_MODE_DEFAULT      = PROMPT_MODE_VERBOSE;
 
-// export const VOX_CMD_RUN_PROMPT_TEXT  = "run prompt from clipboard";
-
 export const VOX_CMD_SEARCH_DDG              = "search";
 export const VOX_CMD_SEARCH_GOOGLE           = "search google";
 export const VOX_CMD_SEARCH_GOOGLE_SCHOLAR   = "search google scholar";
