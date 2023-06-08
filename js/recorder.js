@@ -611,7 +611,8 @@ async function runPromptFromClipboard() {
 
     try {
 
-        await doTextToSpeech( "Processing prompt...", refreshWindow=false )
+        document.getElementById( "recorder-body" ).className = "thinking";
+        await doTextToSpeech( "Processing prompt", refreshWindow=false )
 
         const promptFeedback = await getPromptFeedbackMode();
         console.log( "promptFeedback [" + promptFeedback + "]" )
