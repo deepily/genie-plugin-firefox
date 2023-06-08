@@ -112,7 +112,7 @@ let lastCode  = "";
             newDiv.id = 'div-id-' + Date.now();
 
             //Add your content to the DIV
-            newDiv.innerHTML = request.extras;
+            newDiv.innerHTML = "<pre>" + request.extras + "</pre>";
 
             //Finally, append the element to the HTML body
             document.body.appendChild( newDiv );
@@ -230,7 +230,7 @@ let lastCode  = "";
             // TODO 2: This paste command attempts to paste in all documents, not just the current document. The problem
             //  Is you can't access a reference to the current tab within a content tab, which is kind of weird...
             selection = document.getSelection()
-            selection.getRangeAt(0 ).insertNode( document.createTextNode( text ) )
+            selection.getRangeAt(0 ).insertNode( document.createTextNode( text + " " ) )
             // selection.setSelectionRange( selection.focusNode.length, selection.focusNode.length )
             selection.removeAllRanges()
             // document.getSelection().setPosition( null, text.length );
