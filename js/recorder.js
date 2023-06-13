@@ -619,10 +619,7 @@ async function runPromptFromClipboard() {
 
         const rawPrompt = await navigator.clipboard.readText()
         console.log( "rawPrompt [" + rawPrompt + "]" );
-        // const encodedPrompt = encodeURIComponent( rawPrompt.replace( " ", "+" ) );
         let url = GIB_SERVER_ADDRESS + "/api/run-raw-prompt-text?prompt_feedback=" + promptFeedback + "&prompt_and_content=" + rawPrompt
-        // let url = GIB_SERVER_ADDRESS + "/api/run-raw-prompt-text?prompt_feedback=" + promptFeedback + "&prompt_and_content=" + encodedPrompt;
-        // console.log( "url [" + url + "]" );
         const response = await fetch( url, {
             method: "GET",
             headers: {"Access-Control-Allow-Origin": "*"}
