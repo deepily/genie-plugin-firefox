@@ -88,10 +88,15 @@ function handleMessages( message, sender ) {
 // }
 async function loadContentScript() {
 
-    console.log( "Loading content script..." );
-    browser.tabs.executeScript( {file: "../js/content.js" } )
-    .then( () => { console.log( "Loading content script... done!" ) } )
-    .catch( reportExecuteScriptError );
+    // console.log( "Loading CONSTANTS script from w/in menu-and-side-bar.js..." );
+    // browser.tabs.executeScript( {file: "../js/constants.js" } )
+    // .then( () => { console.log( "Loading CONSTANTS script from w/in menu-and-side-bar.js... done!" ) } )
+    // .catch( reportExecuteScriptError );
+    //
+    // console.log( "Loading content script from w/in menu-and-side-bar.js..." );
+    // browser.tabs.executeScript( {file: "../js/content.js" } )
+    // .then( () => { console.log( "Loading content script from w/in menu-and-side-bar.js... done!" ) } )
+    // .catch( reportExecuteScriptError );
 }
 // document.addEventListener( "keypress", (event) => {
 //

@@ -1,10 +1,33 @@
-// import { MODE_TRANSCRIPTION, MODE_COMMAND } from "./constants";
+// export { blah } from "./content.js"
+// import {FOO} from "./foo";
+// import { VOX_EDIT_COMMANDS } from "./constants.js";
+
 
 let lastKey   = "";
 let lastCode  = "";
+// function blah() {
+//     console.log( "blah() called" )
+// }
 
 (function() {
-    console.log( "content.js loading..." );
+
+    console.log( "content.js loading FOOOOOOOOOO..." );
+
+    // 'use strict';
+
+    // const script = document.createElement('script');
+    // script.setAttribute("type", "module");
+    // script.setAttribute("src", browser.extension.getURL( '/js/foo.js' ) );
+    // var head = document.head || document.getElementsByTagName("head")[0] || document.documentElement;
+    // head.insertBefore( script, head.lastChild );
+
+    // console.log( "content.js loading... FOO: [" + FOO + "]" );
+
+    // const script2 = document.createElement('script');
+    // script2.setAttribute("type", "module");
+    // script2.setAttribute("src", browser.extension.getURL( '/js/bar.js' ) );
+    // head = document.head || document.getElementsByTagName("head")[0] || document.documentElement;
+    // head.insertBefore( script2, head.lastChild );
 
     /**
     * Check and set a global guard variable.

@@ -1,3 +1,5 @@
+console.log( "Loading constants.js..." );
+
 export const VOX_CMD_CUT            = "cut";
 export const VOX_CMD_COPY           = "copy";
 export const VOX_CMD_PASTE          = "paste from clipboard";
@@ -71,3 +73,5 @@ export const ZOOM_INCREMENT = 0.075;
 export const ZOOM_MAX       = 5;
 export const ZOOM_MIN       = 0.3;
 export const ZOOM_DEFAULT   = 1;
+
+console.log( "Loading constants.js... Done!" );
