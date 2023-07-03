@@ -22,7 +22,7 @@ import {
     CONSTANTS_URL,
     SEARCH_URL_GOOGLE_SCHOLAR,
     STEM_MULTIMODAL_SERVER_SEARCH,
-    VOX_CMD_VIEW_CONSTANTS,
+    VOX_CMD_VIEW_CHEAT_SHEET,
     VOX_CMD_PROOFREAD_STEM,
     VOX_CMD_MODE_RESET,
     VOX_CMD_MODE_EXIT,
@@ -141,7 +141,7 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
 
         document.getElementById( "record" ).click()
 
-        navigator.mediaDevices.getUserMedia({audio: true, video: false})
+        navigator.mediaDevices.getUserMedia( {audio: true, video: false})
             .then((stream) => {
                     console.log( "Microphone available" )
                 },
@@ -170,7 +170,7 @@ window.addEventListener( "keydown", function (event) {
 
 const recordAudio = () =>
     new Promise(async resolve => {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true } );
+      const stream = await navigator.mediaDevices.getUserMedia( { audio: true } );
       const mediaRecorder = new MediaRecorder(stream);
       let audioChunks = [];
 
@@ -196,13 +196,13 @@ const recordAudio = () =>
             const audioUrl = URL.createObjectURL(audioBlob);
             const audio = new Audio(audioUrl);
             const play = () => audio.play();
-            resolve({ audioChunks, audioBlob, audioUrl, play } );
+            resolve( { audioChunks, audioBlob, audioUrl, play } );
           } );
 
           mediaRecorder.stop();
         } );
 
-      resolve({ start, stop } );
+      resolve( { start, stop } );
     } );
 
 // const sleep = time => new Promise(resolve => setTimeout(resolve, time));
@@ -420,14 +420,14 @@ async function handleCommand( prefix, transcription ) {
         // url : GIB_SERVER_ADDRESS + "/api/download-text?text=" + encodeURIComponent( await navigator.clipboard.readText() ),
         // url : GIB_SERVER_ADDRESS + "/api/download-text?text=" + await navigator.clipboard.readText(),
         // FROM: https://stackoverflow.com/questions/40269862/save-data-uri-as-file-using-downloads-download-api
-        var blob = new Blob([await navigator.clipboard.readText()], {type: "text/plain;charset=utf-8"})
-        var downloading = browser.downloads.download({
+        var blob = new Blob([ await navigator.clipboard.readText() ], { type: "text/plain;charset=utf-8" } )
+        var downloading = browser.downloads.download( {
             url: URL.createObjectURL(blob),
             saveAs: true,
             filename: "prompt-0000000.txt",
             conflictAction: 'uniquify'
         }).then(function (downloadId) {
-            console.log("Download started with ID [" + downloadId + "]");
+            console.log( "Download started with ID [" + downloadId + "]" );
         });
         closeWindow();
 
@@ -496,7 +496,7 @@ async function handleCommand( prefix, transcription ) {
         updateLastKnownRecorderState(currentMode, prefix, transcription, debug);
         window.location.reload();
 
-    } else if ( transcription.startsWith( VOX_CMD_VIEW_CONSTANTS ) ) {
+    } else if ( transcription.startsWith( VOX_CMD_VIEW_CHEAT_SHEET ) ) {
 
         queueNewTabCommandInLocalStorage( CONSTANTS_URL )
         closeWindow();
