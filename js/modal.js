@@ -15,16 +15,16 @@ var data = {
 }
 const modalHtml = modalTemplate( data );
 
-document.getElementById('aiDeepilyModalDisplayButton' ).insertAdjacentHTML("afterend", modalHtml );
+document.getElementById('aiDeepilyModalDisplayButton' ).insertAdjacentHTML( "afterend", modalHtml );
 
 // Get the modal
-var modal = document.getElementById("aiDeepilyModal");
+var modal = document.getElementById( "aiDeepilyModal" );
 
 // Get the button that opens the modal
-var btn = document.getElementById("aiDeepilyModalDisplayButton");
+var btn = document.getElementById( "aiDeepilyModalDisplayButton" );
 
 // Get the <span> element that closes the modal
-var span = document.getElementsByClassName("ai-deepily-close")[0];
+var span = document.getElementsByClassName( "ai-deepily-close" )[0];
 
 // When the user clicks the button, open the modal
 btn.onclick = function() {

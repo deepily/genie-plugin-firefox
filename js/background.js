@@ -73,7 +73,7 @@ browser.commands.onCommand.addListener( ( command) => {
 });
 console.log( "browser.commands.onCommand.addListener ... Done?" )
 
-browser.contextMenus.create({
+browser.contextMenus.create( {
         id: "proofread",
         title: "Proofread",
         contexts: ["selection"]
@@ -244,7 +244,7 @@ browser.storage.onChanged.addListener( async (changes, areaName) => {
 } );
 function openNewTab( url ) {
   console.log( "Opening new tab: " + url );
-   browser.tabs.create({
+   browser.tabs.create( {
      "url": url
    });
 }
@@ -328,7 +328,7 @@ browser.runtime.onMessage.addListener(async ( message) => {
     } else if ( message.command === "command-open-new-tab" ) {
 
         console.log( "background.js: command-open-new-tab received" );
-        browser.tabs.create({url: message.url});
+        browser.tabs.create( {url: message.url});
 
     } else if ( message.command === "command-transcription" ) {
 

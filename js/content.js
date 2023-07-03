@@ -16,17 +16,17 @@ let lastCode  = "";
     // 'use strict';
 
     // const script = document.createElement('script');
-    // script.setAttribute("type", "module");
-    // script.setAttribute("src", browser.extension.getURL( '/js/foo.js' ) );
-    // var head = document.head || document.getElementsByTagName("head")[0] || document.documentElement;
+    // script.setAttribute( "type", "module" );
+    // script.setAttribute( "src", browser.extension.getURL( '/js/foo.js' ) );
+    // var head = document.head || document.getElementsByTagName( "head" )[0] || document.documentElement;
     // head.insertBefore( script, head.lastChild );
 
     // console.log( "content.js loading... FOO: [" + FOO + "]" );
 
     // const script2 = document.createElement('script');
-    // script2.setAttribute("type", "module");
-    // script2.setAttribute("src", browser.extension.getURL( '/js/bar.js' ) );
-    // head = document.head || document.getElementsByTagName("head")[0] || document.documentElement;
+    // script2.setAttribute( "type", "module" );
+    // script2.setAttribute( "src", browser.extension.getURL( '/js/bar.js' ) );
+    // head = document.head || document.getElementsByTagName( "head" )[0] || document.documentElement;
     // head.insertBefore( script2, head.lastChild );
 
     /**
@@ -59,9 +59,9 @@ let lastCode  = "";
             const mode = await browser.storage.local.get( "linkMode" ).then( ( result ) => {
                 return result.linkMode;
             } );
-            console.log( "linkMode is [" + mode + "]");
+            console.log( "linkMode is [" + mode + "]" );
             const newTab = mode === "new tab";
-            console.log( "newTab is [" + newTab + "]");
+            console.log( "newTab is [" + newTab + "]" );
             if ( mode === "new tab" ) {
                 queueNextUrlInLocalStorage( eventHref );
                 console.log( "Link clicked, canceling & redirecting to a new tab: " + eventHref );
@@ -97,10 +97,10 @@ let lastCode  = "";
         // console.log( "lastKey is [" + lastKey + "] and the lastCode is [" + lastCode + "]" );
 
         if ( event.key === "Meta" && event.code === "OSRight" && lastKey === "Meta" && lastCode === "OSRight" ) {
-            console.log( "Background: Double OSRight keydown detected");
+            console.log( "Background: Double OSRight keydown detected" );
             lastKey = "";
             lastCode = "";
-            browser.runtime.sendMessage({
+            browser.runtime.sendMessage( {
                 "command": "command-transcription"
             });
         } else if ( event.key === "Alt" && event.code === "AltRight" && lastKey === "Alt" && lastCode === "AltRight" ) {
@@ -221,7 +221,7 @@ let lastCode  = "";
     console.log( "content.js loading... onMessage event listener... Done!" );
 
     function getCurrentWindowTabs() {
-        return browser.tabs.query({currentWindow: true});
+        return browser.tabs.query( {currentWindow: true});
     }
     function callOnActiveTab(callback) {
 

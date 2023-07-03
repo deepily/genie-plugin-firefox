@@ -70,12 +70,12 @@ function handleMessages( message, sender ) {
     // console.log( "sender: " + JSON.stringify( sender ) );
 
     // None of these work all throw a very specific error: <input> picker was blocked due to lack of user activation.
-    // 1) document.getElementById("file-selector" ).addEventListener("change", handleOneFile, false);
-    // 1) document.getElementById("file-selector" ).click();
+    // 1) document.getElementById( "file-selector" ).addEventListener( "change", handleOneFile, false);
+    // 1) document.getElementById( "file-selector" ).click();
 
     // 2) handleClickEvent( { target: { id: "open-file-selector" } } );
-    // 3) document.getElementById("open-file-selector" ).click();
-    // document.getElementById("open-file-selector" ).focus( { force: true, focusVisible: true } );
+    // 3) document.getElementById( "open-file-selector" ).click();
+    // document.getElementById( "open-file-selector" ).focus( { force: true, focusVisible: true } );
 }
 // window.onload = function() {
 //
@@ -84,7 +84,7 @@ function handleMessages( message, sender ) {
 //     fileElem = document.getElementsByName( "fileElem" )[ 0 ];
 //     fileList = document.getElementsByName( "fileList" )[ 0 ];
 //
-//     fileElem.addEventListener("change", handleFiles, false);
+//     fileElem.addEventListener( "change", handleFiles, false);
 // }
 async function loadContentScript() {
 
@@ -227,7 +227,7 @@ async function handleClickEvent( e ) {
         let response = await sendMessageToContentScripts( e.target.id )
         // await loadContentScript();
 
-        let searchingHistory = browser.history.search({text: "", maxResults: 5});
+        let searchingHistory = browser.history.search( {text: "", maxResults: 5});
         searchingHistory.then((results) => {
             // What to show if there are no results.
             if (results.length < 1) {
@@ -298,11 +298,11 @@ async function handleClickEvent( e ) {
 
     } else if ( e.target.id === "link-mode" ) {
 
-        console.log("Link mode clicked..." );
+        console.log( "Link mode clicked..." );
 
     // } else if ( e.target.id === "open-file-selector" || e.target.id === "file-selector" ) {
     //
-    //     console.log("open-file-selector clicked... " + e.target.id );
+    //     console.log( "open-file-selector clicked... " + e.target.id );
     //     let response = await sendMessageToBackgroundScripts( e.target.id );
 
     // Moved this into the background script so that we can call it by voice also
@@ -310,12 +310,12 @@ async function handleClickEvent( e ) {
 
         // This is a ridiculously KLUDGEY workaround in which a visible button is used to force a click on an invisible
         // file selector button!
-        console.log("open-file-selector clicked... " + e.target.id );
+        console.log( "open-file-selector clicked... " + e.target.id );
 
         // const fileSelector = document.getElementById( "file-selector" ) RETURNS NULL!?!?!?!?!?!
         // These two lines below are used because when you assign, get element by ID to a variable, it returns null. I have no idea why.
-        document.getElementById("file-selector" ).addEventListener("change", handleOneFile, false);
-        document.getElementById("file-selector" ).click();
+        document.getElementById( "file-selector" ).addEventListener( "change", handleOneFile, false);
+        document.getElementById( "file-selector" ).click();
 
     } else if ( e.target.id === "file-selector" ) {
 
@@ -326,7 +326,7 @@ async function handleClickEvent( e ) {
         const filePicker = await window.showOpenFilePicker();
         //     .then(
         //     (fileHandle) => {
-        //         console.log("fileHandle: " + fileHandle);
+        //         console.log( "fileHandle: " + fileHandle);
         //         return fileHandle;
         //     }
         // );

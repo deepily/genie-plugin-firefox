@@ -10,12 +10,12 @@
 
       const myEditor = document.getElementById( "editor" );
 
-      myEditor.addEventListener("selectionchange", () => {
-        document.getElementById("start").textContent     = myEditor.selectionStart;
-        document.getElementById("end").textContent       = myEditor.selectionEnd;
-        document.getElementById("direction").textContent = myEditor.selectionDirection;
+      myEditor.addEventListener( "selectionchange", () => {
+        document.getElementById( "start" ).textContent     = myEditor.selectionStart;
+        document.getElementById( "end" ).textContent       = myEditor.selectionEnd;
+        document.getElementById( "direction" ).textContent = myEditor.selectionDirection;
         selectedText = myEditor.value.substring(myEditor.selectionStart, myEditor.selectionEnd );
-        document.getElementById("selection").textContent = selectedText;
+        document.getElementById( "selection" ).textContent = selectedText;
 
         if (selectedText.length > 0) {
             const writeCmd = navigator.clipboard.writeText( selectedText );

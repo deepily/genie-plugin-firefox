@@ -36,7 +36,7 @@ export async function loadContentScript() {
     .catch( reportExecuteScriptError );
 }
 function getCurrentWindowTabs() {
-  return browser.tabs.query({currentWindow: true});
+  return browser.tabs.query( {currentWindow: true});
 }
 export function callOnActiveTab(callback) {
 
@@ -51,7 +51,7 @@ export function callOnActiveTab(callback) {
 }
 export function getCurrentTab() {
 
-    let queryingTabs = browser.tabs.query({
+    let queryingTabs = browser.tabs.query( {
         active: true,
         currentWindow: true
     });
