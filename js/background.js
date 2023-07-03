@@ -355,7 +355,8 @@ browser.runtime.onMessage.addListener(async ( message) => {
 
         browser.tabs.remove( lastTabId );
 
-    } else if ( message.command === VOX_CMD_TAB_REFRESH ) {
+    // TODO: I don't know why the old fangled equals equals (==) needs to be used here. I should be comparing string objects!
+    } else if ( message.command == VOX_CMD_TAB_REFRESH ) {
 
         // TODO: This is a gigantic hack that needs to be replaced with a transcription to command dictionary
         await browser.tabs.sendMessage( lastTabId, {
