@@ -22,7 +22,7 @@ import {
     CONSTANTS_URL,
     SEARCH_URL_GOOGLE_SCHOLAR,
     STEM_MULTIMODAL_SERVER_SEARCH,
-    VOX_CMD_VIEW_CHEAT_SHEET,
+    VOX_CMD_VIEW_CONSTANTS,
     VOX_CMD_PROOFREAD_STEM,
     VOX_CMD_MODE_RESET,
     VOX_CMD_MODE_EXIT,
@@ -496,7 +496,7 @@ async function handleCommand( prefix, transcription ) {
         updateLastKnownRecorderState(currentMode, prefix, transcription, debug);
         window.location.reload();
 
-    } else if ( transcription.startsWith( VOX_CMD_VIEW_CHEAT_SHEET ) ) {
+    } else if ( transcription.startsWith( VOX_CMD_VIEW_CONSTANTS ) ) {
 
         queueNewTabCommandInLocalStorage( CONSTANTS_URL )
         closeWindow();
