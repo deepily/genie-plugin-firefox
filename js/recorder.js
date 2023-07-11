@@ -280,7 +280,7 @@ saveButton.addEventListener( "click", async () => {
             throw new Error( `HTTP error: ${response.status}` );
         }
         const transcriptionJson = await response.json();
-        // console.log( "transcriptionJson [" + JSON.stringify( transcriptionJson ) + "]..." );
+        console.log( "transcriptionJson [" + JSON.stringify( transcriptionJson ) + "]..." );
         let transcription = transcriptionJson[ "transcription" ];
         let prefix        = transcriptionJson[ "prefix" ];
         let results       = transcriptionJson[ "results" ];
@@ -596,6 +596,7 @@ async function handleCommand( prefix, transcription ) {
         closeWindow();
 
     } else {
+        console.log( "Unknown command [" + transcription + "]" );
         console.log( "Unknown command [" + transcription + "]" );
         await doTextToSpeech( "Unknown command " + transcription, refreshWindow=true );
     }
