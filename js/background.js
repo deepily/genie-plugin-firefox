@@ -216,7 +216,7 @@ browser.storage.onChanged.addListener( async (changes, areaName) => {
 
         if ( changes.lastUrlCurrentTab !== undefined && lastUrlCurrentTab !== changes.lastUrlCurrentTab.newValue ) {
             lastUrlCurrentTab = changes.lastUrlCurrentTab.newValue;
-            sendMessageToOneContentScript( lastTabId, "newUrl=" + lastUrlCurrentTab );
+            sendMessageToOneContentScript( lastTabId, "load-url", lastUrlCurrentTab );
         }
 
         if ( changes.lastTabId !== undefined && lastTabId !== parseInt(changes.lastTabId.newValue ) ) {

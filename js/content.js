@@ -214,10 +214,10 @@ let lastCode  = "";
             console.log( "tab-refresh" )
             window.location.reload();
 
-        } else if ( request.command.startsWith( "newUrl=" ) ) {
+        } else if ( request.command === "load-url" ) {
 
             console.log( "request.command: " + request.command )
-            window.location = request.command.split( "newUrl=" )[ 1 ];
+            window.location = request.extras;
 
         } else {
             console.log( "content.js: Unknown command: " + JSON.stringify( request.command ) );
