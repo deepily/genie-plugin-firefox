@@ -120,7 +120,7 @@ let lastCode  = "";
     console.log( "content.js loading... onMessage event listener..." );
     browser.runtime.onMessage.addListener( async ( request, sender, sendResponse ) => {
 
-        console.log( "content.js: Message.command received: " + request.command);
+        console.log( "content.js: Message.command received: " + JSON.stringify( request.command ) );
 
         if ( request.command === "command-append-html-to-body" ) {
 
@@ -214,8 +214,13 @@ let lastCode  = "";
             console.log( "tab-refresh" )
             window.location.reload();
 
+        } else if ( request.command.startsWith( "newUrl=" ) ) {
+
+            console.log( "request.command: " + request.command )
+            window.location = request.command.split( "newUrl=" )[ 1 ];
+
         } else {
-            console.log( "content.js: Unknown command: " + request.command );
+            console.log( "content.js: Unknown command: " + JSON.stringify( request.command ) );
         }
     } );
     console.log( "content.js loading... onMessage event listener... Done!" );
