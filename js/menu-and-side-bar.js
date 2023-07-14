@@ -118,7 +118,7 @@ async function loadContentScript() {
 // } );
 
 function reportExecuteScriptError( error) {
-    console.error(`Failed to execute content script: ${error.message}`);
+    console.error( `Failed to execute content script: ${error.message}` );
 }
 
 // document.getElementById( "link-mode" ).addEventListener( "change", async (e) => {
