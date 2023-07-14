@@ -50,7 +50,8 @@ import {
     readFromLocalStorage,
     queuePasteCommandInLocalStorage,
     queueNewTabCommandInLocalStorage,
-    queueHtmlInsertInLocalStorage
+    queueHtmlInsertInLocalStorage,
+    isJson
 } from "/js/util.js";
 
 console.log( "recorder.js loading..." );
@@ -262,31 +263,43 @@ saveButton.addEventListener( "click", async () => {
     console.log( "Upload and transcribing to url [" + url + "]" )
 
     try {
-        const result = await readBlobAsDataURL( audio.audioBlob )
-        console.log( "Mime type [" + result.split( "," )[0] + "]" );
+        const result = await readBlobAsDataURL(audio.audioBlob)
+        console.log("Mime type [" + result.split(",")[0] + "]");
 
-        const audioMessage = result.split( "," )[1];
-        const mimeType = result.split( "," )[0];
+        const audioMessage = result.split(",")[1];
+        const mimeType = result.split(",")[0];
 
-        document.getElementById( "recorder-body" ).className = "thinking";
+        document.getElementById("recorder-body").className = "thinking";
 
-        const response = await fetch( url, {
+        const response = await fetch(url, {
             method: "POST",
             headers: {"Content-Type": mimeType},
             body: audioMessage
-        } );
-        document.getElementById( "recorder-body" ).className = "thinking-disabled"
-        if ( !response.ok ) {
-            throw new Error( `HTTP error: ${response.status}` );
+        });
+        document.getElementById("recorder-body").className = "thinking-disabled"
+        if (!response.ok) {
+            throw new Error(`HTTP error: ${response.status}`);
         }
         const transcriptionJson = await response.json();
-        console.log( "transcriptionJson [" + JSON.stringify( transcriptionJson ) + "]..." );
-        let transcription = transcriptionJson[ "transcription" ];
-        let prefix        = transcriptionJson[ "prefix" ];
-        let results       = transcriptionJson[ "results" ];
+        console.log("transcriptionJson [" + JSON.stringify(transcriptionJson) + "]...");
+        let transcription = transcriptionJson["transcription"];
+        let prefix = transcriptionJson["prefix"];
+        let results = transcriptionJson["results"];
 
-        // are we in command mode?
-        if ( prefix.startsWith( STEM_MULTIMODAL_EDITOR ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR ) ) {
+        // Search commands?
+        if ( results[ "command" ].startsWith( "search" ) ) {
+
+            handleSearchCommands( results );
+
+        // Are other commands being interpreted by AI?
+        } else if ( results[ "match_type" ] == "ai_matching" ) {
+
+            console.log( "handling AI match" )
+            // For now, comma, stitch command and arguments back together and ship them off
+            handleCommand( STEM_MULTIMODAL_EDITOR, results[ "command" ] + " " + results[ "args" ][ 0 ] );
+
+        // ...or exact_string_matching command mode?
+        } else if ( prefix.startsWith( STEM_MULTIMODAL_EDITOR ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR ) ) {
 
             handleCommand( prefix, transcription );
 
@@ -369,6 +382,18 @@ function handleServerPromptResults( results ) {
 
     console.log( "Done!" );
     closeWindow();
+}
+
+async function handleSearchCommands( resultsJson ) {
+
+    console.log( "handleSearchCommands( resultsJson ) called..." );
+
+    const command = resultsJson[ "command" ];
+    const args    = resultsJson[ "args" ];
+
+    const isGoogle     = command.startsWith( "search google" );
+    const isScholar    = command.startsWith( "scholar" );
+    const isDuckDuckGo = !isGoogle;
 }
 async function handleCommand( prefix, transcription ) {
 
@@ -596,7 +621,6 @@ async function handleCommand( prefix, transcription ) {
         closeWindow();
 
     } else {
-        console.log( "Unknown command [" + transcription + "]" );
         console.log( "Unknown command [" + transcription + "]" );
         await doTextToSpeech( "Unknown command " + transcription, refreshWindow=true );
     }
