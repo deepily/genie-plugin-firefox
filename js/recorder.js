@@ -51,7 +51,7 @@ import {
     queuePasteCommandInLocalStorage,
     queueNewTabCommandInLocalStorage,
     queueHtmlInsertInLocalStorage,
-    isJson
+    queueCurrentTabCommandInLocalStorage
 } from "/js/util.js";
 
 console.log( "recorder.js loading..." );
@@ -286,10 +286,10 @@ saveButton.addEventListener( "click", async () => {
         let prefix = transcriptionJson["prefix"];
         let results = transcriptionJson["results"];
 
-        // Search commands?
-        if ( results[ "command" ].startsWith( "search" ) ) {
+        // Search commands: AI or string matching?
+        if ( results[ "command" ].startsWith( "search " ) ) {
 
-            handleSearchCommands( results );
+            handleAllSearchCommands( results );
 
         // Are other commands being interpreted by AI?
         } else if ( results[ "match_type" ] == "ai_matching" ) {
@@ -384,16 +384,41 @@ function handleServerPromptResults( results ) {
     closeWindow();
 }
 
-async function handleSearchCommands( resultsJson ) {
+async function handleAllSearchCommands( resultsJson ) {
 
     console.log( "handleSearchCommands( resultsJson ) called..." );
 
     const command = resultsJson[ "command" ];
-    const args    = resultsJson[ "args" ];
 
-    const isGoogle     = command.startsWith( "search google" );
-    const isScholar    = command.startsWith( "scholar" );
+    const isGoogle     = command.includes( " google" );
+    const isScholar    = command.includes( " scholar" );
+    const isNewTab     = command.includes( " new tab" );
+    const useClipboard = command.includes( " clipboard" );
     const isDuckDuckGo = !isGoogle;
+    const isCurrentTab = !isNewTab;
+
+    // get search terms
+    let args = resultsJson[ "args" ];
+    if ( useClipboard ) {
+        args[ 0 ] = await navigator.clipboard.readText();
+    }
+    // Get URL
+    let url = "";
+    if ( isGoogle ) {
+        if ( isScholar ) {
+            url = SEARCH_URL_GOOGLE_SCHOLAR;
+        } else {
+            url = SEARCH_URL_GOOGLE;
+        }
+    } else if ( isDuckDuckGo ) {
+        url = SEARCH_URL_DDG;
+    }
+    if ( isCurrentTab ) {
+        queueCurrentTabCommandInLocalStorage( url, "&q=" + args[ 0 ] )
+    } else {
+        queueNewTabCommandInLocalStorage( url, "&q=" + args[ 0 ] )
+    }
+    closeWindow();
 }
 async function handleCommand( prefix, transcription ) {
 
