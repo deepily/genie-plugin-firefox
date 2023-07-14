@@ -130,4 +130,14 @@ export function handleOneFile() {
         sendMessageToContentScripts( "command-paste" )
     };
 }
+
+// From: https://stackoverflow.com/questions/9804777/how-to-test-if-a-string-is-json-or-not
+export function isJson( str ) {
+    try {
+        JSON.parse( str );
+    } catch ( e ) {
+        return false;
+    }
+    return true;
+}
 console.log( "util.js: Loading... Done!" );
