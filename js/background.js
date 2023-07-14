@@ -20,15 +20,16 @@ import {
     readFromLocalStorage,
     queuePasteCommandInLocalStorage,
     queueNewTabCommandInLocalStorage,
-    // sendMessageToContentScripts
+    sendMessageToContentScripts,
     sendMessageToOneContentScript, handleOneFile
 } from "/js/util.js";
 
-let lastPaste = "";
-let lastUrl   = "";
-let lastZoom  = "";
-let lastTabId= -1;
-let lastHtmlToInsert = "";
+let lastPaste         = "";
+let lastUrl           = "";
+let lastUrlCurrentTab = "";
+let lastZoom          = "";
+let lastTabId        = -1;
+let lastHtmlToInsert  = "";
 
 var mode      = "";
 var prefix    = "";
@@ -197,44 +198,54 @@ function createNewTab( url ) {
 browser.storage.onChanged.addListener( async (changes, areaName) => {
 
     console.log( "background.js: storage.onChanged() called..." )
-    console.log( "changes: " + JSON.stringify(changes) );
-    console.log( "areaName: " + areaName);
-    console.log( "lastUrl: " + lastUrl);
-    console.log( "lastZoom: " + lastZoom);
-    console.log( "lastTabId: " + lastTabId);
-    console.log( "lastPaste: " + lastPaste);
+    console.log( "changes: " + JSON.stringify( changes ) );
 
-    if ( areaName === "local" && changes.lastUrl !== undefined && lastUrl !== changes.lastUrl.newValue ) {
-        lastUrl = changes.lastUrl.newValue;
-        openNewTab( changes.lastUrl.newValue );
-    }
+    console.log( "areaName: " + areaName );
+    console.log( "lastUrl: " + lastUrl );
+    console.log( "lastZoom: " + lastZoom );
+    console.log( "lastTabId: " + lastTabId );
+    console.log( "lastPaste: " + lastPaste );
+    console.log( "lastUrlCurrentTab: " + lastUrlCurrentTab );
 
-    if ( areaName === "local" && changes.lastTabId !== undefined && lastTabId !== parseInt(changes.lastTabId.newValue ) ) {
-        lastTabId = parseInt( changes.lastTabId.newValue );
-    }
+    if ( areaName === "local" ) {
 
-    if ( areaName === "local" && changes.lastZoom !== undefined && lastZoom !== changes.lastZoom.newValue ) {
+        if ( changes.lastUrl !== undefined && lastUrl !== changes.lastUrl.newValue ) {
+            lastUrl = changes.lastUrl.newValue;
+            openNewTab( changes.lastUrl.newValue );
+        }
 
-        lastZoom = changes.lastZoom.newValue;
-        // Remove time stamp from URL
-        const zoom = lastZoom.split( "?ts=" )[0];
-        console.log( "Zoom: " + zoom);
-        console.log( "lastTabId: " + lastTabId);
-        zoomInOut( lastTabId, zoom );
-    }
+        if ( changes.lastUrlCurrentTab !== undefined && lastUrlCurrentTab !== changes.lastUrlCurrentTab.newValue ) {
+            lastUrlCurrentTab = changes.lastUrlCurrentTab.newValue;
+            sendMessageToOneContentScript( lastTabId, "newUrl=" + lastUrlCurrentTab );
+        }
 
-    if ( areaName === "local" && changes.lastPaste !== undefined && lastPaste != changes.lastPaste.newValue ) {
+        if ( changes.lastTabId !== undefined && lastTabId !== parseInt(changes.lastTabId.newValue ) ) {
+            lastTabId = parseInt( changes.lastTabId.newValue );
+        }
 
-        lastPaste = changes.lastPaste.newValue;
-        console.log( "lastPaste updated, sending message to paste from clipboard..." );
-        sendMessageToOneContentScript( lastTabId, "command-paste" );
-    }
+        if ( changes.lastZoom !== undefined && lastZoom !== changes.lastZoom.newValue ) {
 
-    if ( areaName === "local" && changes.lastHtmlToInsert !== undefined && lastHtmlToInsert != changes.lastHtmlToInsert.newValue ) {
+            lastZoom = changes.lastZoom.newValue;
+            // Remove time stamp from URL
+            const zoom = lastZoom.split( "?ts=" )[0];
+            console.log( "Zoom: " + zoom);
+            console.log( "lastTabId: " + lastTabId);
+            zoomInOut( lastTabId, zoom );
+        }
 
-        lastHtmlToInsert = changes.lastHtmlToInsert.newValue;
-        console.log( "lastHtmlToInsert updated, sending message to paste html..." );
-        sendMessageToOneContentScript( lastTabId, "command-append-html-to-body", lastHtmlToInsert );
+        if ( changes.lastPaste !== undefined && lastPaste != changes.lastPaste.newValue ) {
+
+            lastPaste = changes.lastPaste.newValue;
+            console.log( "lastPaste updated, sending message to paste from clipboard..." );
+            sendMessageToOneContentScript( lastTabId, "command-paste" );
+        }
+
+        if ( changes.lastHtmlToInsert !== undefined && lastHtmlToInsert != changes.lastHtmlToInsert.newValue ) {
+
+            lastHtmlToInsert = changes.lastHtmlToInsert.newValue;
+            console.log( "lastHtmlToInsert updated, sending message to paste html..." );
+            sendMessageToOneContentScript( lastTabId, "command-append-html-to-body", lastHtmlToInsert );
+        }
     }
 
 
