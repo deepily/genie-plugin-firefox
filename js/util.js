@@ -69,7 +69,7 @@ export function queuePasteCommandInLocalStorage( ts ) {
     return true;
 }
 
-export async function queueNewTabCommandInLocalStorage(url, args="" ) {
+export async function queueNewTabCommandInLocalStorage( url, args="" ) {
 
     // add timestamp to url to force reload
     url = url + "?ts=" + Date.now() + args;
@@ -78,6 +78,18 @@ export async function queueNewTabCommandInLocalStorage(url, args="" ) {
 
     browser.storage.local.set( {
         "lastUrl": url
+    } );
+    return true;
+}
+export async function queueCurrentTabCommandInLocalStorage( url, args="" ) {
+
+    // add timestamp to url to force reload
+    url = url + "?ts=" + Date.now() + args;
+
+    console.log( "queueNewTabCommandInLocalStorage()..." + url  );
+
+    browser.storage.local.set( {
+        "lastUrlCurrentTab": url
     } );
     return true;
 }
