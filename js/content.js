@@ -76,7 +76,7 @@ let lastCode  = "";
 
         // add timestamp to url to force reload
         browser.storage.local.set( {
-            "lastUrl": url + "?ts=" + Date.now()
+            "lastUrlNewTab": url + "?ts=" + Date.now()
         } );
         return true;
     }

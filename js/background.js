@@ -25,7 +25,7 @@ import {
 } from "/js/util.js";
 
 let lastPaste         = "";
-let lastUrl           = "";
+let lastUrlNewTab           = "";
 let lastUrlCurrentTab = "";
 let lastZoom          = "";
 let lastTabId        = -1;
@@ -44,10 +44,10 @@ let counter = 0;
 window.addEventListener( "DOMContentLoaded", async (event) => {
 
     console.log( "DOM fully loaded and parsed, initializing global values..." );
-    lastUrl = await readFromLocalStorage( "lastUrl", "" ).then( (value) => {
+    lastUrlNewTab = await readFromLocalStorage( "lastUrlNewTab", "" ).then( (value) => {
         return value;
     } );
-    console.log( "lastUrl [" + lastUrl + "]" );
+    console.log( "lastUrlNewTab [" + lastUrlNewTab + "]" );
 
     titleMode = await readFromLocalStorage( "mode", "Transcription" ).then( (value) => {
         return value;
@@ -201,7 +201,7 @@ browser.storage.onChanged.addListener( async (changes, areaName) => {
     console.log( "changes: " + JSON.stringify( changes ) );
 
     console.log( "areaName: " + areaName );
-    console.log( "lastUrl: " + lastUrl );
+    console.log( "lastUrlNewTab: " + lastUrlNewTab );
     console.log( "lastZoom: " + lastZoom );
     console.log( "lastTabId: " + lastTabId );
     console.log( "lastPaste: " + lastPaste );
@@ -209,9 +209,9 @@ browser.storage.onChanged.addListener( async (changes, areaName) => {
 
     if ( areaName === "local" ) {
 
-        if ( changes.lastUrl !== undefined && lastUrl !== changes.lastUrl.newValue ) {
-            lastUrl = changes.lastUrl.newValue;
-            openNewTab( changes.lastUrl.newValue );
+        if ( changes.lastUrlNewTab !== undefined && lastUrlNewTab !== changes.lastUrlNewTab.newValue ) {
+            lastUrlNewTab = changes.lastUrlNewTab.newValue;
+            openNewTab( changes.lastUrlNewTab.newValue );
         }
 
         if ( changes.lastUrlCurrentTab !== undefined && lastUrlCurrentTab !== changes.lastUrlCurrentTab.newValue ) {
@@ -249,7 +249,7 @@ browser.storage.onChanged.addListener( async (changes, areaName) => {
     }
 
 
-    console.log( "lastUrl: " + lastUrl );
+    console.log( "lastUrlNewTab: " + lastUrlNewTab );
     console.log( "lastZoom: " + lastZoom );
     console.log( "lastTabId: " + lastTabId );
 } );

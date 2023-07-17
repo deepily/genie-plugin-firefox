@@ -77,7 +77,7 @@ export async function queueNewTabCommandInLocalStorage( url, args="" ) {
     console.log( "queueNewTabCommandInLocalStorage()..." + url  );
 
     browser.storage.local.set( {
-        "lastUrl": url
+        "lastUrlNewTab": url
     } );
     return true;
 }

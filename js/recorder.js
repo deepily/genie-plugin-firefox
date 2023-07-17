@@ -563,7 +563,7 @@ async function handleCommand( prefix, transcription ) {
         console.log( "Editing command found: " + transcription );
         sendMessageToBackgroundScripts( transcription );
         closeWindow();
-        
+
     } else if ( transcription.startsWith( VOX_CMD_ZOOM_RESET ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_ZOOM_RESET ) ) {
 
         console.log( "Zoom reset..." );
