@@ -281,25 +281,27 @@ saveButton.addEventListener( "click", async () => {
             throw new Error(`HTTP error: ${response.status}`);
         }
         const transcriptionJson = await response.json();
-        console.log( "transcriptionJson [" + JSON.stringify( transcriptionJson ) + "]..." );
+        console.log( "transcriptionJson [" + JSON.stringify( transcriptionJson ) + "]" );
         let transcription = transcriptionJson[ "transcription" ];
         let prefix        = transcriptionJson[ "prefix" ];
         let results       = transcriptionJson[ "results" ];
 
-        if ( results[ "command" ].startsWith( "search " ) ) {
+        if ( results[ "command" ] != undefined ) {
 
-            handleSearchCommands( results );
-
-        } else if ( results[ "command" ].startsWith( "load " ) ) {
-
-            handleLoadCommands( results );
-
-        // Are other commands being interpreted by AI?
-        } else if ( results[ "match_type" ] == "ai_matching" ) {
-
-            console.log( "handling AI match" )
-            // For now, comma, stitch command and arguments back together and ship them off
-            handleCommand( STEM_MULTIMODAL_EDITOR, results[ "command" ] + " " + results[ "args" ][ 0 ] );
+            if ( results[ "command" ].startsWith( "search " ) ) {
+                handleSearchCommands( results );
+            } else if ( results[ "command" ].startsWith( "load " ) ) {
+                handleLoadCommands( results );
+            } else if ( results[ "match_type" ].startsWith( "string_matching_" ) ) {
+                console.log( "handling string_matching_*" )
+                if ( results[ "args" ][ 0 ] != undefined ) {
+                    console.log( "TODO: Finish refactoring! " );
+                    // For now, stitch command and arguments back together and ship them off
+                    handleCommand( STEM_MULTIMODAL_EDITOR, ( results[ "command" ] + " " + results[ "args" ][ 0 ] ).trim() );
+                } else {
+                    handleCommand( STEM_MULTIMODAL_EDITOR, results[ "command" ] );
+                }
+            }
 
         } else if ( prefix.startsWith( STEM_MULTIMODAL_EDITOR ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR ) ) {
 
