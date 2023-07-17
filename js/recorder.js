@@ -1,7 +1,7 @@
 import {
     VOX_CMD_SEARCH_DDG,
     VOX_CMD_SEARCH_GOOGLE,
-    VOX_CMD_OPEN_NEW_TAB,
+    VOX_CMD_LOAD_NEW_TAB,
     // VOX_CMD_CUT, VOX_CMD_COPY, VOX_CMD_PASTE, VOX_CMD_DELETE, VOX_CMD_SELECT_ALL,
     VOX_EDIT_COMMANDS,
     VOX_CMD_PROOFREAD,
@@ -68,7 +68,7 @@ var titleMode       = "Transcription";
 async function initializeStartupParameters() {
 
     console.log( "initializeStartupParameters()..." );
-    
+
     currentMode   = await readFromLocalStorage( "mode", MODE_TRANSCRIPTION );
     prefix        = await readFromLocalStorage( "prefix", "" );
     transcription = await readFromLocalStorage( "transcription", "" );
@@ -281,15 +281,18 @@ saveButton.addEventListener( "click", async () => {
             throw new Error(`HTTP error: ${response.status}`);
         }
         const transcriptionJson = await response.json();
-        console.log("transcriptionJson [" + JSON.stringify(transcriptionJson) + "]...");
-        let transcription = transcriptionJson["transcription"];
-        let prefix = transcriptionJson["prefix"];
-        let results = transcriptionJson["results"];
+        console.log( "transcriptionJson [" + JSON.stringify( transcriptionJson ) + "]..." );
+        let transcription = transcriptionJson[ "transcription" ];
+        let prefix        = transcriptionJson[ "prefix" ];
+        let results       = transcriptionJson[ "results" ];
 
-        // Search commands: AI or string matching?
         if ( results[ "command" ].startsWith( "search " ) ) {
 
             handleSearchCommands( results );
+
+        } else if ( results[ "command" ].startsWith( "load " ) ) {
+
+            handleLoadCommands( results );
 
         // Are other commands being interpreted by AI?
         } else if ( results[ "match_type" ] == "ai_matching" ) {
@@ -298,7 +301,6 @@ saveButton.addEventListener( "click", async () => {
             // For now, comma, stitch command and arguments back together and ship them off
             handleCommand( STEM_MULTIMODAL_EDITOR, results[ "command" ] + " " + results[ "args" ][ 0 ] );
 
-        // ...or exact_string_matching command mode?
         } else if ( prefix.startsWith( STEM_MULTIMODAL_EDITOR ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR ) ) {
 
             handleCommand( prefix, transcription );
@@ -337,6 +339,7 @@ saveButton.addEventListener( "click", async () => {
         }
     } catch ( e ) {
         console.log( "Error processing audio file [" + e.stack + "]" );
+        console.trace() ;
     }
 } );
 
@@ -417,6 +420,25 @@ async function handleSearchCommands( resultsJson ) {
         queueCurrentTabCommandInLocalStorage( url, "&q=" + args[ 0 ] )
     } else {
         queueNewTabCommandInLocalStorage( url, "&q=" + args[ 0 ] )
+    }
+    closeWindow();
+}
+
+async function handleLoadCommands( results ) {
+
+    console.log( "handleLoadCommands( resultsJson ) called... " + JSON.stringify( results ) );
+
+    const command = results[ "command" ];
+    console.log( "command [" + command + "]" );
+
+    let url = "https://" + results[ "args" ][ 0 ]
+    console.log( "url [" + url + "]" );
+
+    if ( command == VOX_CMD_LOAD_NEW_TAB ) {
+        queueNewTabCommandInLocalStorage( url );
+    } else {
+        // Default to opening in the current tab
+        queueCurrentTabCommandInLocalStorage( url )
     }
     closeWindow();
 }
@@ -531,94 +553,17 @@ async function handleCommand( prefix, transcription ) {
 
         await doTextToSpeech( "Switching to " + currentMode + " mode", refreshWindow=true);
 
-    // } else if ( transcription == VOX_CMD_OPEN_NEW_TAB || transcription == VOX_CMD_SEARCH_GOOGLE || transcription == VOX_CMD_SEARCH_DDG ) {
-    //
-    //     // Push transcription into the prefix so that we can capture where we want to go/do in the next conditional blocks below.
-    //     prefix = prefix + " " + transcription;
-    //     transcription = "";
-    //
-    //     console.log(transcription)
-    //     console.log( "We know what you want (a new tab/search), but we don't know where you want to go or what you want to search." )
-    //     updateLastKnownRecorderState(currentMode, prefix, transcription, debug);
-    //     window.location.reload();
-
     } else if ( transcription.startsWith( VOX_CMD_VIEW_CONSTANTS ) ) {
 
         queueNewTabCommandInLocalStorage( CONSTANTS_URL )
         closeWindow();
-
-    // } else if ( transcription === VOX_CMD_SEARCH_CLIPBOARD_DDG ) {
-    //
-    //     const clipboardText = await navigator.clipboard.readText()
-    //     queueNewTabCommandInLocalStorage( SEARCH_URL_DDG, "&q=" + clipboardText )
-    //     closeWindow();
-    //
-    // } else if ( transcription === VOX_CMD_SEARCH_CLIPBOARD_GOOGLE ) {
-    //
-    //     const clipboardText = await navigator.clipboard.readText()
-    //     queueNewTabCommandInLocalStorage( SEARCH_URL_GOOGLE, "&q=" + clipboardText )
-    //     closeWindow();
 
     } else if ( VOX_EDIT_COMMANDS.includes( transcription ) ) {
 
         console.log( "Editing command found: " + transcription );
         sendMessageToBackgroundScripts( transcription );
         closeWindow();
-
-    } else if ( transcription.startsWith( VOX_CMD_OPEN_NEW_TAB ) || prefix === STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_OPEN_NEW_TAB ) {
-
-        let url = "";
-        if ( prefix === STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_OPEN_NEW_TAB ) {
-            url = "https://" + transcription
-        } else {
-            url = "https://" + transcription.replace( VOX_CMD_OPEN_NEW_TAB, "" ).trim()
-        }
-
-        console.log( "Updating lastUrl to [" + url + "]" );
-        queueNewTabCommandInLocalStorage( url );
-        closeWindow();
-
-    // } else if ( transcription.startsWith( VOX_CMD_SEARCH_GOOGLE_SCHOLAR ) || prefix === STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_SEARCH_GOOGLE_SCHOLAR ) {
-    //
-    //     let searchTerms = "";
-    //
-    //     if ( prefix === STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_SEARCH_GOOGLE_SCHOLAR ) {
-    //         searchTerms = transcription;
-    //     } else {
-    //         searchTerms = transcription.replace( VOX_CMD_SEARCH_GOOGLE_SCHOLAR, "" ).trim()
-    //     }
-    //     // TODO/KLUDGE: Replace "this information" with "disinformation"
-    //     searchTerms = searchTerms.replace( "this information", "disinformation" )
-    //     queueNewTabCommandInLocalStorage( SEARCH_URL_GOOGLE_SCHOLAR, "&q=" + searchTerms )
-    //     closeWindow();
-
-    // } else if ( transcription.startsWith( VOX_CMD_SEARCH_GOOGLE ) || prefix === STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_SEARCH_GOOGLE ) {
-    //
-    //     let searchTerms = "";
-    //
-    //     if ( prefix === STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_SEARCH_GOOGLE ) {
-    //         searchTerms = transcription;
-    //     } else {
-    //         searchTerms = transcription.replace( VOX_CMD_SEARCH_GOOGLE, "" ).trim()
-    //     }
-    //     queueNewTabCommandInLocalStorage( SEARCH_URL_GOOGLE, "&q=" + searchTerms )
-    //     closeWindow();
-    //
-    // } else if ( transcription.startsWith( VOX_CMD_SEARCH_DDG ) || prefix === STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_SEARCH_DDG ) {
-    //
-    //     let searchTerms = "";
-    //
-    //     if ( prefix === STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_SEARCH_DDG ) {
-    //         searchTerms = transcription;
-    //     } else {
-    //         searchTerms = transcription.replace( VOX_CMD_SEARCH_DDG, "" ).trim()
-    //     }
-    //     const url = "https://www.duckduckgo.com/";
-    //
-    //     console.log( "Updating lastUrl to [" + url + "]" );
-    //     queueNewTabCommandInLocalStorage( url, "&q=" + searchTerms )
-    //     closeWindow();
-
+        
     } else if ( transcription.startsWith( VOX_CMD_ZOOM_RESET ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_ZOOM_RESET ) ) {
 
         console.log( "Zoom reset..." );
