@@ -9,7 +9,7 @@ import {
     MODE_COMMAND,
     VOX_CMD_SEARCH_DDG,
     VOX_CMD_SEARCH_GOOGLE,
-    VOX_CMD_OPEN_NEW_TAB,
+    VOX_CMD_LOAD_NEW_TAB,
     STEM_MULTIMODAL_EDITOR,
     EDITOR_URL, MULTIMODAL_CONTACT_INFO, MULTIMODAL_TEXT_EMAIL, MULTIMODAL_TEXT_PYTHON
 } from "/js/constants.js";
@@ -171,7 +171,7 @@ async function handleClickEvent( e ) {
     } else if ( e.target.id === "command-open-new-tab" ) {
 
         console.log( "command-new-tab" );
-        popupRecorder(mode = MODE_COMMAND, prefix = STEM_MULTIMODAL_EDITOR, command = VOX_CMD_OPEN_NEW_TAB);
+        popupRecorder(mode = MODE_COMMAND, prefix = STEM_MULTIMODAL_EDITOR, command = VOX_CMD_LOAD_NEW_TAB);
 
     } else if ( e.target.id === "command-search-duck-duck-go" ) {
 
