@@ -8,13 +8,13 @@ export const VOX_CMD_DELETE         = "delete";
 export const VOX_CMD_SELECT_ALL     = "select all";
 export const VOX_EDIT_COMMANDS   = [ VOX_CMD_CUT, VOX_CMD_COPY, VOX_CMD_PASTE, VOX_CMD_DELETE, VOX_CMD_SELECT_ALL ];
 
-export const VOX_CMD_TAB_CLOSE      = "close current tab";
-export const VOX_CMD_TAB_BACK       = "go backwards";
-export const VOX_CMD_TAB_FORWARD    = "go forwards";
-export const VOX_CMD_TAB_REFRESH    = "refresh current tab";
-export const VOX_CMD_OPEN_NEW_TAB   = "load new tab";
-export const VOX_CMD_IN_CURRENT_TAB = "load current tab";
-export const VOX_TAB_COMMANDS    = [ VOX_CMD_TAB_BACK, VOX_CMD_TAB_FORWARD, VOX_CMD_TAB_REFRESH, VOX_CMD_TAB_CLOSE, VOX_CMD_OPEN_NEW_TAB ];
+export const VOX_CMD_TAB_CLOSE        = "close current tab";
+export const VOX_CMD_TAB_BACK         = "go backwards";
+export const VOX_CMD_TAB_FORWARD      = "go forwards";
+export const VOX_CMD_TAB_REFRESH      = "refresh current tab";
+export const VOX_CMD_LOAD_NEW_TAB     = "load new tab";
+export const VOX_CMD_LOAD_CURRENT_TAB = "load current tab";
+export const VOX_TAB_COMMANDS       = [ VOX_CMD_TAB_BACK, VOX_CMD_TAB_FORWARD, VOX_CMD_TAB_REFRESH, VOX_CMD_TAB_CLOSE, VOX_CMD_LOAD_NEW_TAB ];
 
 export const VOX_CMD_OPEN_EDITOR    = "open editor";
 
