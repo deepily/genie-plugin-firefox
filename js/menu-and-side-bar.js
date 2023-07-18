@@ -372,12 +372,12 @@ async function updateLocalStorage( mode, prefix, transcription, debug, lastTabId
     console.log( `updateLocalStorage() Mode [${mode}], prefix [${prefix}], transcription [${transcription}], debug [${debug}] lastTabId [${lastTabId}]...` )
 
     await browser.storage.local.set( {
-      alwaysOnTop: false,
-           "mode": mode,
-         "prefix": prefix,
-        "transcription": transcription,
-          "debug": debug,
-      "lastTabId": lastTabId
+          alwaysOnTop: false,
+               "mode": mode,
+             "prefix": prefix,
+      "transcription": transcription,
+              "debug": debug,
+          "lastTabId": lastTabId
     } );
     return true;
 }
