@@ -290,7 +290,7 @@ saveButton.addEventListener( "click", async () => {
 
             if ( results[ "command" ].startsWith( "search " ) ) {
                 handleSearchCommands( results );
-            } else if ( results[ "command" ].startsWith( "load " ) ) {
+            } else if ( results[ "command" ].startsWith( "go to " ) ) {
                 handleLoadCommands( results );
             } else if ( results[ "match_type" ].startsWith( "string_matching_" ) ) {
                 console.log( "handling string_matching_*" )
@@ -389,12 +389,22 @@ function handleServerPromptResults( results ) {
     closeWindow();
 }
 
-async function handleSearchCommands( resultsJson ) {
+async function handleSearchCommands( results ) {
 
-    console.log( "handleSearchCommands( resultsJson ) called..." );
+    console.log( "handleSearchCommands( results ) called..." );
 
-    const command = resultsJson[ "command" ];
+    let command = results[ "command" ];
+    let args    = results[ "args"    ];
 
+    // Test for valid arguments
+    // Log to console.
+    console.log( "args [" + args[ 0 ] + "]" );
+    if ( args[ 0 ] == "no_search_terms" || args[ 0 ] == "" ) {
+        // TODO: why is text to speech not blocking?
+        await doTextToSpeech( "No search terms found. Try again?", refreshWindow=true );
+        window.location.reload();
+        return;
+    }
     const isGoogle     = command.includes( " google" );
     const isScholar    = command.includes( " scholar" );
     const isNewTab     = command.includes( " new tab" );
@@ -403,7 +413,6 @@ async function handleSearchCommands( resultsJson ) {
     const isCurrentTab = !isNewTab;
 
     // get search terms
-    let args = resultsJson[ "args" ];
     if ( useClipboard ) {
         args[ 0 ] = await navigator.clipboard.readText();
     }
@@ -430,10 +439,18 @@ async function handleLoadCommands( results ) {
 
     console.log( "handleLoadCommands( resultsJson ) called... " + JSON.stringify( results ) );
 
+    // Test for valid arguments
+    const args = results[ "args" ]
+    if ( args[ 0 ] == "no_search_terms" || args[ 0 ].length == 0 ) {
+        // TODO: why is text to speech not blocking?
+        await doTextToSpeech( "No domain name found. Try again?", refreshWindow=true );
+        window.location.reload();
+        return;
+    }
     const command = results[ "command" ];
     console.log( "command [" + command + "]" );
 
-    let url = "https://" + results[ "args" ][ 0 ]
+    let url = "https://" + args[ 0 ]
     console.log( "url [" + url + "]" );
 
     if ( command == VOX_CMD_LOAD_NEW_TAB ) {
@@ -705,7 +722,9 @@ async function doTextToSpeech( text, refreshWindow=false ) {
         audio.play();
         audio.addEventListener( "ended", () => {
             if ( refreshWindow ) {
-                window.location.reload();
+                window.setTimeout(() => {
+                    window.location.reload();
+                }, 250);
             }
         } );
         resolve( true );
