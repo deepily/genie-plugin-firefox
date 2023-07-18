@@ -11,7 +11,7 @@ import {
     VOX_CMD_TAB_CLOSE, VOX_CMD_TAB_REFRESH, VOX_CMD_TAB_BACK, VOX_CMD_TAB_FORWARD, VOX_CMD_PASTE, VOX_CMD_OPEN_FILE
 } from "/js/constants.js";
 import {
-    popupRecorder
+    displayRecorder
 } from "/js/menu-and-side-bar.js";
 import {
     callOnActiveTab,
@@ -65,7 +65,7 @@ browser.commands.onCommand.addListener( ( command) => {
     // console.log( "command [" + command + "]" )
 
     if ( command === "popup-vox-to-text" ) {
-        popupRecorder( mode = "transcription" );
+        displayRecorder( mode = "transcription" );
     }
     // else if ( command === "open-editor" ) {
     //
@@ -344,12 +344,12 @@ browser.runtime.onMessage.addListener(async ( message) => {
     } else if ( message.command === "command-transcription" ) {
 
         console.log( "background.js: 'command-transcription' received" );
-        popupRecorder( mode=MODE_TRANSCRIPTION );
+        displayRecorder( mode=MODE_TRANSCRIPTION );
 
     } else if ( message.command === "command-mode" ) {
 
         console.log( "background.js: 'command-mode' received" );
-        popupRecorder(mode=MODE_COMMAND, prefix="multimodal editor", command="mode" );
+        displayRecorder(mode=MODE_COMMAND, prefix="multimodal editor", command="mode" );
 
     } else if ( message.command === VOX_CMD_PASTE ) {
 

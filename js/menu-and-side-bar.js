@@ -142,23 +142,23 @@ async function handleClickEvent( e ) {
         console.log( "editor clicked?" );
     } else if ( e.target.id === "transcription" ) {
 
-        popupRecorder(mode = MODE_TRANSCRIPTION);
+        displayRecorder(mode = MODE_TRANSCRIPTION);
 
     } else if ( e.target.id === "transcription-python" ) {
 
-        popupRecorder(mode = MODE_TRANSCRIPTION, prefix = MULTIMODAL_TEXT_PYTHON );
+        displayRecorder(mode = MODE_TRANSCRIPTION, prefix = MULTIMODAL_TEXT_PYTHON );
 
     } else if ( e.target.id === "transcription-email" ) {
 
-        popupRecorder(mode = MODE_TRANSCRIPTION, prefix = MULTIMODAL_TEXT_EMAIL );
+        displayRecorder(mode = MODE_TRANSCRIPTION, prefix = MULTIMODAL_TEXT_EMAIL );
 
     } else if ( e.target.id === "transcription-contact-information" ) {
 
-        popupRecorder(mode = MODE_TRANSCRIPTION, prefix = MULTIMODAL_CONTACT_INFO );
+        displayRecorder(mode = MODE_TRANSCRIPTION, prefix = MULTIMODAL_CONTACT_INFO );
 
     } else if ( e.target.id === "transcription-debug" ) {
 
-        popupRecorder(mode = MODE_TRANSCRIPTION, debug = true);
+        displayRecorder(mode = MODE_TRANSCRIPTION, debug = true);
 
     } else if ( e.target.id === "command-cut" || e.target.id === "command-copy" || e.target.id === "command-paste" || e.target.id === "command-delete" || e.target.id === "command-select-all" ) {
 
@@ -166,20 +166,20 @@ async function handleClickEvent( e ) {
 
     } else if ( e.target.id === "command-mode" ) {
 
-        popupRecorder(mode = MODE_COMMAND, prefix = STEM_MULTIMODAL_EDITOR, command = "mode" );
+        displayRecorder(mode = MODE_COMMAND, prefix = STEM_MULTIMODAL_EDITOR, command = "mode" );
 
     } else if ( e.target.id === "command-open-new-tab" ) {
 
         console.log( "command-new-tab" );
-        popupRecorder(mode = MODE_COMMAND, prefix = STEM_MULTIMODAL_EDITOR, command = VOX_CMD_LOAD_NEW_TAB);
+        displayRecorder(mode = MODE_COMMAND, prefix = STEM_MULTIMODAL_EDITOR, command = VOX_CMD_LOAD_NEW_TAB);
 
     } else if ( e.target.id === "command-search-duck-duck-go" ) {
 
-        popupRecorder(mode = MODE_COMMAND, prefix = STEM_MULTIMODAL_EDITOR, command = VOX_CMD_SEARCH_DDG);
+        displayRecorder(mode = MODE_COMMAND, prefix = STEM_MULTIMODAL_EDITOR, command = VOX_CMD_SEARCH_DDG);
 
     } else if ( e.target.id === "command-search-google" ) {
 
-        popupRecorder(mode = MODE_COMMAND, prefix = STEM_MULTIMODAL_EDITOR, command = VOX_CMD_SEARCH_GOOGLE);
+        displayRecorder(mode = MODE_COMMAND, prefix = STEM_MULTIMODAL_EDITOR, command = VOX_CMD_SEARCH_GOOGLE);
 
     } else if ( e.target.id === "command-search-duck-duck-go-clipboard" ) {
 
@@ -337,7 +337,7 @@ async function handleClickEvent( e ) {
     e.preventDefault()
 }
 
-export async function popupRecorder(mode=MODE_TRANSCRIPTION, prefix = "", transcription = "", debug = false, tabId = -1) {
+export async function displayRecorder( mode=MODE_TRANSCRIPTION, prefix = "", transcription = "", debug = false, tabId = -1) {
 
     let lastTab = await browser.tabs.query( { currentWindow: true, active: true } ).then(async ( tabs ) => {
         return tabs[0]
@@ -349,7 +349,7 @@ export async function popupRecorder(mode=MODE_TRANSCRIPTION, prefix = "", transc
     const result = await updateLocalStorage(mode, prefix, transcription, debug, lastTabId );
     console.log( "result: " + result);
 
-    console.log( "popupRecorder() titleMode [" + titleMode + "]" );
+    console.log( "displayRecorder() titleMode [" + titleMode + "]" );
 
     let createData = {
         url: "../html/recorder.html",
@@ -364,8 +364,8 @@ export async function popupRecorder(mode=MODE_TRANSCRIPTION, prefix = "", transc
     let popupRecorderWindow = (await creating)
     // popupRecorderWindow.callerFunction = messageToParentWindow
     popupRecorderWindowId = popupRecorderWindow.id;
-    console.log( "popupRecorderWindow  : " + JSON.stringify(popupRecorderWindow));
-    console.log( "popupRecorderWindowId: " + popupRecorderWindowId);
+    // console.log( "popupRecorderWindow  : " + JSON.stringify(popupRecorderWindow));
+    console.log( "popupRecorderWindowId: " + popupRecorderWindowId );
 }
 async function updateLocalStorage( mode, prefix, transcription, debug, lastTabId ) {
 
