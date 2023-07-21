@@ -394,7 +394,21 @@ async function handleSearchCommands( results ) {
     console.log( "handleSearchCommands( results ) called..." );
 
     let command = results[ "command" ];
+
+    const isGoogle     = command.includes( " google" );
+    const isScholar    = command.includes( " scholar" );
+    const isNewTab     = command.includes( " new tab" );
+    const useClipboard = command.includes( " clipboard" );
+    const isDuckDuckGo = !isGoogle;
+    const isCurrentTab = !isNewTab;
+
     let args    = results[ "args"    ];
+
+    // get search terms from clipboard, if requested
+    if ( useClipboard ) {
+        args[ 0 ] = encodeURIComponent( await navigator.clipboard.readText() );
+        console.log( "using clipboard content [" + args[ 0 ] + "]" );
+    }
 
     // Test for valid arguments
     // Log to console.
@@ -404,17 +418,6 @@ async function handleSearchCommands( results ) {
         await doTextToSpeech( "No search terms found. Try again?", refreshWindow=true );
         window.location.reload();
         return;
-    }
-    const isGoogle     = command.includes( " google" );
-    const isScholar    = command.includes( " scholar" );
-    const isNewTab     = command.includes( " new tab" );
-    const useClipboard = command.includes( " clipboard" );
-    const isDuckDuckGo = !isGoogle;
-    const isCurrentTab = !isNewTab;
-
-    // get search terms
-    if ( useClipboard ) {
-        args[ 0 ] = await navigator.clipboard.readText();
     }
     // Get URL
     let url = "";
