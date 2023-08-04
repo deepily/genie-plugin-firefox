@@ -159,8 +159,6 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
 } );
 window.addEventListener( "keydown", function (event) {
 
-    console.log( "event [" + event + "]" );
-    console.log( "event.key [" + event.key + "]" );
     if ( event.key == "Escape" ) {
         console.log( "Escape pressed" );
         window.setTimeout( () => {
