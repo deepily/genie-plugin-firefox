@@ -451,7 +451,8 @@ async function handleLoadCommands( results ) {
     const command = results[ "command" ];
     console.log( "command [" + command + "]" );
 
-    let url = "https://" + args[ 0 ]
+    // squeeze out any blank chars that may have crept in
+    let url = "https://" + args[ 0 ].replace( " ", "" );
     console.log( "url [" + url + "]" );
 
     if ( command == VOX_CMD_LOAD_NEW_TAB ) {
