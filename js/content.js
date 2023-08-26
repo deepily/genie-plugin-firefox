@@ -93,7 +93,7 @@ let lastCode  = "";
 
     document.body.addEventListener( "keydown", (event) => {
 
-        console.log( "keydown.key is [" + event.key + "] and the code is [" + event.code + "]" );
+        // console.log( "keydown.key is [" + event.key + "] and the code is [" + event.code + "]" );
         // console.log( "lastKey is [" + lastKey + "] and the lastCode is [" + lastCode + "]" );
 
         if ( event.key === "Meta" && event.code === "OSRight" && lastKey === "Meta" && lastCode === "OSRight" ) {
