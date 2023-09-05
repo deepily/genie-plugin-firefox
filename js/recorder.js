@@ -5,7 +5,7 @@ import {
     // VOX_CMD_CUT, VOX_CMD_COPY, VOX_CMD_PASTE, VOX_CMD_DELETE, VOX_CMD_SELECT_ALL,
     VOX_EDIT_COMMANDS,
     VOX_CMD_PROOFREAD,
-    STEM_MULTIMODAL_EDITOR,
+    STEM_MULTIMODAL_BROWSER,
     MODE_COMMAND,
     MODE_TRANSCRIPTION,
     TTS_SERVER_ADDRESS,
@@ -295,13 +295,13 @@ saveButton.addEventListener( "click", async () => {
                 if ( results[ "args" ][ 0 ] != undefined ) {
                     console.log( "TODO: Finish refactoring! " );
                     // For now, stitch command and arguments back together and ship them off
-                    handleCommand( STEM_MULTIMODAL_EDITOR, ( results[ "command" ] + " " + results[ "args" ][ 0 ] ).trim() );
+                    handleCommand( STEM_MULTIMODAL_BROWSER, ( results[ "command" ] + " " + results[ "args" ][ 0 ] ).trim() );
                 } else {
-                    handleCommand( STEM_MULTIMODAL_EDITOR, results[ "command" ] );
+                    handleCommand( STEM_MULTIMODAL_BROWSER, results[ "command" ] );
                 }
             }
 
-        } else if ( prefix.startsWith( STEM_MULTIMODAL_EDITOR ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR ) ) {
+        } else if ( prefix.startsWith( STEM_MULTIMODAL_BROWSER ) || transcription.startsWith( STEM_MULTIMODAL_BROWSER ) ) {
 
             handleCommand( prefix, transcription );
 
@@ -318,7 +318,7 @@ saveButton.addEventListener( "click", async () => {
             console.log( "  mode: " + transcriptionJson[ "mode" ] )
             handleServerSearchResults( results );
 
-        } else if ( prefix.startsWith( STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_RUN_PROMPT ) || transcriptionJson[ "mode" ].startsWith( VOX_CMD_RUN_PROMPT ) ) {
+        } else if ( prefix.startsWith( STEM_MULTIMODAL_BROWSER + " " + VOX_CMD_RUN_PROMPT ) || transcriptionJson[ "mode" ].startsWith( VOX_CMD_RUN_PROMPT ) ) {
 
             console.log( "prefix: " + prefix )
             console.log( "  mode: " + transcriptionJson[ "mode" ] )
@@ -467,12 +467,12 @@ async function handleCommand( prefix, transcription ) {
 
     console.log( "handleCommands( transcription ) called with prefix [" + prefix + "] transcription [" + transcription + "]" );
 
-    if ( ( prefix == STEM_MULTIMODAL_EDITOR && ( transcription === "mode" || transcription === "help" )  ) ||
-         ( prefix == "" && transcription === STEM_MULTIMODAL_EDITOR ) ) {
+    if ( ( prefix == STEM_MULTIMODAL_BROWSER && ( transcription === "mode" || transcription === "help" )  ) ||
+         ( prefix == "" && transcription === STEM_MULTIMODAL_BROWSER ) ) {
 
         // Remove whatever commands were sent.
         transcription = "";
-        prefix        = STEM_MULTIMODAL_EDITOR;
+        prefix        = STEM_MULTIMODAL_BROWSER;
         currentMode   = MODE_COMMAND;
         document.getElementById( "stop" ).className = "disabled";
 
@@ -537,7 +537,7 @@ async function handleCommand( prefix, transcription ) {
             doTextToSpeech( "I don't understand prompt command suffix " + transcription.replace( VOX_CMD_RUN_PROMPT, "" ) );
         }
 
-    } else if ( transcription.startsWith( VOX_CMD_SET_LINK_MODE ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_SET_LINK_MODE ) ) {
+    } else if ( transcription.startsWith( VOX_CMD_SET_LINK_MODE ) || transcription.startsWith( STEM_MULTIMODAL_BROWSER + " " + VOX_CMD_SET_LINK_MODE ) ) {
 
         if ( transcription.endsWith( LINK_MODE_DRILL_DOWN ) ) {
             await browser.storage.local.set( { "linkMode": LINK_MODE_DRILL_DOWN } );
@@ -551,7 +551,7 @@ async function handleCommand( prefix, transcription ) {
         }
         await closeWindow();
 
-    } else if ( transcription.startsWith( VOX_CMD_SET_PROMPT_MODE ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_SET_PROMPT_MODE ) ) {
+    } else if ( transcription.startsWith( VOX_CMD_SET_PROMPT_MODE ) || transcription.startsWith( STEM_MULTIMODAL_BROWSER + " " + VOX_CMD_SET_PROMPT_MODE ) ) {
 
         if ( transcription.endsWith( PROMPT_MODE_VERBOSE ) ) {
             await browser.storage.local.set( { "promptMode": PROMPT_MODE_VERBOSE } );
@@ -585,13 +585,13 @@ async function handleCommand( prefix, transcription ) {
         sendMessageToBackgroundScripts( transcription );
         closeWindow();
 
-    } else if ( transcription.startsWith( VOX_CMD_ZOOM_RESET ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_ZOOM_RESET ) ) {
+    } else if ( transcription.startsWith( VOX_CMD_ZOOM_RESET ) || transcription.startsWith( STEM_MULTIMODAL_BROWSER + " " + VOX_CMD_ZOOM_RESET ) ) {
 
         console.log( "Zoom reset..." );
         updateLocalStorageLastZoom( 0 );
         closeWindow();
 
-    } else if ( transcription.startsWith( VOX_CMD_ZOOM_OUT ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_ZOOM_OUT ) ) {
+    } else if ( transcription.startsWith( VOX_CMD_ZOOM_OUT ) || transcription.startsWith( STEM_MULTIMODAL_BROWSER + " " + VOX_CMD_ZOOM_OUT ) ) {
 
         console.log( "Zooming out..." );
         let zoomCount = ( transcription.split( "zoom out" ).length - 1 ) * -1;
@@ -599,7 +599,7 @@ async function handleCommand( prefix, transcription ) {
         updateLocalStorageLastZoom( zoomCount );
         closeWindow();
 
-    } else if ( transcription.startsWith( VOX_CMD_ZOOM_IN ) || transcription.startsWith( STEM_MULTIMODAL_EDITOR + " " + VOX_CMD_ZOOM_IN ) ) {
+    } else if ( transcription.startsWith( VOX_CMD_ZOOM_IN ) || transcription.startsWith( STEM_MULTIMODAL_BROWSER + " " + VOX_CMD_ZOOM_IN ) ) {
 
         console.log( "Zooming in..." );
         let zoomCount = transcription.split( "zoom" ).length - 1;
