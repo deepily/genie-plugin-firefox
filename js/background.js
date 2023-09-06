@@ -14,9 +14,10 @@ import {
     VOX_CMD_TAB_FORWARD,
     VOX_CMD_PASTE,
     VOX_CMD_OPEN_FILE,
-    STEM_MULTIMODAL_BROWSER, MODE_AGENT, STEM_MULTIMODAL_AGENT
+    STEM_MULTIMODAL_BROWSER, MODE_AGENT, STEM_MULTIMODAL_AGENT, VOX_CMD_VIEW_JOB_QUEUE
 } from "/js/constants.js";
 import {
+    displayQueue,
     displayRecorder
 } from "/js/menu-and-side-bar.js";
 import {
@@ -361,6 +362,10 @@ browser.runtime.onMessage.addListener(async ( message) => {
 
         console.log( `background.js: [${MODE_AGENT}] received` );
         displayRecorder(mode=MODE_AGENT, prefix=STEM_MULTIMODAL_AGENT );
+
+    } else if ( message.command === VOX_CMD_VIEW_JOB_QUEUE ) {
+
+        displayQueue();
 
     } else if ( message.command === VOX_CMD_PASTE ) {
 

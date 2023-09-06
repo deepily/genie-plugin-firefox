@@ -43,7 +43,7 @@ import {
     VOX_CMD_SUFFIX_FROM_FILE,
     VOX_CMD_SAVE_FROM_CLIPBOARD,
     MULTIMODAL_CONTACT_INFO,
-    VOX_CMD_OPEN_FILE
+    VOX_CMD_OPEN_FILE, STEM_MULTIMODAL_AGENT, VOX_CMD_VIEW_JOB_QUEUE
 } from "/js/constants.js";
 import {
     sendMessageToBackgroundScripts,
@@ -300,6 +300,10 @@ saveButton.addEventListener( "click", async () => {
                     handleCommand( STEM_MULTIMODAL_BROWSER, results[ "command" ] );
                 }
             }
+        } else if ( prefix.startsWith( STEM_MULTIMODAL_AGENT ) || transcription.startsWith( STEM_MULTIMODAL_AGENT ) ) {
+
+            console.log( "Multimodal agent call received, closing" );
+            closeWindow();
 
         } else if ( prefix.startsWith( STEM_MULTIMODAL_BROWSER ) || transcription.startsWith( STEM_MULTIMODAL_BROWSER ) ) {
 
@@ -494,6 +498,11 @@ async function handleCommand( prefix, transcription ) {
 
         console.log( "Editing command found: " + transcription );
         sendMessageToBackgroundScripts( transcription );
+        closeWindow();
+
+    } else if ( transcription === VOX_CMD_VIEW_JOB_QUEUE ) {
+
+        sendMessageToBackgroundScripts( VOX_CMD_VIEW_JOB_QUEUE );
         closeWindow();
 
     } else if ( transcription === VOX_CMD_OPEN_EDITOR ) {
