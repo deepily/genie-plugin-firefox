@@ -138,7 +138,7 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
     // Only hide if we're not in debug mode
     document.getElementById( "play" ).hidden = !debug;
 
-    if ( currentMode === "transcription"  || transcription === "" ) { // || currentMode == "multimodal editor" ) {
+    if ( currentMode === "transcription"  || transcription === "" ) {
 
         document.getElementById( "record" ).click()
 

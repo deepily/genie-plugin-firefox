@@ -8,7 +8,13 @@ import {
     MODE_TRANSCRIPTION,
     MODE_COMMAND,
     VOX_EDIT_COMMANDS,
-    VOX_CMD_TAB_CLOSE, VOX_CMD_TAB_REFRESH, VOX_CMD_TAB_BACK, VOX_CMD_TAB_FORWARD, VOX_CMD_PASTE, VOX_CMD_OPEN_FILE
+    VOX_CMD_TAB_CLOSE,
+    VOX_CMD_TAB_REFRESH,
+    VOX_CMD_TAB_BACK,
+    VOX_CMD_TAB_FORWARD,
+    VOX_CMD_PASTE,
+    VOX_CMD_OPEN_FILE,
+    STEM_MULTIMODAL_BROWSER, MODE_AGENT, STEM_MULTIMODAL_AGENT
 } from "/js/constants.js";
 import {
     displayRecorder
@@ -346,10 +352,15 @@ browser.runtime.onMessage.addListener(async ( message) => {
         console.log( "background.js: 'command-transcription' received" );
         displayRecorder( mode=MODE_TRANSCRIPTION );
 
-    } else if ( message.command === "command-mode" ) {
+    } else if ( message.command === MODE_COMMAND ) {
 
-        console.log( "background.js: 'command-mode' received" );
-        displayRecorder(mode=MODE_COMMAND, prefix="multimodal editor", command="mode" );
+        console.log( `background.js: [${MODE_COMMAND}] received` );;
+        displayRecorder(mode=MODE_COMMAND, prefix=STEM_MULTIMODAL_BROWSER, command="" );
+
+    } else if ( message.command === MODE_AGENT ) {
+
+        console.log( `background.js: [${MODE_AGENT}] received` );
+        displayRecorder(mode=MODE_AGENT, prefix=STEM_MULTIMODAL_AGENT );
 
     } else if ( message.command === VOX_CMD_PASTE ) {
 
