@@ -28,9 +28,10 @@ var mode                = "";
 var currentMode         = "";
 var prefix              = "";
 var transcription       = "";
-let debug                 = false;
-let titleMode             = "Transcription"
+let debug             = false;
+let titleMode           = "Transcription"
 let popupRecorderWindowId = null;
+let popupQueueWindowId    = null;
 
 let fileSelect= null;
 let fileElem = null;
@@ -367,6 +368,50 @@ export async function displayRecorder( mode=MODE_TRANSCRIPTION, prefix = "", tra
     // console.log( "popupRecorderWindow  : " + JSON.stringify(popupRecorderWindow));
     console.log( "popupRecorderWindowId: " + popupRecorderWindowId );
 }
+
+export async function displayQueue() {
+
+    console.log( `displayQueue() called, popupQueueWindowId ${popupQueueWindowId}...` );
+
+    if ( popupQueueWindowId !== null ) {
+
+        console.log( "Queue window already open, not opening another one." );
+
+        // Bring the hidden pop-up window to the top
+        browser.windows.update( popupQueueWindowId, { focused: true } );
+
+        return;
+    }
+    let lastTab = await browser.tabs.query( { currentWindow: true, active: true } ).then( async( tabs ) => {
+        return tabs[ 0 ]
+    } );
+    let lastTabId = lastTab.id;
+    console.log( "lastTabId: " + lastTabId );
+    console.log( "lastTab: " + JSON.stringify( lastTab ) );
+
+    let createData = {
+        url: GIB_SERVER_ADDRESS + "/static/queue.html",
+        type: "popup",
+        height: 1000,
+        width: 400,
+        allowScriptsToClose: true,
+        titlePreface: "Genie in The Box: Queue",
+    };
+    let creating = browser.windows.create( createData );
+    let popupQueueWindow = ( await creating );
+    popupQueueWindowId = popupQueueWindow.id;
+
+    console.log( "popupQueueWindowId: " + popupQueueWindowId );
+}
+
+// Listen for the queue window being closed to remove the reference to it.
+browser.windows.onRemoved.addListener( windowId => {
+
+    if ( windowId === popupQueueWindowId ) {
+        popupQueueWindowId = null;
+    }
+} );
+
 async function updateLocalStorage( mode, prefix, transcription, debug, lastTabId ) {
 
     console.log( `updateLocalStorage() Mode [${mode}], prefix [${prefix}], transcription [${transcription}], debug [${debug}] lastTabId [${lastTabId}]...` )
