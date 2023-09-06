@@ -1,17 +1,11 @@
-// export { blah } from "./content.js"
-// import {FOO} from "./foo";
-// import { VOX_EDIT_COMMANDS } from "./constants.js";
-
+// import { MODE_AGENT } from "./constants";
 
 let lastKey   = "";
 let lastCode  = "";
-// function blah() {
-//     console.log( "blah() called" )
-// }
 
 (function() {
 
-    console.log( "content.js loading FOOOOOOOOOO..." );
+    console.log( "content.js loading..." );
 
     // 'use strict';
 
@@ -96,7 +90,14 @@ let lastCode  = "";
         // console.log( "keydown.key is [" + event.key + "] and the code is [" + event.code + "]" );
         // console.log( "lastKey is [" + lastKey + "] and the lastCode is [" + lastCode + "]" );
 
-        if ( event.key === "Meta" && event.code === "OSRight" && lastKey === "Meta" && lastCode === "OSRight" ) {
+        if ( event.metaKey && event.altKey && [ "OSRight", "AltRight" ].includes( event.code ) ) {
+            console.log( "Background: Right command and right option detected" );
+            lastKey = "";
+            lastCode = "";
+            browser.runtime.sendMessage( {
+                "command": "agent mode"
+            } );
+        } else if ( event.key === "Meta" && event.code === "OSRight" && lastKey === "Meta" && lastCode === "OSRight" ) {
             console.log( "Background: Double OSRight keydown detected" );
             lastKey = "";
             lastCode = "";

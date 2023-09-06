@@ -59,6 +59,7 @@ export const MULTIMODAL_CONTACT_INFO  = "multimodal contact information";
 export const MULTIMODAL_TEXT_PYTHON   = "multimodal python punctuation";
 export const MULTIMODAL_TEXT_EMAIL    = "multimodal text email";
 export const STEM_MULTIMODAL_BROWSER  = "multimodal browser";
+export const STEM_MULTIMODAL_AGENT    = "multimodal agent";
 export const STEM_MULTIMODAL_SERVER_SEARCH = "multimodal server search"
 
 export const VOX_CMD_RUN_PROMPT           = "run prompt";
@@ -68,7 +69,8 @@ export const VOX_CMD_SUFFIX_FROM_CLIPBOARD= "from clipboard";
 export const VOX_CMD_SAVE_FROM_CLIPBOARD= "save from clipboard";
 
 export const MODE_TRANSCRIPTION       = "transcription mode";
-export const MODE_COMMAND             = "command mode";
+export const MODE_COMMAND             = "command-mode";
+export const MODE_AGENT               = "agent mode";
 
 export const TTS_SERVER_ADDRESS        = "http://127.0.0.1:5002";
 export const GIB_SERVER_ADDRESS        = "http://127.0.0.1:7999";
