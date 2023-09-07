@@ -32,10 +32,10 @@ import {
 } from "/js/util.js";
 
 let lastPaste         = "";
-let lastUrlNewTab           = "";
+let lastUrlNewTab     = "";
 let lastUrlCurrentTab = "";
 let lastZoom          = "";
-let lastTabId        = -1;
+let lastTabId       = -1;
 let lastHtmlToInsert  = "";
 
 var mode      = "";
@@ -46,7 +46,7 @@ console.log( "background.js loading..." );
 
 let titleMode = "Transcription"
 
-let counter = 0;
+// let counter = 0;
 
 window.addEventListener( "DOMContentLoaded", async (event) => {
 
