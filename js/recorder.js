@@ -303,6 +303,8 @@ saveButton.addEventListener( "click", async () => {
         } else if ( prefix.startsWith( STEM_MULTIMODAL_AGENT ) || transcription.startsWith( STEM_MULTIMODAL_AGENT ) ) {
 
             console.log( "Multimodal agent call received, closing" );
+            // bring q viewer to the foreground if it's in the background, or display if it's not displayed
+            sendMessageToBackgroundScripts( VOX_CMD_VIEW_JOB_QUEUE );
             closeWindow();
 
         } else if ( prefix.startsWith( STEM_MULTIMODAL_BROWSER ) || transcription.startsWith( STEM_MULTIMODAL_BROWSER ) ) {
