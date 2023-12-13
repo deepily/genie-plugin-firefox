@@ -87,8 +87,8 @@ let lastCode  = "";
 
     document.body.addEventListener( "keydown", (event) => {
 
-        console.log( "keydown.key is [" + event.key + "] and the code is [" + event.code + "]" );
-        console.log( "lastKey is [" + lastKey + "] and the lastCode is [" + lastCode + "]" );
+        // console.log( "keydown.key is [" + event.key + "] and the code is [" + event.code + "]" );
+        // console.log( "lastKey is [" + lastKey + "] and the lastCode is [" + lastCode + "]" );
 
         if ( event.metaKey && event.altKey && [ "OSRight", "AltRight" ].includes( event.code ) ) {
             console.log( "Background: Right command and right option detected" );
@@ -174,11 +174,9 @@ let lastCode  = "";
         } else if ( request.command === "command-paste" ) {
 
             console.log( "content.js: Pasting from clipboard?" );
-            // document.execCommand( "paste" );
             const clipboardText = await navigator.clipboard.readText()
             console.log( "content.js: clipboardText: " + clipboardText );
             paste( clipboardText );
-            // callOnActiveTab( document.execCommand( "paste" ) );
 
         } else if ( request.command === "command-open-new-tab" ) {
 
@@ -244,32 +242,33 @@ let lastCode  = "";
     function paste( text ) {
 
         console.log( "paste() called..." );
-        var selection = document.getSelection()
-
-        // test for selection before attempting to delete it
-        if ( selection.rangeCount ) {
-            console.log( "selection.rangeCount: " + JSON.stringify( selection.rangeCount ) );
-            selection.deleteFromDocument()
-        }
-        // Test to make sure we can insert: https://stackoverflow.com/questions/22935320/uncaught-indexsizeerror-failed-to-execute-getrangeat-on-selection-0-is-not
-        // if ( selection.rangeCount > 0 ) {
+        // set up a try and catch block for this deprecated call
         try {
-
-            // TODO 1: Find a way to move the cursor to the end of the paste
-            // TODO 2: This paste command attempts to paste in all documents, not just the current document. The problem
-            //  Is you can't access a reference to the current tab within a content tab, which is kind of weird...
-            selection = document.getSelection()
-            selection.getRangeAt(0 ).insertNode( document.createTextNode( text + " " ) )
-            // selection.setSelectionRange( selection.focusNode.length, selection.focusNode.length )
-            selection.removeAllRanges()
-            // document.getSelection().setPosition( null, text.length );
-
-            console.log( "paste() successful!" );
+            document.execCommand( 'paste' )
         } catch ( e ) {
-            console.log( "paste() failed: " + e );
+            console.log( "document.execCommand( 'paste' ): " + e );
         }
-        // } else {
-        //     console.log( "CANNOT paste() in this document, selection.rangeCount: " + selection.rangeCount );
+        // disable the entire block below to see what happens when we use the deprecating call everywhere
+        //
+        // var selection = document.getSelection()
+        //
+        // // test for selection before attempting to delete it: https://stackoverflow.com/questions/22935320/uncaught-indexsizeerror-failed-to-execute-getrangeat-on-selection-0-is-not
+        // if ( selection.rangeCount ) {
+        //     console.log( "selection.rangeCount: " + JSON.stringify( selection.rangeCount ) );
+        //     selection.deleteFromDocument()
+        // }
+        // try {
+        //
+        //     // TODO 1: Find a way to move the cursor to the end of the paste
+        //     // TODO 2: This paste command attempts to paste in all documents, not just the current document. The problem
+        //     //  Is you can't access a reference to the current tab within a content tab, which is kind of weird...
+        //     selection = document.getSelection()
+        //     selection.getRangeAt(0 ).insertNode( document.createTextNode( text + " " ) )
+        //     selection.removeAllRanges()
+        //
+        //     console.log( "paste() successful!" );
+        // } catch ( e ) {
+        //     console.log( "paste() failed: " + e );
         // }
     }
     function pasteFromClipboard(){
