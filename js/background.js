@@ -81,10 +81,20 @@ browser.commands.onCommand.addListener( ( command) => {
 });
 console.log( "browser.commands.onCommand.addListener ... Done?" )
 
+// browser.contextMenus.create( {
+//         id: "proofread",
+//         title: "Proofread",
+//         contexts: ["selection"]
+//     },
+//     // See https://extensionworkshop.com/documentation/develop/manifest-v3-migration-guide/#event-pages-and-backward-compatibility
+//     // for information on the purpose of this error capture.
+//     () => void browser.runtime.lastError,
+// );
+
 browser.contextMenus.create( {
-        id: "proofread",
-        title: "Proofread",
-        contexts: ["selection"]
+        id: "transcribe–and–paste",
+        title: "Transcribe 'n' Paste",
+        contexts: ["all"]
     },
     // See https://extensionworkshop.com/documentation/develop/manifest-v3-migration-guide/#event-pages-and-backward-compatibility
     // for information on the purpose of this error capture.
@@ -122,6 +132,10 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
     } else if ( info.menuItemId === "proofread" ) {
 
         proofread( info.selectionText );
+
+    } else if ( info.menuItemId === "transcribe–and–paste" ) {
+        console.log( "transcribe-and-paste clicked [" + JSON.stringify( info ) + "]" );
+        displayRecorder( mode=MODE_TRANSCRIPTION );
     }
 });
 
