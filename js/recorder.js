@@ -159,8 +159,8 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
 } );
 window.addEventListener( "keydown", function (event) {
 
-    if ( event.key == "Escape" ) {
-        console.log( "Escape pressed" );
+    if ( event.key == "Escape" || event.key == "Backspace" ) {
+        console.log( "Escape/Backspace pressed, closing window" );
         window.setTimeout( () => {
             window.close();
         }, 250 );
