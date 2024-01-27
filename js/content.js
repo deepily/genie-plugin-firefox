@@ -87,8 +87,27 @@ let lastCode  = "";
 
     document.body.addEventListener( "keydown", (event) => {
 
-        // console.log( "keydown.key is [" + event.key + "] and the code is [" + event.code + "]" );
+        console.log( "event.metaKey is [" + event.metaKey + "] and keydown.key is [" + event.key + "] and the code is [" + event.code + "]" );
         // console.log( "lastKey is [" + lastKey + "] and the lastCode is [" + lastCode + "]" );
+
+        // Capture clover C, X or V keys
+        if ( event.metaKey && ( event.key === "x" || event.key === "c" || event.key === "v" ) ) {
+            // Cancel the event
+            event.preventDefault();
+            console.log( "Background: Clover C, X or V detected AND cancelled" );
+        } else if ( event.code === "F8" ) {
+            console.log( "Background: F8 detected" );
+            document.execCommand( 'cut' )
+            event.preventDefault();
+        } else if ( event.code === "F9" ) {
+            console.log( "Background: F9 detected" );
+            document.execCommand( 'copy' )
+            event.preventDefault();
+        } else if ( event.code === "F10" ) {
+            console.log( "Background: F10 detected" );
+            paste()
+            event.preventDefault();
+        }
 
         if ( event.metaKey && event.altKey && [ "OSRight", "AltRight" ].includes( event.code ) ) {
             console.log( "Background: Right command and right option detected" );
