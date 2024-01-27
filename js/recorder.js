@@ -1,6 +1,6 @@
 import {
-    VOX_CMD_SEARCH_DDG,
-    VOX_CMD_SEARCH_GOOGLE,
+    VOX_CMD_SEARCH_DDG_NEW_TAB,
+    VOX_CMD_SEARCH_GOOGLE_NEW_TAB,
     VOX_CMD_LOAD_NEW_TAB,
     // VOX_CMD_CUT, VOX_CMD_COPY, VOX_CMD_PASTE, VOX_CMD_DELETE, VOX_CMD_SELECT_ALL,
     VOX_EDIT_COMMANDS,
@@ -14,13 +14,15 @@ import {
     VOX_TAB_COMMANDS,
     EDITOR_URL,
     VOX_CMD_OPEN_EDITOR,
-    VOX_CMD_SEARCH_CLIPBOARD_DDG,
-    VOX_CMD_SEARCH_CLIPBOARD_GOOGLE,
-    VOX_CMD_SEARCH_GOOGLE_SCHOLAR,
+    VOX_CMD_SEARCH_CLIPBOARD_DDG_NEW_TAB,
+    VOX_CMD_SEARCH_CLIPBOARD_GOOGLE_NEW_TAB,
+    VOX_CMD_SEARCH_GOOGLE_SCHOLAR_NEW_TAB,
     SEARCH_URL_DDG,
     SEARCH_URL_GOOGLE,
-    CONSTANTS_URL,
     SEARCH_URL_GOOGLE_SCHOLAR,
+    SEARCH_URL_PERPLEXITY,
+    SEARCH_URL_PHIND,
+    CONSTANTS_URL,
     STEM_MULTIMODAL_SERVER_SEARCH,
     VOX_CMD_VIEW_CONSTANTS,
     VOX_CMD_PROOFREAD_STEM,
@@ -401,12 +403,14 @@ async function handleSearchCommands( results ) {
 
     const isGoogle     = command.includes( " google" );
     const isScholar    = command.includes( " scholar" );
+    const isPhind      = command.includes( " phind" );
+    const isPerplexity = command.includes( " perplexity" );
+
     const isNewTab     = command.includes( " new tab" );
     const useClipboard = command.includes( " clipboard" );
-    const isDuckDuckGo = !isGoogle;
-    const isCurrentTab = !isNewTab;
-
-    let args    = results[ "args"    ];
+    const isDuckDuckGo = !isGoogle && !isScholar && !isPhind && !isPerplexity;
+    // const isCurrentTab = !isNewTab;
+    let args    = results[ "args" ];
 
     // get search terms from clipboard, if requested
     if ( useClipboard ) {
@@ -433,11 +437,16 @@ async function handleSearchCommands( results ) {
         }
     } else if ( isDuckDuckGo ) {
         url = SEARCH_URL_DDG;
+    } else if ( isPhind ) {
+        url = SEARCH_URL_PHIND;
+    } else if ( isPerplexity ) {
+        url = SEARCH_URL_PERPLEXITY;
     }
-    if ( isCurrentTab ) {
-        queueCurrentTabCommandInLocalStorage( url, "&q=" + args[ 0 ] )
-    } else {
+
+    if ( isNewTab ) {
         queueNewTabCommandInLocalStorage( url, "&q=" + args[ 0 ] )
+    } else {
+        queueCurrentTabCommandInLocalStorage( url, "&q=" + args[ 0 ] )
     }
     closeWindow();
 }

@@ -7,8 +7,8 @@ import {
     GIB_SERVER_ADDRESS,
     MODE_TRANSCRIPTION,
     MODE_COMMAND,
-    VOX_CMD_SEARCH_DDG,
-    VOX_CMD_SEARCH_GOOGLE,
+    VOX_CMD_SEARCH_DDG_NEW_TAB,
+    VOX_CMD_SEARCH_GOOGLE_NEW_TAB,
     VOX_CMD_LOAD_NEW_TAB,
     STEM_MULTIMODAL_BROWSER,
     EDITOR_URL, MULTIMODAL_CONTACT_INFO, MULTIMODAL_TEXT_EMAIL, MULTIMODAL_TEXT_PYTHON
@@ -176,11 +176,11 @@ async function handleClickEvent( e ) {
 
     } else if ( e.target.id === "command-search-duck-duck-go" ) {
 
-        displayRecorder(mode = MODE_COMMAND, prefix = STEM_MULTIMODAL_BROWSER, command = VOX_CMD_SEARCH_DDG);
+        displayRecorder(mode = MODE_COMMAND, prefix = STEM_MULTIMODAL_BROWSER, command = VOX_CMD_SEARCH_DDG_NEW_TAB);
 
     } else if ( e.target.id === "command-search-google" ) {
 
-        displayRecorder(mode = MODE_COMMAND, prefix = STEM_MULTIMODAL_BROWSER, command = VOX_CMD_SEARCH_GOOGLE);
+        displayRecorder(mode = MODE_COMMAND, prefix = STEM_MULTIMODAL_BROWSER, command = VOX_CMD_SEARCH_GOOGLE_NEW_TAB);
 
     } else if ( e.target.id === "command-search-duck-duck-go-clipboard" ) {
 

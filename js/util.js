@@ -69,6 +69,7 @@ export function queuePasteCommandInLocalStorage( ts ) {
     return true;
 }
 
+// TODO: coalesce these two functions into one
 export async function queueNewTabCommandInLocalStorage( url, args="" ) {
 
     // add timestamp to url to force reload
