@@ -11,7 +11,12 @@ import {
     VOX_CMD_SEARCH_GOOGLE_NEW_TAB,
     VOX_CMD_LOAD_NEW_TAB,
     STEM_MULTIMODAL_BROWSER,
-    EDITOR_URL, MULTIMODAL_CONTACT_INFO, MULTIMODAL_TEXT_EMAIL, MULTIMODAL_TEXT_PYTHON
+    EDITOR_URL,
+    MULTIMODAL_CONTACT_INFO,
+    MULTIMODAL_TEXT_EMAIL,
+    MULTIMODAL_PYTHON_PUNCTUATION,
+    MULTIMODAL_TEXT_SQL,
+    MULTIMODAL_PYTHON_PROOFREAD
 } from "/js/constants.js";
 
 import {
@@ -147,7 +152,15 @@ async function handleClickEvent( e ) {
 
     } else if ( e.target.id === "transcription-python" ) {
 
-        displayRecorder(mode = MODE_TRANSCRIPTION, prefix = MULTIMODAL_TEXT_PYTHON );
+        displayRecorder(mode = MODE_TRANSCRIPTION, prefix = MULTIMODAL_PYTHON_PUNCTUATION );
+
+    } else if ( e.target.id === "transcription-python-proofread" ) {
+
+        displayRecorder(mode = MODE_TRANSCRIPTION, prefix = MULTIMODAL_PYTHON_PROOFREAD );
+
+    } else if ( e.target.id === "transcription-sql" ) {
+
+        displayRecorder(mode = MODE_TRANSCRIPTION, prefix = MULTIMODAL_TEXT_SQL );
 
     } else if ( e.target.id === "transcription-email" ) {
 

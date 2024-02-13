@@ -87,7 +87,7 @@ let lastCode  = "";
 
     document.body.addEventListener( "keydown", (event) => {
 
-        console.log( "event.metaKey is [" + event.metaKey + "] and keydown.key is [" + event.key + "] and the code is [" + event.code + "]" );
+        // console.log( "event.metaKey is [" + event.metaKey + "] and keydown.key is [" + event.key + "] and the code is [" + event.code + "]" );
         // console.log( "lastKey is [" + lastKey + "] and the lastCode is [" + lastCode + "]" );
 
         // Capture clover C, X or V keys

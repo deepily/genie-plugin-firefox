@@ -45,7 +45,7 @@ import {
     VOX_CMD_SUFFIX_FROM_FILE,
     VOX_CMD_SAVE_FROM_CLIPBOARD,
     MULTIMODAL_CONTACT_INFO,
-    VOX_CMD_OPEN_FILE, STEM_MULTIMODAL_AGENT, VOX_CMD_VIEW_JOB_QUEUE
+    VOX_CMD_OPEN_FILE, STEM_MULTIMODAL_AGENT, VOX_CMD_VIEW_JOB_QUEUE, VOX_CMD_PROOFREAD_SQL, VOX_CMD_PROOFREAD_PYTHON
 } from "/js/constants.js";
 import {
     sendMessageToBackgroundScripts,
@@ -498,6 +498,20 @@ async function handleCommand( prefix, transcription ) {
         updateLastKnownRecorderState( currentMode, prefix, transcription, debug );
         window.location.reload();
 
+    } else if ( transcription.startsWith( VOX_CMD_PROOFREAD_PYTHON ) ) {
+
+        updateLastKnownRecorderState(currentMode, prefix, transcription, debug);
+        await proofreadPythonFromClipboard();
+        // closeWindow(); // Why does this not work?
+        window.close();
+
+    } else if ( transcription.startsWith( VOX_CMD_PROOFREAD_SQL ) ) {
+
+        updateLastKnownRecorderState(currentMode, prefix, transcription, debug);
+        await proofreadSqlFromClipboard();
+        // closeWindow(); // Why does this not work?
+        window.close();
+
     } else if ( transcription.startsWith( VOX_CMD_PROOFREAD_STEM ) || transcription == VOX_CMD_PROOFREAD ) {
 
         updateLastKnownRecorderState(currentMode, prefix, transcription, debug);
@@ -688,6 +702,71 @@ async function proofreadFromClipboard() {
         console.log( "rawText [" + rawText + "]" );
 
         let url = GIB_SERVER_ADDRESS + "/api/proofread?question=" + rawText
+        const response = await fetch( url, {
+            method: "GET",
+            headers: {"Access-Control-Allow-Origin": "*"}
+        } );
+        console.log( "response.status [" + response.status + "]" );
+
+        if ( !response.ok ) {
+            throw new Error( `HTTP error: ${response.status}` );
+        }
+        const proofreadText = await response.text();
+        console.log( "proofreadText [" + proofreadText + "]" );
+
+        console.log( "Pushing proofreadText [" + proofreadText + "] to clipboard..." );
+        const pasteCmd = await navigator.clipboard.writeText( proofreadText );
+        queuePasteCommandInLocalStorage( Date.now() );
+
+        doTextToSpeech( "Done!", refreshWindow=false );
+
+    } catch ( e ) {
+        console.log( "Error: " + e );
+    }
+}
+async function proofreadSqlFromClipboard() {
+
+    try {
+
+        doTextToSpeech( "Proofreading SQL...", refreshWindow=false )
+
+        const rawText = await navigator.clipboard.readText()
+        console.log( "rawText [" + rawText + "]" );
+
+        let url = GIB_SERVER_ADDRESS + "/api/proofread-sql?question=" + rawText
+        const response = await fetch( url, {
+            method: "GET",
+            headers: {"Access-Control-Allow-Origin": "*"}
+        } );
+        console.log( "response.status [" + response.status + "]" );
+
+        if ( !response.ok ) {
+            throw new Error( `HTTP error: ${response.status}` );
+        }
+        const proofreadText = await response.text();
+        console.log( "proofreadText [" + proofreadText + "]" );
+
+        console.log( "Pushing proofreadText [" + proofreadText + "] to clipboard..." );
+        const pasteCmd = await navigator.clipboard.writeText( proofreadText );
+        queuePasteCommandInLocalStorage( Date.now() );
+
+        doTextToSpeech( "Done!", refreshWindow=false );
+
+    } catch ( e ) {
+        console.log( "Error: " + e );
+    }
+}
+
+async function proofreadPythonFromClipboard() {
+
+    try {
+
+        doTextToSpeech( "Proofreading Python...", refreshWindow=false )
+
+        const rawText = await navigator.clipboard.readText()
+        console.log( "rawText [" + rawText + "]" );
+
+        let url = GIB_SERVER_ADDRESS + "/api/proofread-python?question=" + rawText
         const response = await fetch( url, {
             method: "GET",
             headers: {"Access-Control-Allow-Origin": "*"}
