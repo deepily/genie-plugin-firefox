@@ -1,0 +1,16 @@
+{
+  "name": "genie-plugin-firefox",
+  "version": "0.8.5",
+  "scripts": {
+    "lint": "web-ext lint",
+    "build": "web-ext build --overwrite-dest",
+    "start": "web-ext run",
+    "sign": "web-ext sign --api-key=$AMO_JWT_ISSUER --api-secret=$AMO_JWT_SECRET",
+    "test": "jest",
+    "version": "node scripts/update-version.js"
+  },
+  "devDependencies": {
+    "jest": "^29.5.0",
+    "web-ext": "^7.6.0"
+  }
+}
