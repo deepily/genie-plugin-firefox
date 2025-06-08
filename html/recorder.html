@@ -88,11 +88,85 @@
       /*border-radius: 40px;*/
       /*opacity: 50%;*/
     }
+    
+    /* Status Indicator Styles */
+    .status-indicator {
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      margin-right: 8px;
+      position: relative;
+      vertical-align: top;
+    }
+    
+    .status-indicator::before {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transition: all 0.3s ease;
+    }
+    
+    .status-indicator::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transition: all 0.3s ease;
+    }
+    
+    /* Gray State: Waiting for stream */
+    .status-indicator.waiting::before {
+      background-color: #666;
+      border: 2px solid #999;
+    }
+    
+    /* Green State: Ready to record */
+    .status-indicator.ready::before {
+      background-color: #4CAF50;
+    }
+    
+    .status-indicator.ready::after {
+      border-color: #4CAF50;
+      animation: pulse-ready 1s infinite;
+    }
+    
+    /* Red State: Recording */
+    .status-indicator.recording::before {
+      background-color: #F44336;
+    }
+    
+    .status-indicator.recording::after {
+      border-color: #F44336;
+      animation: pulse-record 0.5s infinite;
+    }
+    
+    @keyframes pulse-ready {
+      0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.7; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+    
+    @keyframes pulse-record {
+      0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.5; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
   </style>
 </head>
 <body id="recorder-body" class="recording">
   <img id="mode-img" class="image-strober" src="../icons/mode-transcription-24.png" title="Mode: Transcription">
   <div id="button-bar">
+    <div class="status-indicator waiting" id="status-indicator" title="Microphone Status"></div>
     <button id="record"></button>
     <button id="stop" disabled></button>
     <button id="play" disabled>Play</button>

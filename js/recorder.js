@@ -226,6 +226,23 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
     console.log( "DOM fully loaded and parsed, Getting startup parameters...." );
     await initializeStartupParameters();
 
+    // Initialize status indicator based on stream availability
+    debugLog("Checking initial stream status");
+    try {
+        const backgroundPage = await browser.runtime.getBackgroundPage();
+        const needsNew = backgroundPage.needsNewStream();
+        if (needsNew) {
+            setStatusWaiting();
+            debugLog("Initial status: waiting (no cached stream)");
+        } else {
+            setStatusReady();
+            debugLog("Initial status: ready (cached stream available)");
+        }
+    } catch (error) {
+        setStatusWaiting();
+        debugLog("Initial status: waiting (error checking stream)");
+    }
+
     const modeImg = document.getElementById( "mode-img" )
     modeImg.title = "Mode: " + titleMode;
     if ( titleMode == "Transcription" ) {
@@ -284,10 +301,34 @@ const stopButton   = document.querySelector( "#stop" );
 const playButton   = document.querySelector( "#play" );
 const saveButton   = document.querySelector( "#save" );
 const modeImage    = document.querySelector( "#mode-img" );
+const statusIndicator = document.querySelector( "#status-indicator" );
 
 let recorder;
 let audio;
 // Note: All recording is now handled via background.js messaging
+
+/**
+ * Status Indicator Management Functions
+ * 
+ * Updates the visual status indicator to show microphone readiness
+ */
+function setStatusWaiting() {
+    statusIndicator.className = 'status-indicator waiting';
+    statusIndicator.title = 'Waiting for microphone...';
+    debugLog("Status indicator set to waiting");
+}
+
+function setStatusReady() {
+    statusIndicator.className = 'status-indicator ready';
+    statusIndicator.title = 'Ready to record';
+    debugLog("Status indicator set to ready");
+}
+
+function setStatusRecording() {
+    statusIndicator.className = 'status-indicator recording';
+    statusIndicator.title = 'Recording...';
+    debugLog("Status indicator set to recording");
+}
 
 modeImage.addEventListener( "click", async () => {
 
@@ -324,6 +365,7 @@ recordButton.addEventListener( "click", async () => {
     stopButton.focus();
     playButton.setAttribute( "disabled", true );
     saveButton.setAttribute( "disabled", true );
+    setStatusWaiting();
 
     // Check if background needs a new stream
     debugLog("Checking if background needs new stream");
@@ -345,14 +387,20 @@ recordButton.addEventListener( "click", async () => {
             }
         }
 
-        debugLog("Sending start-recording command to background");
-        browser.runtime.sendMessage({ command: "start-recording" });
+        // Brief ready state before recording starts
+        setStatusReady();
+        setTimeout(() => {
+            setStatusRecording();
+            debugLog("Sending start-recording command to background");
+            browser.runtime.sendMessage({ command: "start-recording" });
+        }, 200); // 200ms flash of ready state
 
     } catch (error) {
         debugLog("Error setting up stream:", error);
         // Reset button states
         recordButton.removeAttribute( "disabled" );
         stopButton.setAttribute( "disabled", true );
+        setStatusWaiting(); // Reset to waiting state on error
     }
 
     timingLog("Record button handling completed", buttonClickTime);
@@ -380,6 +428,7 @@ stopButton.addEventListener( "click", async () => {
     playButton.removeAttribute( "disabled" );
     saveButton.removeAttribute( "disabled" );
     saveButton.focus();
+    setStatusReady(); // Return to ready state after recording
 
     debugLog("Sending stop-recording command to background");
     browser.runtime.sendMessage({ command: "stop-recording" });
@@ -404,6 +453,9 @@ saveButton.addEventListener( "click", async () => {
         debugLog("No audio available for transcription");
         return;
     }
+
+    // Reset status to waiting while processing
+    setStatusWaiting();
 
     const promptFeedback = await getPromptFeedbackMode();
 
@@ -518,6 +570,9 @@ saveButton.addEventListener( "click", async () => {
         
         // Show user-friendly error message
         alert("Server error occurred while processing audio. Please try again.");
+        
+        // Reset status before closing
+        setStatusWaiting();
         
         // Close the popup window
         closeWindow();
