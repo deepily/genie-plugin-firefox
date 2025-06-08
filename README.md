@@ -7,8 +7,8 @@ A Firefox extension that records, transcribes and proofreads voice, pasting it t
 Check out our research and planning documents:
 - [Firefox Extension Automation Plan](rnd/firefox_extension_automation.md)
 - [Firefox to Chrome Migration Research](rnd/firefox_to_chrome_migration.md)
-- [Recorder Latency Investigation](rnd/recorder_latency_research.md)
-- [Recorder2 Optimized Implementation](rnd/recorder2_implementation_research.md)
+- [Mozilla Add-on Credentials Setup](rnd/mozilla-addon-credentials.md)
+- [Stream Caching and UI Status Implementation](rnd/stream-caching-and-ui-status-implementation.md)
 
 ## Development Setup
 
@@ -52,8 +52,17 @@ npm run lint
 5. Push changes: `git push && git push --tags`
 6. GitHub Actions will automatically build, test, and publish the extension
 
-## Testing the New Recorder
+## Key Features
 
-To test the optimized recorder with reduced latency:
-1. Navigate to `html/recorder2.html` instead of the default recorder
-2. The new implementation starts initialization immediately and begins recording as soon as possible
+### Optimized Audio Recording
+- **Stream Caching**: 99.84% reduction in recording latency (from ~2000ms to ~3ms) for subsequent recordings
+- **Visual Status Indicator**: Real-time microphone readiness feedback with three states:
+  - Waiting (gray): Stream unavailable
+  - Ready (green pulse): Ready to record immediately  
+  - Recording (red pulse): Actively recording
+- **Background Processing**: Persistent stream management for optimal performance
+
+### Voice Processing
+- Transcription with multiple AI models
+- Voice command processing
+- Audio proofreading and editing capabilities
