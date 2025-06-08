@@ -46,8 +46,6 @@ console.log( "background.js loading..." );
 
 let titleMode = "Transcription"
 
-// let counter = 0;
-
 window.addEventListener( "DOMContentLoaded", async (event) => {
 
     console.log( "DOM fully loaded and parsed, initializing global values..." );
@@ -62,34 +60,17 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
     titleMode = titleMode[ 0 ].toUpperCase() + titleMode.slice( 1 );
     console.log( "titleMode [" + titleMode + "]" );
 
-    // loadContentScript();
     return true;
 } );
 
 console.log( "browser.commands.onCommand.addListener ..." )
 browser.commands.onCommand.addListener( ( command) => {
 
-    // console.log( "command [" + command + "]" )
-
     if ( command === "popup-vox-to-text" ) {
         displayRecorder( mode = "transcription" );
     }
-    // else if ( command === "open-editor" ) {
-    //
-    //     openNewTab( "html/editor-quill.html" )
-    // }
 });
 console.log( "browser.commands.onCommand.addListener ... Done?" )
-
-// browser.contextMenus.create( {
-//         id: "proofread",
-//         title: "Proofread",
-//         contexts: ["selection"]
-//     },
-//     // See https://extensionworkshop.com/documentation/develop/manifest-v3-migration-guide/#event-pages-and-backward-compatibility
-//     // for information on the purpose of this error capture.
-//     () => void browser.runtime.lastError,
-// );
 
 browser.contextMenus.create( {
         id: "transcribe–and–paste",
@@ -102,15 +83,6 @@ browser.contextMenus.create( {
 );
 
 browser.contextMenus.onClicked.addListener(async (info, tab) => {
-//
-//     if (info.menuItemId === "insert-modal" ) {
-//
-//         console.log( "insert-modal clicked [" + info.selectionText + "]" );
-//         console.log( "info: " + JSON.stringify(info) );
-//
-//         insertModal(info);
-//
-//     } else if (info.menuItemId === "whats-this-mean" ) {
     if (info.menuItemId === "whats-this-mean" ) {
 
         console.log( "whats-this-mean clicked [" + info.selectionText + "]" );
@@ -121,12 +93,6 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
 
             fetchWhatsThisMean(info).then((explanation) => {
                 console.log( "calling fetchWhatsThisMean()... done!" )
-                // console.log( "explanation: " + explanation);
-                // console.log( "calling doTextToSpeech()..." )
-                // doTextToSpeech( explanation ).then( ( audio ) => {
-                //     console.log( "calling doTextToSpeech()... done!" )
-                // } );
-                // } );
             });
         });
     } else if ( info.menuItemId === "proofread" ) {
@@ -302,10 +268,6 @@ function zoomInOut( tabId, zoom ) {
     let gettingZoom = browser.tabs.getZoom( tabId );
     gettingZoom.then( ( zoomFactor ) => {
 
-        // If the zoom factor is 0, then reset to the default value.
-        // if ( zoom = 0 ) {
-        //     newZoomFactor = ZOOM_DEFAULT;
-        // } else {
         if ( zoom != 0 ) {
             let incrementing = zoom > 0;
             newZoomFactor    = zoomFactor;

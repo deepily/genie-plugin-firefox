@@ -508,6 +508,19 @@ saveButton.addEventListener( "click", async () => {
     } catch ( e ) {
         console.log( "Error processing audio file [" + e.stack + "]" );
         console.trace() ;
+        
+        // Resize window to accommodate error dialog
+        const currentWindow = await browser.windows.get(browser.windows.WINDOW_ID_CURRENT);
+        browser.windows.update(browser.windows.WINDOW_ID_CURRENT, {
+            width: currentWindow.width * 2,
+            height: currentWindow.height
+        });
+        
+        // Show user-friendly error message
+        alert("Server error occurred while processing audio. Please try again.");
+        
+        // Close the popup window
+        closeWindow();
     }
 } );
 
@@ -536,20 +549,6 @@ function handleServerPromptResults( results ) {
 
     console.log( "TODO: Processing multimodal server prompt results..." )
     console.log( "results [" + JSON.stringify( results ) + "]" )
-
-    // let idx = 1;
-    // let urlChunks = "<ul>";
-    // for ( const result of results ){
-    //     let urlChunk = `<li>${idx}) <a href="${result[ 'href' ]}">${result[ 'title' ]}</a></li>`;
-    //     console.log( "urlChunk [" + urlChunk + "]" );
-    //     urlChunks += urlChunk;
-    //     idx++;
-    // }
-    // urlChunks += "</ul>";
-    //
-    // // console.log( "urlTags [" + urlChunks + "]" );
-    // // const writeCmd = await navigator.clipboard.writeText( urlChunks )
-    // queueHtmlInsertInLocalStorage( urlChunks );
 
     console.log( "Done!" );
     closeWindow();
@@ -1000,9 +999,6 @@ async function doTextToSpeech( text, refreshWindow=false ) {
     console.log( "doTextToSpeech() called... done!" )
 }
 
-// function reportExecuteScriptError( error) {
-//     console.error( `Failed to execute content script: ${error.message}` );
-// }
 /**
  * Message listener for background-to-popup communication
  * 

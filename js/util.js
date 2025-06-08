@@ -103,17 +103,6 @@ export async function queueHtmlInsertInLocalStorage( htmlToInsert ) {
     } );
     return true;
 }
-// export const readFromLocalStorageWithDefault = async ( key, defaultValue ) => {
-//
-//     const keyValue = await browser.storage.local.get( key ).then( ( result ) => {
-//         return result.key;
-//     } );
-//     if ( keyValue === undefined ) {
-//         return defaultValue;
-//     } else {
-//         return keyValue;
-//     }
-// }
 export const readFromLocalStorage = async (key, defaultValue ) => {
     return new Promise(( resolve, reject ) => {
         browser.storage.local.get( [ key ], function ( result ) {

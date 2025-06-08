@@ -1,4 +1,3 @@
-// import { MODE_AGENT, MODE_COMMAND, MODE_TRANSCRIPTION } from "./constants";
 // copied verbatim from the constant file since I can't import them here!!!
 const MODE_TRANSCRIPTION       = "transcription mode";
 const MODE_COMMAND             = "command-mode";
@@ -63,10 +62,7 @@ let lastCode  = "";
     }
     document.addEventListener( "selectionchange", () => {
 
-        // console.log( document.getSelection().toString() );
         if ( document.getSelection().toString() !== "" ) {
-            // console.log( "selectionchange event detected: empty selection" );
-        // } else {
             console.log( "Auto copying to the clipboard [" + document.getSelection().toString() + "]" );
             copyToClipboard( document.getSelection().toString() );
         }
@@ -125,7 +121,6 @@ let lastCode  = "";
                 "command": MODE_COMMAND
             } );
         } else {
-            // console.log( "Not a double MetaRight nor AltRight keydown" );
             lastKey = event.key;
             lastCode = event.code;
         }
@@ -261,28 +256,6 @@ let lastCode  = "";
         } catch ( e ) {
             console.log( "document.execCommand( 'paste' ): " + e );
         }
-        // disable the entire block below to see what happens when we use the deprecating call everywhere
-        //
-        // var selection = document.getSelection()
-        //
-        // // test for selection before attempting to delete it: https://stackoverflow.com/questions/22935320/uncaught-indexsizeerror-failed-to-execute-getrangeat-on-selection-0-is-not
-        // if ( selection.rangeCount ) {
-        //     console.log( "selection.rangeCount: " + JSON.stringify( selection.rangeCount ) );
-        //     selection.deleteFromDocument()
-        // }
-        // try {
-        //
-        //     // TODO 1: Find a way to move the cursor to the end of the paste
-        //     // TODO 2: This paste command attempts to paste in all documents, not just the current document. The problem
-        //     //  Is you can't access a reference to the current tab within a content tab, which is kind of weird...
-        //     selection = document.getSelection()
-        //     selection.getRangeAt(0 ).insertNode( document.createTextNode( text + " " ) )
-        //     selection.removeAllRanges()
-        //
-        //     console.log( "paste() successful!" );
-        // } catch ( e ) {
-        //     console.log( "paste() failed: " + e );
-        // }
     }
     function pasteFromClipboard(){
         document.execCommand( "paste" )
