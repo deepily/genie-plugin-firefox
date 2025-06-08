@@ -72,7 +72,8 @@ window.addEventListener( "DOMContentLoaded", (event) => {
 
 function handleMessages( message, sender ) {
 
-    console.log( "handleMessages() message: " + JSON.stringify( message ) );
+    // console.log( "handleMessages() message: " + JSON.stringify( message ) );
+    console.log( "handleMessages() message: NO-OP" );
     // console.log( "sender: " + JSON.stringify( sender ) );
 
     // None of these work all throw a very specific error: <input> picker was blocked due to lack of user activation.
@@ -178,7 +179,7 @@ async function handleClickEvent( e ) {
 
         let response = await sendMessageToContentScripts( e.target.id )
 
-    } else if ( e.target.id === "command-mode" ) {
+    } else if ( e.target.id === MODE_COMMAND ) {
 
         displayRecorder(mode = MODE_COMMAND, prefix = STEM_MULTIMODAL_BROWSER, command = "mode" );
 
@@ -358,7 +359,7 @@ export async function displayRecorder( mode=MODE_TRANSCRIPTION, prefix = "", tra
     });
     let lastTabId = lastTab.id;
     console.log( "lastTabId: " + lastTabId );
-    console.log( "lastTab: " + JSON.stringify( lastTab ) );
+    // console.log( "lastTab: " + JSON.stringify( lastTab ) );
 
     const result = await updateLocalStorage(mode, prefix, transcription, debug, lastTabId );
     console.log( "result: " + result);
@@ -371,14 +372,12 @@ export async function displayRecorder( mode=MODE_TRANSCRIPTION, prefix = "", tra
         height: 320,
         width: 256,
         allowScriptsToClose: true,
-        titlePreface: "Genie in The Box",
+        titlePreface: "CoSA",
         // callerFunction: messageToParentWindow
     };
     let creating = browser.windows.create(createData);
     let popupRecorderWindow = (await creating)
-    // popupRecorderWindow.callerFunction = messageToParentWindow
     popupRecorderWindowId = popupRecorderWindow.id;
-    // console.log( "popupRecorderWindow  : " + JSON.stringify(popupRecorderWindow));
     console.log( "popupRecorderWindowId: " + popupRecorderWindowId );
 }
 
@@ -400,7 +399,7 @@ export async function displayQueue() {
     } );
     let lastTabId = lastTab.id;
     console.log( "lastTabId: " + lastTabId );
-    console.log( "lastTab: " + JSON.stringify( lastTab ) );
+    // console.log( "lastTab: " + JSON.stringify( lastTab ) );
 
     let createData = {
         url: GIB_SERVER_ADDRESS + "/static/queue.html",

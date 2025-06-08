@@ -118,7 +118,7 @@ export const readFromLocalStorage = async (key, defaultValue ) => {
     return new Promise(( resolve, reject ) => {
         browser.storage.local.get( [ key ], function ( result ) {
             if (result[ key ] === undefined) {
-                reject( defaultValue );
+                resolve( defaultValue );  // Changed from reject to resolve
             } else {
                 resolve( result[ key ] );
             }
