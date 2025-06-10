@@ -236,6 +236,7 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
             debugLog("Initial status: waiting (no cached stream)");
         } else {
             setStatusReady();
+            playReadySound(); // Play sound if stream is already cached
             debugLog("Initial status: ready (cached stream available)");
         }
     } catch (error) {
@@ -306,6 +307,42 @@ const statusIndicator = document.querySelector( "#status-indicator" );
 let recorder;
 let audio;
 // Note: All recording is now handled via background.js messaging
+
+// Audio feedback for stream ready
+let audioContext = null;
+
+/**
+ * Play a "ding" sound when microphone stream becomes ready
+ * Uses Web Audio API to generate a 800Hz sine wave
+ */
+function playReadySound() {
+    try {
+        // Lazy initialize AudioContext to avoid unnecessary overhead
+        if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        
+        const osc = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        osc.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        osc.frequency.value = 800; // Classic ding frequency
+        osc.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        
+        osc.start(audioContext.currentTime);
+        osc.stop(audioContext.currentTime + 0.5);
+        
+        debugLog("Ready sound played");
+    } catch (error) {
+        debugLog("Error playing ready sound:", error);
+        // Non-critical error - continue without sound
+    }
+}
 
 /**
  * Status Indicator Management Functions
@@ -389,6 +426,7 @@ recordButton.addEventListener( "click", async () => {
 
         // Brief ready state before recording starts
         setStatusReady();
+        playReadySound(); // Play the ding sound when stream is ready
         setTimeout(() => {
             setStatusRecording();
             debugLog("Sending start-recording command to background");
