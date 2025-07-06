@@ -25,8 +25,25 @@ module.exports = {
   // Coverage settings
   collectCoverageFrom: [
     "js/**/*.js",
-    "!js/lib/**/*.js"
+    "!js/lib/**/*.js",
+    "!js/auth/mocks/**/*.js"
   ],
+  
+  // Coverage thresholds for authentication components
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80
+    },
+    "js/auth/**/*.js": {
+      branches: 85,
+      functions: 85,
+      lines: 85,
+      statements: 85
+    }
+  },
   
   // Verbose output
   verbose: true

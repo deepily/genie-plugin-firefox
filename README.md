@@ -2,6 +2,31 @@
 
 A Firefox extension that records, transcribes and proofreads voice, pasting it to clipboard or browser-based editors.
 
+## Repository Relationship
+
+This Firefox extension is part of the larger **Lupin** (formerly "Genie-in-the-Box") project ecosystem:
+
+- **Parent Repository**: `genie-in-the-box` - Contains the FastAPI server, CoSA (Collection of Small Agents) framework, and WebSocket TTS system
+- **This Repository**: `genie-plugin-firefox` - Browser extension client that communicates with the parent server
+- **Location**: Embedded within the parent repo at `src/genie-plugin-firefox/`
+- **Independence**: While contained within the parent repo, this has its own package.json, build process, and release cycle
+
+### Architecture Integration
+
+The Firefox extension integrates with the parent Lupin system as follows:
+
+1. **Audio Processing**: Records audio and sends base64-encoded MP3 to `/api/upload-and-transcribe-mp3`
+2. **Agent Communication**: Sends "multimodal agent" prefixed commands that get queued in the CoSA system
+3. **Authentication**: Expected to provide session/websocket IDs for job tracking
+4. **Response Handling**: Expects specific JSON response format with `results`, `mode`, `prefix`, and `transcription` fields
+
+### Server Dependencies
+
+- **FastAPI Server**: Runs on port 7999 (configurable via `GIB_SERVER_ADDRESS`)
+- **WebSocket System**: For real-time job status and audio streaming
+- **CoSA Framework**: Processes agent requests through TodoFifoQueue system
+- **Authentication**: Mock token system for development
+
 ## Development Resources
 
 Check out our research and planning documents:
