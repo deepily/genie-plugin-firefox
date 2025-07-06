@@ -1,4 +1,7 @@
-// import { MODE_AGENT } from "./constants";
+// copied verbatim from the constant file since I can't import them here!!!
+const MODE_TRANSCRIPTION       = "transcription mode";
+const MODE_COMMAND             = "command-mode";
+const MODE_AGENT               = "agent mode";
 
 let lastKey   = "";
 let lastCode  = "";
@@ -6,23 +9,6 @@ let lastCode  = "";
 (function() {
 
     console.log( "content.js loading..." );
-
-    // 'use strict';
-
-    // const script = document.createElement('script');
-    // script.setAttribute( "type", "module" );
-    // script.setAttribute( "src", browser.extension.getURL( '/js/foo.js' ) );
-    // var head = document.head || document.getElementsByTagName( "head" )[0] || document.documentElement;
-    // head.insertBefore( script, head.lastChild );
-
-    // console.log( "content.js loading... FOO: [" + FOO + "]" );
-
-    // const script2 = document.createElement('script');
-    // script2.setAttribute( "type", "module" );
-    // script2.setAttribute( "src", browser.extension.getURL( '/js/bar.js' ) );
-    // head = document.head || document.getElementsByTagName( "head" )[0] || document.documentElement;
-    // head.insertBefore( script2, head.lastChild );
-
     /**
     * Check and set a global guard variable.
     * If this content script is injected into the same page again,
@@ -76,10 +62,7 @@ let lastCode  = "";
     }
     document.addEventListener( "selectionchange", () => {
 
-        // console.log( document.getSelection().toString() );
         if ( document.getSelection().toString() !== "" ) {
-            // console.log( "selectionchange event detected: empty selection" );
-        // } else {
             console.log( "Auto copying to the clipboard [" + document.getSelection().toString() + "]" );
             copyToClipboard( document.getSelection().toString() );
         }
@@ -110,28 +93,34 @@ let lastCode  = "";
         }
 
         if ( event.metaKey && event.altKey && [ "OSRight", "AltRight" ].includes( event.code ) ) {
-            console.log( "Background: Right command and right option detected" );
+            console.log( "Background: Right command + right option combination detected" );
             lastKey = "";
             lastCode = "";
             browser.runtime.sendMessage( {
-                "command": "agent mode"
+                "command": MODE_AGENT
+            } );
+        } else if ( event.key === "Alt" && event.code === "AltRight" && lastKey === "Meta" && lastCode === "MetaRight" ) {
+            console.log( "Background: MetaRight and AltRight keydown sequence detected" );
+            lastKey = "";
+            lastCode = "";
+            browser.runtime.sendMessage( {
+                "command": MODE_AGENT
             } );
         } else if ( event.key === "Meta" && event.code === "MetaRight" && lastKey === "Meta" && lastCode === "MetaRight" ) {
             console.log( "Background: Double MetaRight keydown detected" );
             lastKey = "";
             lastCode = "";
             browser.runtime.sendMessage( {
-                "command": "command-transcription"
+                "command": MODE_TRANSCRIPTION
             });
         } else if ( event.key === "Alt" && event.code === "AltRight" && lastKey === "Alt" && lastCode === "AltRight" ) {
             console.log( "Background: Double AltRight keydown detected" );
             lastKey = "";
             lastCode = "";
             browser.runtime.sendMessage( {
-                "command": "command-mode"
+                "command": MODE_COMMAND
             } );
         } else {
-            // console.log( "Not a double MetaRight nor AltRight keydown" );
             lastKey = event.key;
             lastCode = event.code;
         }
@@ -267,28 +256,6 @@ let lastCode  = "";
         } catch ( e ) {
             console.log( "document.execCommand( 'paste' ): " + e );
         }
-        // disable the entire block below to see what happens when we use the deprecating call everywhere
-        //
-        // var selection = document.getSelection()
-        //
-        // // test for selection before attempting to delete it: https://stackoverflow.com/questions/22935320/uncaught-indexsizeerror-failed-to-execute-getrangeat-on-selection-0-is-not
-        // if ( selection.rangeCount ) {
-        //     console.log( "selection.rangeCount: " + JSON.stringify( selection.rangeCount ) );
-        //     selection.deleteFromDocument()
-        // }
-        // try {
-        //
-        //     // TODO 1: Find a way to move the cursor to the end of the paste
-        //     // TODO 2: This paste command attempts to paste in all documents, not just the current document. The problem
-        //     //  Is you can't access a reference to the current tab within a content tab, which is kind of weird...
-        //     selection = document.getSelection()
-        //     selection.getRangeAt(0 ).insertNode( document.createTextNode( text + " " ) )
-        //     selection.removeAllRanges()
-        //
-        //     console.log( "paste() successful!" );
-        // } catch ( e ) {
-        //     console.log( "paste() failed: " + e );
-        // }
     }
     function pasteFromClipboard(){
         document.execCommand( "paste" )

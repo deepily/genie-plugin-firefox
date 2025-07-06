@@ -46,8 +46,6 @@ console.log( "background.js loading..." );
 
 let titleMode = "Transcription"
 
-// let counter = 0;
-
 window.addEventListener( "DOMContentLoaded", async (event) => {
 
     console.log( "DOM fully loaded and parsed, initializing global values..." );
@@ -62,34 +60,17 @@ window.addEventListener( "DOMContentLoaded", async (event) => {
     titleMode = titleMode[ 0 ].toUpperCase() + titleMode.slice( 1 );
     console.log( "titleMode [" + titleMode + "]" );
 
-    // loadContentScript();
     return true;
 } );
 
 console.log( "browser.commands.onCommand.addListener ..." )
 browser.commands.onCommand.addListener( ( command) => {
 
-    // console.log( "command [" + command + "]" )
-
     if ( command === "popup-vox-to-text" ) {
         displayRecorder( mode = "transcription" );
     }
-    // else if ( command === "open-editor" ) {
-    //
-    //     openNewTab( "html/editor-quill.html" )
-    // }
 });
 console.log( "browser.commands.onCommand.addListener ... Done?" )
-
-// browser.contextMenus.create( {
-//         id: "proofread",
-//         title: "Proofread",
-//         contexts: ["selection"]
-//     },
-//     // See https://extensionworkshop.com/documentation/develop/manifest-v3-migration-guide/#event-pages-and-backward-compatibility
-//     // for information on the purpose of this error capture.
-//     () => void browser.runtime.lastError,
-// );
 
 browser.contextMenus.create( {
         id: "transcribe–and–paste",
@@ -102,15 +83,6 @@ browser.contextMenus.create( {
 );
 
 browser.contextMenus.onClicked.addListener(async (info, tab) => {
-//
-//     if (info.menuItemId === "insert-modal" ) {
-//
-//         console.log( "insert-modal clicked [" + info.selectionText + "]" );
-//         console.log( "info: " + JSON.stringify(info) );
-//
-//         insertModal(info);
-//
-//     } else if (info.menuItemId === "whats-this-mean" ) {
     if (info.menuItemId === "whats-this-mean" ) {
 
         console.log( "whats-this-mean clicked [" + info.selectionText + "]" );
@@ -121,12 +93,6 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
 
             fetchWhatsThisMean(info).then((explanation) => {
                 console.log( "calling fetchWhatsThisMean()... done!" )
-                // console.log( "explanation: " + explanation);
-                // console.log( "calling doTextToSpeech()..." )
-                // doTextToSpeech( explanation ).then( ( audio ) => {
-                //     console.log( "calling doTextToSpeech()... done!" )
-                // } );
-                // } );
             });
         });
     } else if ( info.menuItemId === "proofread" ) {
@@ -302,10 +268,6 @@ function zoomInOut( tabId, zoom ) {
     let gettingZoom = browser.tabs.getZoom( tabId );
     gettingZoom.then( ( zoomFactor ) => {
 
-        // If the zoom factor is 0, then reset to the default value.
-        // if ( zoom = 0 ) {
-        //     newZoomFactor = ZOOM_DEFAULT;
-        // } else {
         if ( zoom != 0 ) {
             let incrementing = zoom > 0;
             newZoomFactor    = zoomFactor;
@@ -362,7 +324,7 @@ browser.runtime.onMessage.addListener(async ( message) => {
         console.log( "background.js: command-open-new-tab received" );
         browser.tabs.create( {url: message.url});
 
-    } else if ( message.command === "command-transcription" ) {
+    } else if ( message.command === MODE_TRANSCRIPTION ) {
 
         console.log( "background.js: 'command-transcription' received" );
         displayRecorder( mode=MODE_TRANSCRIPTION );
@@ -428,10 +390,245 @@ browser.runtime.onMessage.addListener(async ( message) => {
             command: VOX_CMD_OPEN_FILE
         } );
 
+    } else if ( message.command === "check-stream" ) {
+        
+        console.log("background.js: check-stream command received");
+        const needsNew = needsNewStream();
+        // Send response back to popup
+        browser.runtime.sendMessage({
+            command: "stream-status",
+            needsNewStream: needsNew
+        });
+        
+    } else if ( message.command === "start-recording" ) {
+        
+        console.log("background.js: start-recording command received");
+        const result = startRecording();
+        // Note: Response is sent via the MediaRecorder event handlers
+        
+    } else if ( message.command === "stop-recording" ) {
+        
+        console.log("background.js: stop-recording command received");
+        const result = stopRecording();
+        // Note: Response with audio data is sent via the MediaRecorder stop event
+        
     } else{
         console.log( "background.js: command NOT recognized: " + message.command );
     }
 } );
 console.log( "background.js: adding listener for messages... Done!" );
+
+// Test function for popup access
+function foo() {
+    console.log("Hello from background.js foo() method!");
+    return "Background method called successfully";
+}
+
+// ============================================================================
+// BACKGROUND AUDIO RECORDING MANAGEMENT
+// ============================================================================
+// This module manages audio recording in the persistent background context
+// to optimize latency by avoiding repeated getUserMedia() calls.
+//
+// Architecture: Popup handles getUserMedia (user context required), background
+// manages MediaRecorder and audio processing (persistent context preferred).
+// ============================================================================
+
+// Global variables for stream and recording management
+let cachedMediaStream = null;
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
+
+/**
+ * Checks if a new MediaStream is needed from the popup
+ * 
+ * Contract:
+ * - PRECONDITION: None (can be called anytime)
+ * - POSTCONDITION: Returns boolean indicating if new stream needed
+ * - SIDE EFFECTS: May clear dead object references and log to console
+ * - ERROR HANDLING: Catches dead object errors, assumes new stream needed
+ * 
+ * @returns {boolean} true if popup should acquire new MediaStream, false if cached stream is usable
+ */
+function needsNewStream() {
+    try {
+        // Check if stream exists and is active
+        const needs = !cachedMediaStream || !cachedMediaStream.active;
+        console.log("background.js: needsNewStream() - needs new stream:", needs);
+        return needs;
+    } catch (error) {
+        console.log("background.js: needsNewStream() - stream access error, needs new stream:", error);
+        // If we can't access the stream, we definitely need a new one
+        cachedMediaStream = null;
+        mediaRecorder = null;
+        return true;
+    }
+}
+
+/**
+ * Caches a MediaStream from popup and sets up cleanup handlers
+ * 
+ * Contract:
+ * - PRECONDITION: stream must be a valid MediaStream object
+ * - POSTCONDITION: Stream is cached, track end handlers attached
+ * - SIDE EFFECTS: Replaces existing cached stream, logs to console
+ * - ERROR HANDLING: Gracefully handles null/undefined streams
+ * 
+ * @param {MediaStream} stream - Active MediaStream from popup getUserMedia()
+ */
+function setCachedStream(stream) {
+    console.log("background.js: setCachedStream() called, caching stream");
+    cachedMediaStream = stream;
+    
+    // Add event listener to clear cache if stream ends
+    if (stream) {
+        stream.getTracks().forEach(track => {
+            track.addEventListener('ended', () => {
+                console.log("background.js: Stream track ended, clearing cache");
+                cachedMediaStream = null;
+                mediaRecorder = null;
+            });
+        });
+        console.log("background.js: Stream cached successfully");
+    }
+}
+
+/**
+ * Checks if background has a cached MediaStream
+ * 
+ * Contract:
+ * - PRECONDITION: None
+ * - POSTCONDITION: Returns boolean indicating cache status
+ * - SIDE EFFECTS: Logs result to console
+ * - ERROR HANDLING: None needed (simple boolean check)
+ * 
+ * @returns {boolean} true if MediaStream is cached, false otherwise
+ */
+function hasCachedStream() {
+    const hasStream = !!cachedMediaStream;
+    console.log("background.js: hasCachedStream() called, has stream:", hasStream);
+    return hasStream;
+}
+
+/**
+ * Starts audio recording using cached MediaStream
+ * 
+ * Contract:
+ * - PRECONDITION: Valid MediaStream must be cached via setCachedStream()
+ * - POSTCONDITION: Recording starts, MediaRecorder created with fresh event handlers
+ * - SIDE EFFECTS: Creates MediaRecorder, clears audioChunks, starts recording
+ * - ERROR HANDLING: Returns failure result if stream unavailable or dead
+ * 
+ * Performance Optimization: Creates fresh MediaRecorder instance each time
+ * to avoid state conflicts and ensures clean event handler attachment.
+ * 
+ * @returns {Object} {success: boolean, message: string} - Operation result
+ */
+function startRecording() {
+    try {
+        if (cachedMediaStream && cachedMediaStream.active) {
+            if (!mediaRecorder || mediaRecorder.state !== 'inactive') {
+                console.log("background.js: Creating fresh MediaRecorder");
+                // Create a fresh recorder if we've never made one, or after a stop
+                mediaRecorder = new MediaRecorder(cachedMediaStream);
+            
+            // (Re)attach event listeners
+            mediaRecorder.addEventListener("dataavailable", event => {
+                console.log("background.js: Audio chunk received, size:", event.data.size);
+                audioChunks.push(event.data);
+            });
+            
+            mediaRecorder.addEventListener("stop", async () => {
+                console.log("background.js: Recording stopped, processing audio chunks");
+                isRecording = false;
+                
+                // Create blob and convert to base64
+                const audioBlob = new Blob(audioChunks, { type: "audio/mpeg" });
+                const base64Audio = await blobToBase64(audioBlob);
+                
+                // Send result back to popup via message
+                browser.runtime.sendMessage({
+                    command: "recording-complete",
+                    audioData: base64Audio,
+                    mimeType: "audio/mpeg"
+                });
+                
+                console.log("background.js: Audio processing complete, sent to popup");
+            });
+        }
+        
+            console.log("background.js: Starting recording");
+            audioChunks = []; // Clear previous recording
+            mediaRecorder.start();
+            isRecording = true;
+            return { success: true, message: "Recording started" };
+        } else {
+            console.log("background.js: Cannot start recording, no cached stream available or stream inactive");
+            return { success: false, message: "No stream available or stream inactive" };
+        }
+    } catch (error) {
+        console.log("background.js: Error in startRecording:", error);
+        // Clean up dead references
+        cachedMediaStream = null;
+        mediaRecorder = null;
+        return { success: false, message: "Stream access error: " + error.message };
+    }
+}
+
+/**
+ * Stops active audio recording
+ * 
+ * Contract:
+ * - PRECONDITION: MediaRecorder must be in "recording" state
+ * - POSTCONDITION: Recording stops, "stop" event triggers audio processing
+ * - SIDE EFFECTS: Calls mediaRecorder.stop(), triggers async audio processing
+ * - ERROR HANDLING: Returns failure if not currently recording
+ * 
+ * @returns {Object} {success: boolean, message: string} - Operation result
+ */
+function stopRecording() {
+    if (mediaRecorder && mediaRecorder.state === "recording") {
+        console.log("background.js: Stopping recording");
+        mediaRecorder.stop();
+        return { success: true, message: "Recording stopped" };
+    } else {
+        console.log("background.js: Cannot stop recording, mediaRecorder state:", mediaRecorder?.state);
+        return { success: false, message: "MediaRecorder not recording" };
+    }
+}
+
+/**
+ * Converts audio Blob to base64 string
+ * 
+ * Contract:
+ * - PRECONDITION: blob must be valid Blob object
+ * - POSTCONDITION: Returns base64 string without data URL prefix
+ * - SIDE EFFECTS: Uses FileReader, processes asynchronously
+ * - ERROR HANDLING: Promise-based, caller should handle rejections
+ * 
+ * @param {Blob} blob - Audio blob to convert
+ * @returns {Promise<string>} Base64 encoded audio data (no prefix)
+ */
+async function blobToBase64(blob) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const result = reader.result;
+            // Extract base64 part (remove data:audio/mpeg;base64, prefix)
+            const base64 = result.split(',')[1];
+            resolve(base64);
+        };
+        reader.readAsDataURL(blob);
+    });
+}
+
+// Make functions available globally on the window object
+window.foo = foo;
+window.needsNewStream = needsNewStream;
+window.setCachedStream = setCachedStream;
+window.hasCachedStream = hasCachedStream;
+window.startRecording = startRecording;
+window.stopRecording = stopRecording;
 
 console.log( "background.js loading... Done!" );

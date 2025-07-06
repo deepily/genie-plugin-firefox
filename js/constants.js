@@ -105,7 +105,7 @@ export const SEARCH_URL_DDG            = "https://www.duckduckgo.com/";
 export const SEARCH_URL_PHIND          = "https://www.phind.com/search";
 export const SEARCH_URL_PERPLEXITY     = "https://www.perplexity.ai/search";
 
-export const ZOOM_INCREMENT = 0.075;
+export const ZOOM_INCREMENT = 0.125;
 export const ZOOM_MAX       = 5;
 export const ZOOM_MIN       = 0.3;
 export const ZOOM_DEFAULT   = 1;

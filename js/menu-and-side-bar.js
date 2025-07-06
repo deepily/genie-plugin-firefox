@@ -51,15 +51,6 @@ window.addEventListener( "DOMContentLoaded", (event) => {
         handleClickEvent( e );
     } );
 
-    // const cmbLinkMode = document.getElementById( "link-mode" );
-    // // set startup value
-    // // browser.storage.local.set( { "linkMode" : cmbLinkMode.value } );
-    // // Update value as it changes
-    // cmbLinkMode.addEventListener( "change", async (e) => {
-    //     console.log( "cmbLinkMode: " + cmbLinkMode.value )
-    //     browser.storage.local.set( { "linkMode" : cmbLinkMode.value } );
-    // } );
-
     loadContentScript();
 
     console.log( "DOM fully loaded and parsed, setting up message listener..." );
@@ -72,75 +63,15 @@ window.addEventListener( "DOMContentLoaded", (event) => {
 
 function handleMessages( message, sender ) {
 
-    console.log( "handleMessages() message: " + JSON.stringify( message ) );
-    // console.log( "sender: " + JSON.stringify( sender ) );
-
-    // None of these work all throw a very specific error: <input> picker was blocked due to lack of user activation.
-    // 1) document.getElementById( "file-selector" ).addEventListener( "change", handleOneFile, false);
-    // 1) document.getElementById( "file-selector" ).click();
-
-    // 2) handleClickEvent( { target: { id: "open-file-selector" } } );
-    // 3) document.getElementById( "open-file-selector" ).click();
-    // document.getElementById( "open-file-selector" ).focus( { force: true, focusVisible: true } );
+    console.log( "handleMessages() message: NO-OP" );
 }
-// window.onload = function() {
-//
-//     console.log( "window.onload()..." );
-//     fileSelect = document.getElementsByName( "fileSelect" )[ 0 ];
-//     fileElem = document.getElementsByName( "fileElem" )[ 0 ];
-//     fileList = document.getElementsByName( "fileList" )[ 0 ];
-//
-//     fileElem.addEventListener( "change", handleFiles, false);
-// }
 async function loadContentScript() {
 
-    // console.log( "Loading CONSTANTS script from w/in menu-and-side-bar.js..." );
-    // browser.tabs.executeScript( {file: "../js/constants.js" } )
-    // .then( () => { console.log( "Loading CONSTANTS script from w/in menu-and-side-bar.js... done!" ) } )
-    // .catch( reportExecuteScriptError );
-    //
-    // console.log( "Loading content script from w/in menu-and-side-bar.js..." );
-    // browser.tabs.executeScript( {file: "../js/content.js" } )
-    // .then( () => { console.log( "Loading content script from w/in menu-and-side-bar.js... done!" ) } )
-    // .catch( reportExecuteScriptError );
 }
-// document.addEventListener( "keypress", (event) => {
-//
-//     console.log( "key pressed: " + event.key );
-//
-//     if (event.key === "ArrowDown" ) {
-//
-//         console.log( "ArrowDown" )
-//         // currentFocus = document.activeElement;
-//         // for ( button in buttons ) {
-//         //     if ( button === currentFocus ) {
-//         //         console.log( "button has focus: " + button )
-//         //         break;
-//         //     }
-//         // }
-//     } else if (event.key === "ArrowUp" ) {
-//         console.log( "ArrowUp" )
-//     }
-// } );
 
 function reportExecuteScriptError( error) {
     console.error( `Failed to execute content script: ${error.message}` );
 }
-
-// document.getElementById( "link-mode" ).addEventListener( "change", async (e) => {
-//
-//     const cmbLinkMode = document.getElementById( "link-mode" );
-//     console.log( "cmbLinkMode: " + cmbLinkMode.value() )
-//     // if ( cmbLinkMode.checked ) {
-//     //     console.log( "Link mode: Drill Down" );
-//     //     browser.storage.local.set( { "linkMode" : "drill down" } );
-//     // } else {
-//     //     console.log( "Link mode: Open link new tab" );
-//     //     browser.storage.local.set( { "linkMode" : "new tab" } );
-//     // }
-//
-// } );
-
 
 async function handleClickEvent( e ) {
 
@@ -178,7 +109,7 @@ async function handleClickEvent( e ) {
 
         let response = await sendMessageToContentScripts( e.target.id )
 
-    } else if ( e.target.id === "command-mode" ) {
+    } else if ( e.target.id === MODE_COMMAND ) {
 
         displayRecorder(mode = MODE_COMMAND, prefix = STEM_MULTIMODAL_BROWSER, command = "mode" );
 
@@ -257,36 +188,25 @@ async function handleClickEvent( e ) {
         // verbatim copy and paste from web extension example "tabs tabs tabs": https://github.com/mdn/webextensions-examples/tree/main/tabs-tabs-tabs
     } else if ( e.target.id === "tabs-add-zoom" ) {
         callOnActiveTab(( tab) => {
-            // console.log( "tabs-add-zoom, tab: " + JSON.stringify( tab ) );
             console.log( "tabs-add-zoom, tab.id: " + tab.id );
             let gettingZoom = browser.tabs.getZoom( tab.id );
             gettingZoom.then((zoomFactor) => {
-                // //the maximum zoomFactor is 5, it can't go higher
-                // if (zoomFactor >= ZOOM_MAX) {
-                //     // alert( "Tab zoom factor is already at max!" );
-                // } else {
                 let newZoomFactor = zoomFactor + ZOOM_INCREMENT;
                 //if the newZoomFactor is set to higher than the max accepted
                 //it won't change, and will never alert that it's at maximum
                 newZoomFactor = newZoomFactor > ZOOM_MAX ? ZOOM_MAX : newZoomFactor;
                 browser.tabs.setZoom( tab.id, newZoomFactor);
-                // }
             });
         });
     } else if ( e.target.id === "tabs-decrease-zoom" ) {
         callOnActiveTab(( tab) => {
             let gettingZoom = browser.tabs.getZoom( tab.id );
             gettingZoom.then((zoomFactor) => {
-                //the minimum zoomFactor is 0.3, it can't go lower
-                // if (zoomFactor <= ZOOM_MIN) {
-                //     // alert( "Tab zoom factor is already at minimum!" );
-                // } else {
                 let newZoomFactor = zoomFactor - ZOOM_INCREMENT;
                 //if the newZoomFactor is set to lower than the min accepted
                 //it won't change, and will never alert that it's at minimum
                 newZoomFactor = newZoomFactor < ZOOM_MIN ? ZOOM_MIN : newZoomFactor;
                 browser.tabs.setZoom( tab.id, newZoomFactor);
-                // }
             });
         });
     } else if ( e.target.id === "tabs-default-zoom" ) {
@@ -313,11 +233,6 @@ async function handleClickEvent( e ) {
     } else if ( e.target.id === "link-mode" ) {
 
         console.log( "Link mode clicked..." );
-
-    // } else if ( e.target.id === "open-file-selector" || e.target.id === "file-selector" ) {
-    //
-    //     console.log( "open-file-selector clicked... " + e.target.id );
-    //     let response = await sendMessageToBackgroundScripts( e.target.id );
 
     // Moved this into the background script so that we can call it by voice also
     } else if ( e.target.id === "open-file-selector" ) {
@@ -358,7 +273,7 @@ export async function displayRecorder( mode=MODE_TRANSCRIPTION, prefix = "", tra
     });
     let lastTabId = lastTab.id;
     console.log( "lastTabId: " + lastTabId );
-    console.log( "lastTab: " + JSON.stringify( lastTab ) );
+    // console.log( "lastTab: " + JSON.stringify( lastTab ) );
 
     const result = await updateLocalStorage(mode, prefix, transcription, debug, lastTabId );
     console.log( "result: " + result);
@@ -371,14 +286,12 @@ export async function displayRecorder( mode=MODE_TRANSCRIPTION, prefix = "", tra
         height: 320,
         width: 256,
         allowScriptsToClose: true,
-        titlePreface: "Genie in The Box",
+        titlePreface: "CoSA",
         // callerFunction: messageToParentWindow
     };
     let creating = browser.windows.create(createData);
     let popupRecorderWindow = (await creating)
-    // popupRecorderWindow.callerFunction = messageToParentWindow
     popupRecorderWindowId = popupRecorderWindow.id;
-    // console.log( "popupRecorderWindow  : " + JSON.stringify(popupRecorderWindow));
     console.log( "popupRecorderWindowId: " + popupRecorderWindowId );
 }
 
@@ -400,10 +313,10 @@ export async function displayQueue() {
     } );
     let lastTabId = lastTab.id;
     console.log( "lastTabId: " + lastTabId );
-    console.log( "lastTab: " + JSON.stringify( lastTab ) );
+    // console.log( "lastTab: " + JSON.stringify( lastTab ) );
 
     let createData = {
-        url: GIB_SERVER_ADDRESS + "/static/queue.html",
+        url: GIB_SERVER_ADDRESS + "/static/html/queue.html",
         type: "popup",
         height: 1000,
         width: 400,

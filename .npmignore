@@ -1,0 +1,11 @@
+# npm ignore file
+.git/
+.github/
+node_modules/
+rnd/
+.gitignore
+web-ext-artifacts/
+*.xpi
+*.zip
+.DS_Store
+*.log

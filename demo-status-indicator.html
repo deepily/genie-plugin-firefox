@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Status Indicator Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    
+    .demo-container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      max-width: 400px;
+      margin: 20px auto;
+    }
+    
+    .status-indicator {
+      display: inline-block;
+      width: 28px;
+      height: 28px;
+      margin-right: 8px;
+      position: relative;
+      vertical-align: top;
+    }
+    
+    .status-indicator::before {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transition: all 0.3s ease;
+    }
+    
+    .status-indicator::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transition: all 0.3s ease;
+    }
+    
+    /* Gray State: Waiting for stream */
+    .status-indicator.waiting::before {
+      background-color: #666;
+      border: 2px solid #999;
+    }
+    
+    /* Green State: Ready to record */
+    .status-indicator.ready::before {
+      background-color: #4CAF50;
+    }
+    
+    .status-indicator.ready::after {
+      border-color: #4CAF50;
+      animation: pulse-ready 1s infinite;
+    }
+    
+    /* Red State: Recording */
+    .status-indicator.recording::before {
+      background-color: #F44336;
+    }
+    
+    .status-indicator.recording::after {
+      border-color: #F44336;
+      animation: pulse-record 0.5s infinite;
+    }
+    
+    @keyframes pulse-ready {
+      0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.7; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+    
+    @keyframes pulse-record {
+      0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+      50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.5; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+    
+    .demo-row {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    
+    .state-label {
+      font-weight: bold;
+      margin-left: 10px;
+    }
+    
+    button {
+      margin: 10px 5px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .btn-waiting { background: #666; color: white; }
+    .btn-ready { background: #4CAF50; color: white; }
+    .btn-recording { background: #F44336; color: white; }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <h2>Status Indicator Demo</h2>
+    <p>This shows the three states of the microphone status indicator:</p>
+    
+    <div class="demo-row">
+      <div class="status-indicator waiting" id="demo-indicator"></div>
+      <span class="state-label" id="state-label">Waiting for microphone...</span>
+    </div>
+    
+    <div>
+      <button class="btn-waiting" onclick="setState('waiting')">Waiting State</button>
+      <button class="btn-ready" onclick="setState('ready')">Ready State</button>
+      <button class="btn-recording" onclick="setState('recording')">Recording State</button>
+    </div>
+    
+    <div style="margin-top: 20px; font-size: 14px; color: #666;">
+      <strong>Option C: Power/Status Indicator</strong><br>
+      • Gray: Waiting for stream (○ with border)<br>
+      • Green: Ready to record (● with pulse ring)<br>
+      • Red: Recording (● with faster pulse ring)
+    </div>
+    
+    <div style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 20px;">
+      <h3>Sound Options (plays when stream becomes ready)</h3>
+      <button class="sound-btn" onclick="setSound('classic')" style="opacity: 1;">Classic Ding</button>
+      <button class="sound-btn" onclick="setSound('chime')" style="opacity: 0.6;">Soft Chime</button>
+      <button class="sound-btn" onclick="setSound('modern')" style="opacity: 0.6;">Modern Beep</button>
+      
+      <div style="margin-top: 10px; font-size: 12px; color: #888;">
+        <p>Test the transition: Click "Waiting State" then "Ready State" to hear the selected sound</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Web Audio API sound generation
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    
+    // Sound 1: Classic "ding" - high pitched bell
+    function playClassicDing() {
+      const osc = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      osc.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      osc.frequency.value = 800; // High pitched
+      osc.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+      
+      osc.start(audioContext.currentTime);
+      osc.stop(audioContext.currentTime + 0.5);
+    }
+    
+    // Sound 2: Soft chime - two-tone ascending
+    function playSoftChime() {
+      // First tone
+      const osc1 = audioContext.createOscillator();
+      const gainNode1 = audioContext.createGain();
+      
+      osc1.connect(gainNode1);
+      gainNode1.connect(audioContext.destination);
+      
+      osc1.frequency.value = 523.25; // C5
+      osc1.type = 'sine';
+      
+      gainNode1.gain.setValueAtTime(0.2, audioContext.currentTime);
+      gainNode1.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+      
+      osc1.start(audioContext.currentTime);
+      osc1.stop(audioContext.currentTime + 0.2);
+      
+      // Second tone (delayed)
+      const osc2 = audioContext.createOscillator();
+      const gainNode2 = audioContext.createGain();
+      
+      osc2.connect(gainNode2);
+      gainNode2.connect(audioContext.destination);
+      
+      osc2.frequency.value = 659.25; // E5
+      osc2.type = 'sine';
+      
+      gainNode2.gain.setValueAtTime(0.2, audioContext.currentTime + 0.15);
+      gainNode2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.35);
+      
+      osc2.start(audioContext.currentTime + 0.15);
+      osc2.stop(audioContext.currentTime + 0.35);
+    }
+    
+    // Sound 3: Modern notification - short pleasant beep
+    function playModernBeep() {
+      const osc = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      osc.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      // Frequency sweep for more interesting sound
+      osc.frequency.setValueAtTime(600, audioContext.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(900, audioContext.currentTime + 0.1);
+      osc.type = 'square';
+      
+      // Quick fade in and out
+      gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+      gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.02);
+      gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.08);
+      gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.1);
+      
+      osc.start(audioContext.currentTime);
+      osc.stop(audioContext.currentTime + 0.1);
+    }
+    
+    let selectedSound = 'classic'; // Default sound
+    let previousState = 'waiting';
+    
+    function setState(state) {
+      const indicator = document.getElementById('demo-indicator');
+      const label = document.getElementById('state-label');
+      
+      // Play sound when transitioning from waiting to ready
+      if (previousState === 'waiting' && state === 'ready') {
+        switch(selectedSound) {
+          case 'classic':
+            playClassicDing();
+            break;
+          case 'chime':
+            playSoftChime();
+            break;
+          case 'modern':
+            playModernBeep();
+            break;
+        }
+      }
+      
+      previousState = state;
+      indicator.className = 'status-indicator ' + state;
+      
+      switch(state) {
+        case 'waiting':
+          label.textContent = 'Waiting for microphone...';
+          break;
+        case 'ready':
+          label.textContent = 'Ready to record';
+          break;
+        case 'recording':
+          label.textContent = 'Recording...';
+          break;
+      }
+    }
+    
+    function setSound(soundType) {
+      selectedSound = soundType;
+      // Update button styles
+      document.querySelectorAll('.sound-btn').forEach(btn => {
+        btn.style.opacity = '0.6';
+      });
+      document.querySelector(`[onclick="setSound('${soundType}')"]`).style.opacity = '1';
+    }
+  </script>
+</body>
+</html>
