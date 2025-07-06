@@ -316,7 +316,7 @@ export async function displayQueue() {
     // console.log( "lastTab: " + JSON.stringify( lastTab ) );
 
     let createData = {
-        url: GIB_SERVER_ADDRESS + "/static/queue.html",
+        url: GIB_SERVER_ADDRESS + "/static/html/queue.html",
         type: "popup",
         height: 1000,
         width: 400,

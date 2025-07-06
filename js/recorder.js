@@ -608,7 +608,11 @@ saveButton.addEventListener( "click", async () => {
         
         // Show user-friendly error message
         alert("Server error occurred while processing audio. Please try again.");
-        
+        // Reset to original size
+        browser.windows.update(browser.windows.WINDOW_ID_CURRENT, {
+            width: currentWindow.width,
+            height: currentWindow.height
+        });
         // Reset status before closing
         setStatusWaiting();
         
